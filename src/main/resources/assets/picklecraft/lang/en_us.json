@@ -4,5 +4,7 @@
   "block.picklecraft.plumaria": "Plumaria",
   "block.picklecraft.ground_stack": "Ground Stack",
   "itemGroup.picklecraft": "PickleCraft",
-  "block.picklecraft.workbench": "Workbench"
+  "block.picklecraft.workbench": "Workbench",
+  "block.picklecraft.iron_furnace": "Iron Furnace",
+  "death.attack.picklecraft.superheated_iron": "%1$s grabbed superheated iron and died"
 }

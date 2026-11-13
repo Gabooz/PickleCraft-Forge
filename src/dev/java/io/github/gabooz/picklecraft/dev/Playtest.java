@@ -25,6 +25,7 @@ import java.util.Map;
 public final class Playtest {
     private boolean started;
     private boolean checked;
+    private int joinedTicks;
 
     public static void register() {
         TickEvent.ClientTickEvent.Post.BUS.addListener(new Playtest()::tick);
@@ -39,7 +40,7 @@ public final class Playtest {
                 new LevelSettings(name, GameType.SURVIVAL, LevelSettings.DifficultySettings.DEFAULT,
                     true, WorldDataConfiguration.DEFAULT),
                 new WorldOptions(12345L, true, false), WorldPresets::createNormalWorldDimensions, game.gui.screen());
-        } else if (!checked && game.player != null && game.getSingleplayerServer() != null) {
+        } else if (!checked && game.player != null && game.getSingleplayerServer() != null && ++joinedTicks >= 80) {
             checked = true;
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
@@ -83,6 +84,7 @@ public final class Playtest {
             "Sparse oak feature enabled in the Overworld");
         verifyGroundCraft(level, player);
         verifyWorkbench(level, player);
+        verifyIronFurnace(level, player);
         require(level.dimensionType().defaultClock().map(clock -> level.clockManager().getInstance(clock).rate() == 0.25F).orElse(false),
             "Overworld clock runs at quarter speed");
         require(!biome.shouldSnow(level, new BlockPos(pos.getX(), 250, pos.getZ())), "No snow at high altitude");
@@ -171,6 +173,11 @@ public final class Playtest {
         require(level.getBlockState(pos).is(io.github.gabooz.picklecraft.ground.GroundContent.WORKBENCH.get()), "Workbench replaced log");
         var bench = (io.github.gabooz.picklecraft.ground.GroundStack) level.getBlockEntity(pos);
         var items = net.minecraft.world.item.Items.OAK_LOG;
+        level.setBlockAndUpdate(pos.above(), Blocks.STONE.defaultBlockState());
+        player.setItemInHand(hand, items.getDefaultInstance());
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(bench.items().isEmpty() && player.getItemInHand(hand).is(items), "Covered workbench cannot be used");
+        level.setBlockAndUpdate(pos.above(), Blocks.AIR.defaultBlockState());
         player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(items, 2));
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
@@ -222,6 +229,63 @@ public final class Playtest {
             "Shift-click converts ground blossoms into one string");
 
     }
+    private static void verifyIronFurnace(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        var pos = player.blockPosition().offset(4, 3, 0);
+        var hand = net.minecraft.world.InteractionHand.MAIN_HAND;
+        var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos),
+            net.minecraft.core.Direction.NORTH, pos, false);
+        var click = new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, pos, hit);
+        level.setBlockAndUpdate(pos, Blocks.COBBLESTONE.defaultBlockState());
+        level.setBlockAndUpdate(pos.above(), Blocks.COBBLESTONE.defaultBlockState());
+        level.setBlockAndUpdate(pos.above(2), Blocks.AIR.defaultBlockState());
+        player.setItemInHand(hand, net.minecraft.world.item.Items.STONE_PICKAXE.getDefaultInstance());
+        player.setShiftKeyDown(true);
+        require(io.github.gabooz.picklecraft.ground.GroundInteractions.use(click), "Carve iron furnace");
+        player.setShiftKeyDown(false);
+        var state = level.getBlockState(pos);
+        var furnace = (io.github.gabooz.picklecraft.ground.IronFurnace) level.getBlockEntity(pos);
+        require(furnace != null && level.getBlockState(pos.above()).getValue(
+            io.github.gabooz.picklecraft.ground.IronFurnaceBlock.TOP), "Furnace has both halves");
+        var coal = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.COAL, 2);
+        player.setItemInHand(hand, coal);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(coal.getCount() == 1 && furnace.fuel().getCount() == 1, "Accept only one coal");
+        var raw = new net.minecraft.world.entity.item.ItemEntity(level, pos.getX() + .5, pos.getY() + 1.3,
+            pos.getZ() + .5, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.RAW_IRON, 2));
+        level.addFreshEntity(raw);
+        var ticker = state.getTicker(level, io.github.gabooz.picklecraft.ground.GroundContent.FURNACE_ENTITY.get());
+        ticker.tick(level, pos, state, furnace);
+        require(raw.getItem().getCount() == 1 && furnace.iron().getCount() == 1
+            && level.getBlockState(pos).getValue(io.github.gabooz.picklecraft.ground.IronFurnaceBlock.LIT),
+            "Smelt one dropped iron with one fuel");
+        var worldData = (net.minecraft.world.level.storage.ServerLevelData) level.getLevelData();
+        long start = level.getGameTime();
+        worldData.setGameTime(start + 1100);
+        ticker.tick(level, pos, state, furnace);
+        require(furnace.iron().is(net.minecraft.world.item.Items.IRON_INGOT), "Ingot appears after 55 seconds");
+        worldData.setGameTime(start + 1200);
+        ticker.tick(level, pos, state, furnace);
+        require(furnace.fuel().isEmpty() && !level.getBlockState(pos).getValue(
+            io.github.gabooz.picklecraft.ground.IronFurnaceBlock.LIT), "Fuel consumed and fire out at 60 seconds");
+        worldData.setGameTime(start + 7200);
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        float health = player.getHealth();
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(furnace.iron().isEmpty() && player.getHealth() == health, "Cooled iron is safe to retrieve");
+        player.setItemInHand(hand, net.minecraft.world.item.Items.CHARCOAL.getDefaultInstance());
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        ticker.tick(level, pos, state, furnace);
+        require(furnace.elapsed() == 0, "Charcoal starts the second batch");
+        worldData.setGameTime(start + 8400);
+        ticker.tick(level, pos, state, furnace);
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(!player.isAlive(), "Hot iron kills a player without fire protection");
+
+    }
+
     private static void require(boolean condition, String check) {
         if (!condition) {
             throw new AssertionError(check);

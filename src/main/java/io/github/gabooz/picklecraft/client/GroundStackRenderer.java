@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.gabooz.picklecraft.ground.GroundContent;
 import io.github.gabooz.picklecraft.ground.GroundStack;
+import io.github.gabooz.picklecraft.ground.WorkbenchBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -25,6 +26,7 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
 
     public static final class State extends BlockEntityRenderState {
         private boolean workbench;
+        private boolean cube;
         private final List<ItemStackRenderState> layers = new ArrayList<>();
     }
 
@@ -40,7 +42,10 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
         state.workbench = stack.getBlockState().is(GroundContent.WORKBENCH.get());
         state.layers.clear();
         var resolver = Minecraft.getInstance().getItemModelResolver();
-        for (var item : stack.items()) {
+        var items = stack.items();
+        state.cube = state.workbench && !items.isEmpty()
+            && items.getFirst().getItem() instanceof net.minecraft.world.item.BlockItem;
+        for (var item : items) {
             var model = new ItemStackRenderState();
             resolver.updateForTopItem(model, item, ItemDisplayContext.NONE, stack.getLevel(), null, 0);
             state.layers.add(model);
@@ -51,6 +56,13 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
     public void submit(State state, PoseStack poses, SubmitNodeCollector collector, CameraRenderState camera) {
         for (int i = 0; i < state.layers.size(); i++) {
             poses.pushPose();
+            if (state.cube) {
+                poses.translate(0.5, WorkbenchBlock.SURFACE_HEIGHT + 0.2 + i * 0.04, 0.5);
+                poses.scale(0.4F, 0.4F, 0.4F);
+                state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+                poses.popPose();
+                continue;
+            }
             if (state.workbench) {
                 poses.translate(0.5, 0.9 + i / 32.0, 0.5);
                 poses.rotateDegrees(Axis.YP, i * 13);

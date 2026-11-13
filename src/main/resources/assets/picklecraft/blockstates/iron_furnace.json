@@ -1,0 +1,36 @@
+{
+  "variants": {
+    "facing=north,top=false": {
+      "model": "picklecraft:block/iron_furnace_base",
+      "y": 0
+    },
+    "facing=north,top=true": {
+      "model": "picklecraft:block/iron_furnace_top",
+      "y": 0
+    },
+    "facing=east,top=false": {
+      "model": "picklecraft:block/iron_furnace_base",
+      "y": 90
+    },
+    "facing=east,top=true": {
+      "model": "picklecraft:block/iron_furnace_top",
+      "y": 90
+    },
+    "facing=south,top=false": {
+      "model": "picklecraft:block/iron_furnace_base",
+      "y": 180
+    },
+    "facing=south,top=true": {
+      "model": "picklecraft:block/iron_furnace_top",
+      "y": 180
+    },
+    "facing=west,top=false": {
+      "model": "picklecraft:block/iron_furnace_base",
+      "y": 270
+    },
+    "facing=west,top=true": {
+      "model": "picklecraft:block/iron_furnace_top",
+      "y": 270
+    }
+  }
+}

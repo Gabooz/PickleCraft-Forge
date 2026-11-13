@@ -47,3 +47,11 @@ The Overworld clock runs at quarter speed, giving an 80-minute cycle at 20 ticks
 The PickleCraft creative tab contains the Workbench, loose stone, placeable Plumaria, blossoms, stick, string, and all four stone tools. For natural spawns, explore newly generated chunks or create a fresh Default world.
 
 The Workbench accepts one input item at a time. Multi-item outputs stack on its surface. Take the output before adding another input.
+
+Keep the block above a Workbench clear to use it.
+
+## Iron Furnace
+
+Stack two cobblestone blocks vertically. Shift-right-click the lower block with a pickaxe to carve the furnace. Use one coal or charcoal on the lower opening and drop one raw iron, iron ore, or deepslate iron ore through the top. Shift-right-click the lower half with an empty hand to reclaim fuel before smelting begins.
+
+The ingot appears after 55 seconds. The fire goes out after one minute, and cooling takes another five minutes. Right-click the lower half with an empty hand to retrieve the ingot. Handling it while hot deals severe fire damage.

@@ -17,7 +17,12 @@ public final class GroundInteractions {
         InteractionResult result;
         var player = event.getEntity();
         var state = level.getBlockState(pos);
-        if (state.is(GroundContent.WORKBENCH.get()) && level.mayInteract(player, pos)) {
+        var carved = IronFurnaceBlock.carve(event);
+        if (carved.consumesAction()) {
+            result = carved;
+        } else if (state.is(GroundContent.IRON_FURNACE.get()) && level.mayInteract(player, pos)) {
+            result = IronFurnaceBlock.interact(event);
+        } else if (state.is(GroundContent.WORKBENCH.get()) && level.mayInteract(player, pos)) {
             result = WorkbenchBlock.use(event);
         } else if (player.isShiftKeyDown() && state.is(net.minecraft.tags.BlockTags.LOGS)
                 && held.is(net.minecraft.tags.ItemTags.AXES) && level.mayInteract(player, pos)) {
@@ -35,6 +40,9 @@ public final class GroundInteractions {
             }
             result = InteractionResult.SUCCESS;
         } else {
+            return false;
+        }
+        if (result == InteractionResult.PASS) {
             return false;
         }
         event.setCancellationResult(result);

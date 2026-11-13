@@ -60,6 +60,13 @@ public final class GroundContent {
                 output.accept(Items.STONE_AXE);
             }).build());
 
+    public static final RegistryObject<IronFurnaceBlock> IRON_FURNACE = BLOCKS.register("iron_furnace", () ->
+        new IronFurnaceBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("iron_furnace"))
+            .strength(3F).noOcclusion().sound(SoundType.STONE).pushReaction(PushReaction.IMMOVEABLE)
+            .lightLevel(state -> state.getValue(IronFurnaceBlock.LIT) ? 13 : 0)));
+    public static final RegistryObject<BlockEntityType<IronFurnace>> FURNACE_ENTITY = ENTITIES.register("iron_furnace",
+        () -> new BlockEntityType<>(IronFurnace::new, Set.of(IRON_FURNACE.get())));
+
     private GroundContent() {}
 
     public static void register(BusGroup bus) {

@@ -54,6 +54,9 @@ public final class WorkbenchBlock extends BaseEntityBlock {
         var player = event.getEntity();
         var pos = event.getPos();
         var held = event.getItemStack();
+        if (!level.isEmptyBlock(pos.above())) {
+            return InteractionResult.FAIL;
+        }
         if (!(level.getBlockEntity(pos) instanceof GroundStack bench)) {
             return InteractionResult.PASS;
         }

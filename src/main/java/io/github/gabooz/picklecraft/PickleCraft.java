@@ -2,11 +2,16 @@ package io.github.gabooz.picklecraft;
 
 import com.mojang.logging.LogUtils;
 import io.github.gabooz.picklecraft.client.InventoryScreens;
+import io.github.gabooz.picklecraft.client.GroundStackRenderer;
+import io.github.gabooz.picklecraft.ground.GroundContent;
+import io.github.gabooz.picklecraft.ground.GroundInteractions;
 import io.github.gabooz.picklecraft.world.OverworldFeatures;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -23,9 +28,20 @@ public final class PickleCraft {
     public PickleCraft(FMLJavaModLoadingContext context) {
         var modBus = context.getModBusGroup();
         OverworldFeatures.SERIALIZERS.register(modBus);
+        GroundContent.register(modBus);
+        PlayerInteractEvent.RightClickBlock.BUS.addListener(
+            GroundInteractions::use);
+        PlayerInteractEvent.LeftClickBlock.BUS.addListener(GroundInteractions::hit);
+        ServerStartedEvent.BUS.addListener(event -> {
+            var overworld = event.getServer().overworld();
+            overworld.dimensionType().defaultClock().ifPresent(clock -> overworld.clockManager().setRate(clock, 0.25F));
+        });
         EntityJoinLevelEvent.BUS.addListener(PickleCraft::preventOverworldMobs);
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            FMLClientSetupEvent.getBus(modBus).addListener(event -> InventoryScreens.register());
+            FMLClientSetupEvent.getBus(modBus).addListener(event -> {
+                InventoryScreens.register();
+                event.enqueueWork(GroundStackRenderer::register);
+            });
         }
         LOGGER.info("PickleCraft loaded");
     }

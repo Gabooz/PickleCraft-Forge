@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "blooming=true": {
+      "model": "picklecraft:block/plumaria_true"
+    },
+    "blooming=false": {
+      "model": "picklecraft:block/plumaria_false"
+    }
+  }
+}

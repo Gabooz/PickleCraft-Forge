@@ -35,3 +35,11 @@ Vanilla grid-crafting recipes are disabled in both inventories and crafting tabl
 The development client uses the wide Steve model. With an empty main hand, logs take two minutes, dirt takes 30 seconds, stone and deepslate take five minutes, and sand takes 15 seconds. Other breakable blocks with positive hardness take about a minute. Leaves and instant-break blocks keep their normal behavior.
 
 To run the automated playtest, use JDK 25 and run `.\gradlew.bat runClient -PpicklecraftSmokeTest`. The test creates a fresh Survival world under `build/playtest`, checks the inventory, Steve skin, mining rates, recipes, and Overworld settings, then exits on success. See `build/playtest/logs/latest.log`.
+
+## Ground materials and Plumaria
+
+Right-click the top of a solid block with a stick, string, or loose stone to place it. Add up to sixteen pieces. Right-click an exact stack of one of each with an empty hand to assemble a stone pickaxe. Right-click the tool to cycle through pickaxe, sword, shovel, and axe. Shift-right-click takes the top piece or the finished tool. Hitting a stack drops its contents.
+
+New Overworld chunks generate loose stones, sticks biased toward oak trees, and occasional single Plumaria plants or pairs. Right-click the flowering plant with an empty hand to collect blossoms. The leaves stay and the plant flowers again after seven Overworld days.
+
+The Overworld clock runs at quarter speed, giving an 80-minute cycle at 20 ticks per second. Night light varies with the moon. Full-moon sky and ambient light are 30 percent brighter than at new moon during the darkest part of the night.

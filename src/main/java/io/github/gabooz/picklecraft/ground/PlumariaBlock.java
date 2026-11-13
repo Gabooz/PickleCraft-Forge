@@ -34,6 +34,11 @@ public final class PlumariaBlock extends BaseEntityBlock {
     }
 
     @Override
+    protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        return GroundStackBlock.supported(level, pos);
+    }
+
+    @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }

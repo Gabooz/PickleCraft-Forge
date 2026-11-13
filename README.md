@@ -43,3 +43,5 @@ Right-click the top of a solid block with a stick, string, or loose stone to pla
 New Overworld chunks generate loose stones, sticks biased toward oak trees, and occasional single Plumaria plants or pairs. Right-click the flowering plant with an empty hand to collect blossoms. The leaves stay and the plant flowers again after seven Overworld days.
 
 The Overworld clock runs at quarter speed, giving an 80-minute cycle at 20 ticks per second. Night light varies with the moon. Full-moon sky and ambient light are 30 percent brighter than at new moon during the darkest part of the night.
+
+The PickleCraft creative tab contains the loose stone, placeable Plumaria, blossoms, stick, string, and all four stone tools. For natural spawns, explore newly generated chunks or create a fresh Default world.

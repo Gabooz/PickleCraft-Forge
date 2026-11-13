@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.BiomeTags;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -27,13 +29,13 @@ public record ForageFeature(boolean flowers) implements Feature {
             return random.nextInt(20) == 0 && placeFlowers(level, random, origin);
         }
         boolean placed = false;
-        for (int attempt = 0; attempt < 4; attempt++) {
+        for (int attempt = 0; attempt < 12; attempt++) {
             var pos = surface(level, origin.offset(random.nextInt(16), 0, random.nextInt(16)));
-            if (!level.getBlockState(pos.below()).is(BlockTags.DIRT)) {
+            if (!canForage(level, pos)) {
                 continue;
             }
-            boolean stick = random.nextInt(nearOak(level, pos) ? 2 : 30) == 0;
-            if (stick || random.nextInt(3) == 0) {
+            boolean stick = random.nextInt(nearOak(level, pos) ? 2 : 60) == 0;
+            if (stick || random.nextInt(4) == 0) {
                 var item = stick ? Items.STICK : GroundContent.STONE.get();
                 placed |= GroundStackBlock.place(level, pos, new ItemStack(item));
             }
@@ -42,7 +44,7 @@ public record ForageFeature(boolean flowers) implements Feature {
     }
 
     private static boolean placeFlowers(WorldGenLevel level, RandomSource random, BlockPos origin) {
-        for (int attempt = 0; attempt < 8; attempt++) {
+        for (int attempt = 0; attempt < 24; attempt++) {
             var pos = surface(level, origin.offset(2 + random.nextInt(12), 0, 2 + random.nextInt(12)));
             if (placeFlower(level, pos)) {
                 if (random.nextBoolean()) {
@@ -55,17 +57,37 @@ public record ForageFeature(boolean flowers) implements Feature {
     }
 
     private static boolean placeFlower(WorldGenLevel level, BlockPos pos) {
-        return level.isEmptyBlock(pos) && level.getBlockState(pos.below()).is(BlockTags.DIRT)
+        return canForage(level, pos)
             && level.setBlock(pos, GroundContent.PLUMARIA.get().defaultBlockState(), Block.UPDATE_CLIENTS);
     }
 
     private static BlockPos surface(WorldGenLevel level, BlockPos pos) {
-        return level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE_WG, pos);
+        // Use the current decorated surface. The worldgen surface can still point
+        // into a canopy or to the height before the surface pass.
+        var surface = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos);
+        while (surface.getY() > level.getMinY()) {
+            var below = level.getBlockState(surface.below());
+            if (!below.is(BlockTags.LOGS) && !below.is(BlockTags.LEAVES)) {
+                break;
+            }
+            surface = surface.below();
+        }
+        return surface;
+    }
+
+    private static boolean canForage(WorldGenLevel level, BlockPos pos) {
+        if (!level.getBiome(pos).is(BiomeTags.IS_OVERWORLD) || !level.isEmptyBlock(pos)
+                || !GroundStackBlock.supported(level, pos)) {
+            return false;
+        }
+        var soil = level.getBlockState(pos.below());
+        return soil.is(BlockTags.DIRT) || soil.is(BlockTags.SAND) || soil.is(BlockTags.BASE_STONE_OVERWORLD)
+            || soil.is(Blocks.GRAVEL) || soil.is(Blocks.TERRACOTTA);
     }
 
     private static boolean nearOak(WorldGenLevel level, BlockPos pos) {
         for (var nearby : BlockPos.betweenClosed(pos.offset(-5, -2, -5), pos.offset(5, 4, 5))) {
-            if (level.getBlockState(nearby).is(net.minecraft.world.level.block.Blocks.OAK_LOG)) {
+            if (level.getBlockState(nearby).is(Blocks.OAK_LOG)) {
                 return true;
             }
         }

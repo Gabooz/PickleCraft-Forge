@@ -41,6 +41,10 @@ public final class Playtest {
                 new WorldOptions(12345L, true, false), WorldPresets::createNormalWorldDimensions, game.gui.screen());
         } else if (!checked && game.player != null && game.getSingleplayerServer() != null) {
             checked = true;
+            var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
+            tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
+                game.level.enabledFeatures(), true, game.level.registryAccess()));
+            require(tab.getDisplayItems().size() == 9, "PickleCraft creative tab contains all nine entries");
             game.gui.setScreen(new InventoryScreen(game.player));
             require(game.gui.screen() instanceof SurvivalInventoryScreen, "Survival inventory screen");
             require(DefaultPlayerSkin.get(game.player.getUUID()).body().id().getPath().equals("entity/player/wide/steve"),

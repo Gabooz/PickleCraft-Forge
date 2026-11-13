@@ -43,12 +43,31 @@ public final class GroundContent {
 
     public static final RegistryObject<BlockItem> PLUMARIA_ITEM = ITEMS.register("plumaria", () ->
         new BlockItem(PLUMARIA.get(), new Item.Properties().setId(ITEMS.key("plumaria")).useBlockDescriptionPrefix()));
+    public static final RegistryObject<IronFurnaceBlock> IRON_FURNACE = BLOCKS.register("iron_furnace", () ->
+        new IronFurnaceBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("iron_furnace"))
+            .strength(3F).noOcclusion().sound(SoundType.STONE).pushReaction(PushReaction.IMMOVEABLE)
+            .lightLevel(state -> state.getValue(IronFurnaceBlock.LIT) ? 13 : 0)));
+    public static final RegistryObject<BlockEntityType<IronFurnace>> FURNACE_ENTITY = ENTITIES.register("iron_furnace",
+        () -> new BlockEntityType<>(IronFurnace::new, Set.of(IRON_FURNACE.get())));
+
+    public static final RegistryObject<BlockItem> IRON_FURNACE_ITEM = ITEMS.register("iron_furnace", () ->
+        new IronFurnaceItem(IRON_FURNACE.get(), new Item.Properties().setId(ITEMS.key("iron_furnace"))
+            .useBlockDescriptionPrefix()));
+
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("picklecraft", () ->
         CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.picklecraft"))
             .icon(() -> BLOSSOMS.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(WORKBENCH_ITEM.get());
+                output.accept(IRON_FURNACE_ITEM.get());
+                output.accept(Items.COBBLESTONE);
+                output.accept(Items.COAL);
+                output.accept(Items.CHARCOAL);
+                output.accept(Items.RAW_IRON);
+                output.accept(Items.IRON_ORE);
+                output.accept(Items.DEEPSLATE_IRON_ORE);
+                output.accept(Items.IRON_INGOT);
                 output.accept(STONE.get());
                 output.accept(PLUMARIA_ITEM.get());
                 output.accept(BLOSSOMS.get());
@@ -59,13 +78,6 @@ public final class GroundContent {
                 output.accept(Items.STONE_SHOVEL);
                 output.accept(Items.STONE_AXE);
             }).build());
-
-    public static final RegistryObject<IronFurnaceBlock> IRON_FURNACE = BLOCKS.register("iron_furnace", () ->
-        new IronFurnaceBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("iron_furnace"))
-            .strength(3F).noOcclusion().sound(SoundType.STONE).pushReaction(PushReaction.IMMOVEABLE)
-            .lightLevel(state -> state.getValue(IronFurnaceBlock.LIT) ? 13 : 0)));
-    public static final RegistryObject<BlockEntityType<IronFurnace>> FURNACE_ENTITY = ENTITIES.register("iron_furnace",
-        () -> new BlockEntityType<>(IronFurnace::new, Set.of(IRON_FURNACE.get())));
 
     private GroundContent() {}
 

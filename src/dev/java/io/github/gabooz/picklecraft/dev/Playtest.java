@@ -45,7 +45,7 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 10, "PickleCraft creative tab contains all ten entries");
+            require(tab.getDisplayItems().size() == 18, "PickleCraft creative tab contains all eighteen entries");
             game.gui.setScreen(new InventoryScreen(game.player));
             require(game.gui.screen() instanceof SurvivalInventoryScreen, "Survival inventory screen");
             require(DefaultPlayerSkin.get(game.player.getUUID()).body().id().getPath().equals("entity/player/wide/steve"),
@@ -231,6 +231,24 @@ public final class Playtest {
     }
     private static void verifyIronFurnace(net.minecraft.server.level.ServerLevel level,
             net.minecraft.server.level.ServerPlayer player) {
+        var itemPos = player.blockPosition().offset(-3, 3, 0);
+        var support = itemPos.below();
+        level.setBlockAndUpdate(support, Blocks.COBBLESTONE.defaultBlockState());
+        level.setBlockAndUpdate(itemPos, Blocks.AIR.defaultBlockState());
+        var furnaceItem = io.github.gabooz.picklecraft.ground.GroundContent.IRON_FURNACE_ITEM.get();
+        var itemStack = furnaceItem.getDefaultInstance();
+        var itemHit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(support),
+            net.minecraft.core.Direction.UP, support, false);
+        var placement = new net.minecraft.world.item.context.BlockPlaceContext(
+            player, net.minecraft.world.InteractionHand.MAIN_HAND, itemStack, itemHit);
+        level.setBlockAndUpdate(itemPos.above(), Blocks.COBBLESTONE.defaultBlockState());
+        require(!furnaceItem.place(placement).consumesAction() && itemStack.getCount() == 1
+            && level.isEmptyBlock(itemPos), "Creative tab furnace item requires room for both halves");
+        level.setBlockAndUpdate(itemPos.above(), Blocks.AIR.defaultBlockState());
+        require(furnaceItem.place(placement).consumesAction() && level.getBlockEntity(itemPos)
+            instanceof io.github.gabooz.picklecraft.ground.IronFurnace
+            && level.getBlockState(itemPos.above()).getValue(io.github.gabooz.picklecraft.ground.IronFurnaceBlock.TOP),
+            "Creative tab furnace item places both halves");
         var pos = player.blockPosition().offset(4, 3, 0);
         var hand = net.minecraft.world.InteractionHand.MAIN_HAND;
         var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos),

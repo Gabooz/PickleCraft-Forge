@@ -114,17 +114,24 @@ public final class IronFurnaceBlock extends BaseEntityBlock {
             Direction front = event.getHitVec().getDirection();
             if (front.getAxis().isVertical()) front = player.getDirection().getOpposite();
             var base = GroundContent.IRON_FURNACE.get().defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, front);
-            // Suppress neighbor updates until both halves exist.
-            var upper = level.getBlockState(pos.above());
-            if (level.setBlock(pos.above(), base.setValue(TOP, true), Block.UPDATE_CLIENTS)) {
-                if (level.setBlock(pos, base, Block.UPDATE_ALL)) {
-                    event.getItemStack().hurtAndBreak(1, player, event.getHand());
-                } else {
-                    level.setBlockAndUpdate(pos.above(), upper);
-                }
+            if (placePair(level, pos, base)) {
+                event.getItemStack().hurtAndBreak(1, player, event.getHand());
             }
         }
         return InteractionResult.SUCCESS;
+    }
+
+    static boolean placePair(Level level, BlockPos pos, BlockState base) {
+        var previousUpper = level.getBlockState(pos.above());
+        // The upper half must be present before the lower half updates its neighbors.
+        if (!level.setBlock(pos.above(), base.setValue(TOP, true), Block.UPDATE_CLIENTS)) {
+            return false;
+        }
+        if (level.setBlock(pos, base, Block.UPDATE_ALL_IMMEDIATE)) {
+            return true;
+        }
+        level.setBlockAndUpdate(pos.above(), previousUpper);
+        return false;
     }
 
     public static InteractionResult interact(PlayerInteractEvent.RightClickBlock event) {

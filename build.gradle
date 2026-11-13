@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '7.0.17'
+}
+
+group = 'io.github.gabooz'
+version = mod_version
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+
+minecraft {
+    runs {
+        configureEach {
+            // Keep development saves and logs under this project.
+            workingDir = layout.projectDirectory.dir('run')
+            systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+        }
+        register('client')
+        register('server') {
+            args '--nogui'
+        }
+    }
+}
+
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    mavenCentral()
+}
+
+dependencies {
+    implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+    annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.6'
+}
+
+tasks.named('processResources') {
+    // Keep the packaged mod metadata in sync with the build's pinned versions.
+    def metadata = [version: project.version, minecraft: minecraft_version, forge: forge_version]
+    inputs.properties(metadata)
+    filesMatching('META-INF/mods.toml') {
+        expand(metadata)
+    }
+}

@@ -29,15 +29,24 @@ public record ForageFeature(boolean flowers) implements Feature {
             return random.nextInt(20) == 0 && placeFlowers(level, random, origin);
         }
         boolean placed = false;
-        for (int attempt = 0; attempt < 12; attempt++) {
+        int stones = 0;
+        int sticks = 0;
+        for (int attempt = 0; attempt < 20; attempt++) {
             var pos = surface(level, origin.offset(random.nextInt(16), 0, random.nextInt(16)));
             if (!canForage(level, pos)) {
                 continue;
             }
-            boolean stick = random.nextInt(nearOak(level, pos) ? 2 : 60) == 0;
-            if (stick || random.nextInt(4) == 0) {
+            boolean stick = sticks < 3 && random.nextInt(nearOak(level, pos) ? 2 : 18) == 0;
+            if (stick || stones < 4) {
                 var item = stick ? Items.STICK : GroundContent.STONE.get();
-                placed |= GroundStackBlock.place(level, pos, new ItemStack(item));
+                if (GroundStackBlock.place(level, pos, new ItemStack(item))) {
+                    placed = true;
+                    if (stick) {
+                        sticks++;
+                    } else {
+                        stones++;
+                    }
+                }
             }
         }
         return placed;

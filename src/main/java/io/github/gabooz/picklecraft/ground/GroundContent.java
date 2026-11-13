@@ -28,10 +28,16 @@ public final class GroundContent {
     public static final RegistryObject<PlumariaBlock> PLUMARIA = BLOCKS.register("plumaria", () ->
         new PlumariaBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("plumaria"))
             .noCollision().noOcclusion().instabreak().noLootTable().sound(SoundType.GRASS).pushReaction(PushReaction.POPPED)));
+    public static final RegistryObject<WorkbenchBlock> WORKBENCH = BLOCKS.register("workbench", () ->
+        new WorkbenchBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("workbench"))
+            .strength(2F).noOcclusion().sound(SoundType.WOOD).pushReaction(PushReaction.IMMOVEABLE)));
+    public static final RegistryObject<BlockItem> WORKBENCH_ITEM = ITEMS.register("workbench", () ->
+        new BlockItem(WORKBENCH.get(), new Item.Properties().setId(ITEMS.key("workbench")).useBlockDescriptionPrefix()));
+
     public static final RegistryObject<Item> STONE = ITEMS.register("loose_stone", () -> new Item(new Item.Properties().setId(ITEMS.key("loose_stone"))));
     public static final RegistryObject<Item> BLOSSOMS = ITEMS.register("plumaria_blossoms", () -> new Item(new Item.Properties().setId(ITEMS.key("plumaria_blossoms"))));
     public static final RegistryObject<BlockEntityType<GroundStack>> STACK_ENTITY = ENTITIES.register("ground_stack",
-        () -> new BlockEntityType<>(GroundStack::new, Set.of(STACK.get())));
+        () -> new BlockEntityType<>(GroundStack::new, Set.of(STACK.get(), WORKBENCH.get())));
     public static final RegistryObject<BlockEntityType<PlumariaGrowth>> PLUMARIA_ENTITY = ENTITIES.register("plumaria",
         () -> new BlockEntityType<>(PlumariaGrowth::new, Set.of(PLUMARIA.get())));
 
@@ -42,6 +48,7 @@ public final class GroundContent {
             .title(Component.translatable("itemGroup.picklecraft"))
             .icon(() -> BLOSSOMS.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
+                output.accept(WORKBENCH_ITEM.get());
                 output.accept(STONE.get());
                 output.accept(PLUMARIA_ITEM.get());
                 output.accept(BLOSSOMS.get());

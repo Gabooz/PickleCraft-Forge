@@ -44,7 +44,7 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 9, "PickleCraft creative tab contains all nine entries");
+            require(tab.getDisplayItems().size() == 10, "PickleCraft creative tab contains all ten entries");
             game.gui.setScreen(new InventoryScreen(game.player));
             require(game.gui.screen() instanceof SurvivalInventoryScreen, "Survival inventory screen");
             require(DefaultPlayerSkin.get(game.player.getUUID()).body().id().getPath().equals("entity/player/wide/steve"),
@@ -82,6 +82,7 @@ public final class Playtest {
         require(biome.getGenerationSettings().features().get(Decoration.VEGETAL_DECORATION.ordinal()).contains(oak),
             "Sparse oak feature enabled in the Overworld");
         verifyGroundCraft(level, player);
+        verifyWorkbench(level, player);
         require(level.dimensionType().defaultClock().map(clock -> level.clockManager().getInstance(clock).rate() == 0.25F).orElse(false),
             "Overworld clock runs at quarter speed");
         require(!biome.shouldSnow(level, new BlockPos(pos.getX(), 250, pos.getZ())), "No snow at high altitude");
@@ -153,6 +154,41 @@ public final class Playtest {
         level.clockManager().setTotalTicks(clock, time + io.github.gabooz.picklecraft.ground.PlumariaBlock.WEEK);
         level.getBlockState(pos).tick(level, pos, level.getRandom());
         require(level.getBlockState(pos).getValue(blooming), "Plumaria blooms after one week");
+    }
+    private static void verifyWorkbench(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        var pos = player.blockPosition().offset(2, 2, 0);
+        level.setBlockAndUpdate(pos, Blocks.OAK_LOG.defaultBlockState());
+        var hand = net.minecraft.world.InteractionHand.MAIN_HAND;
+        var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos),
+            net.minecraft.core.Direction.EAST, pos, false);
+        var click = new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, pos, hit);
+        var axe = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STONE_AXE);
+        player.setItemInHand(hand, axe);
+        player.setShiftKeyDown(true);
+        require(io.github.gabooz.picklecraft.ground.GroundInteractions.use(click), "Carve the workbench");
+        player.setShiftKeyDown(false);
+        require(level.getBlockState(pos).is(io.github.gabooz.picklecraft.ground.GroundContent.WORKBENCH.get()), "Workbench replaced log");
+        var bench = (io.github.gabooz.picklecraft.ground.GroundStack) level.getBlockEntity(pos);
+        var items = net.minecraft.world.item.Items.OAK_LOG;
+        for (int i = 0; i < 16; i++) {
+            player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(items));
+            io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        }
+        require(bench.items().size() == 16, "Workbench holds sixteen items");
+        player.setItemInHand(hand, axe);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(bench.items().getLast().is(net.minecraft.world.item.Items.OAK_PLANKS), "Axe processes the last log");
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(bench.items().size() == 16 && bench.items().getLast().is(net.minecraft.world.item.Items.STICK), "Workbench ejects excess output");
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(bench.items().size() == 15 && bench.items().getLast().is(items), "Empty hand removes last item");
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        player.setShiftKeyDown(true);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        player.setShiftKeyDown(false);
+        require(bench.items().isEmpty(), "Shift-click clears workbench");
     }
     private static void require(boolean condition, String check) {
         if (!condition) {

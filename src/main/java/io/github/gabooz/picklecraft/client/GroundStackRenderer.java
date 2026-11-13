@@ -24,6 +24,7 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
     }
 
     public static final class State extends BlockEntityRenderState {
+        private boolean workbench;
         private final List<ItemStackRenderState> layers = new ArrayList<>();
     }
 
@@ -36,6 +37,7 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
     public void extractRenderState(GroundStack stack, State state, float partialTicks, Vec3 camera,
             ModelFeatureRenderer.CrumblingOverlay breaking) {
         BlockEntityRenderer.super.extractRenderState(stack, state, partialTicks, camera, breaking);
+        state.workbench = stack.getBlockState().is(GroundContent.WORKBENCH.get());
         state.layers.clear();
         var resolver = Minecraft.getInstance().getItemModelResolver();
         for (var item : stack.items()) {
@@ -49,10 +51,15 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
     public void submit(State state, PoseStack poses, SubmitNodeCollector collector, CameraRenderState camera) {
         for (int i = 0; i < state.layers.size(); i++) {
             poses.pushPose();
-            poses.translate(0.5, (i + 0.5) / 16.0, 0.5);
-            poses.rotateDegrees(Axis.YP, i * 37);
+            if (state.workbench) {
+                poses.translate((i % 4 + 0.5) / 4.0, 0.894, (i / 4 + 0.5) / 4.0);
+            } else {
+                poses.translate(0.5, (i + 0.5) / 16.0, 0.5);
+                poses.rotateDegrees(Axis.YP, i * 37);
+            }
             poses.rotateDegrees(Axis.XP, -90);
-            poses.scale(0.74F, 0.74F, 0.9F);
+            float scale = state.workbench ? 0.21F : 0.92F;
+            poses.scale(scale, scale, state.workbench ? 0.16F : 0.9F);
             state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
             poses.popPose();
         }

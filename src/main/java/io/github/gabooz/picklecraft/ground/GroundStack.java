@@ -41,11 +41,25 @@ public final class GroundStack extends BlockEntity {
         add(item);
     }
 
+    void process(int index, ItemStack output) {
+        items.set(index, output.copyWithCount(1));
+        int extra = output.getCount() - 1;
+        while (extra > 0 && items.size() < CAPACITY) {
+            items.add(output.copyWithCount(1));
+            extra--;
+        }
+        sync();
+        if (extra > 0) {
+            Block.popResource(level, worldPosition.above(), output.copyWithCount(extra));
+        }
+    }
+
     private void sync() {
         setChanged();
         if (level != null && !level.isClientSide()) {
             var state = getBlockState();
-            var updated = state.setValue(GroundStackBlock.LAYERS, Math.max(1, items.size()));
+            var updated = state.hasProperty(GroundStackBlock.LAYERS)
+                ? state.setValue(GroundStackBlock.LAYERS, Math.max(1, items.size())) : state;
             if (updated != state) {
                 level.setBlock(worldPosition, updated, Block.UPDATE_ALL);
             }

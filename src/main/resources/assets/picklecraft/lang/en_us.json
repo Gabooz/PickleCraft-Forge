@@ -3,5 +3,6 @@
   "item.picklecraft.plumaria_blossoms": "Plumaria Blossoms",
   "block.picklecraft.plumaria": "Plumaria",
   "block.picklecraft.ground_stack": "Ground Stack",
-  "itemGroup.picklecraft": "PickleCraft"
+  "itemGroup.picklecraft": "PickleCraft",
+  "block.picklecraft.workbench": "Workbench"
 }

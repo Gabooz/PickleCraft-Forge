@@ -15,7 +15,17 @@ public final class GroundInteractions {
         var pos = event.getPos();
         var held = event.getItemStack();
         InteractionResult result;
-        if (level.getBlockState(pos).is(GroundContent.STACK.get()) && level.mayInteract(event.getEntity(), pos)) {
+        var player = event.getEntity();
+        var state = level.getBlockState(pos);
+        if (state.is(GroundContent.WORKBENCH.get()) && level.mayInteract(player, pos)) {
+            result = WorkbenchBlock.use(event);
+        } else if (player.isShiftKeyDown() && state.is(net.minecraft.tags.BlockTags.LOGS)
+                && held.is(net.minecraft.tags.ItemTags.AXES) && level.mayInteract(player, pos)) {
+            if (!level.isClientSide() && level.setBlockAndUpdate(pos, GroundContent.WORKBENCH.get().defaultBlockState())) {
+                held.hurtAndBreak(1, player, event.getHand());
+            }
+            result = InteractionResult.SUCCESS;
+        } else if (state.is(GroundContent.STACK.get()) && level.mayInteract(player, pos)) {
             result = GroundStackBlock.interact(level, pos, event.getEntity(), held);
         } else if (event.getHitVec().getDirection() == Direction.UP && GroundContent.isMaterial(held)
                 && level.mayInteract(event.getEntity(), pos.above()) && level.isEmptyBlock(pos.above())

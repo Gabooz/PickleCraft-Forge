@@ -4,6 +4,11 @@ plugins {
     id 'net.minecraftforge.gradle' version '7.0.17'
 }
 
+def smokeTest = providers.gradleProperty('picklecraftSmokeTest').isPresent()
+if (smokeTest) {
+    sourceSets.main.java.srcDir('src/dev/java')
+}
+
 group = 'io.github.gabooz'
 version = mod_version
 
@@ -20,7 +25,14 @@ minecraft {
             systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
             args '--mixin.config', 'picklecraft.mixins.json'
         }
-        register('client')
+        register('client') {
+            if (smokeTest) {
+                workingDir = layout.buildDirectory.dir('playtest').get()
+                systemProperty 'picklecraft.smokeTest', 'true'
+            }
+            // The offline skin table selects wide Steve for this profile ID.
+            args '--username', 'Steve', '--uuid', '00000000-0000-4000-8000-00000000000d'
+        }
         register('server') {
             args '--nogui'
         }
@@ -44,6 +56,7 @@ sourceSets.main.output.resourcesDir = layout.buildDirectory.dir('classes/java/ma
 
 tasks.named('jar') {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    exclude '**/dev/**'
     manifest.attributes('MixinConfigs': 'picklecraft.mixins.json')
 }
 

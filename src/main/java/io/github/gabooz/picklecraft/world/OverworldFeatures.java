@@ -36,6 +36,8 @@ public final class OverworldFeatures implements BiomeModifier {
         if (phase != Phase.REMOVE || !biome.is(BiomeTags.IS_OVERWORLD)) {
             return;
         }
+        builder.climateSettings().setTemperature(Math.max(0.8F, builder.climateSettings().getTemperature()));
+        builder.climateSettings().setTemperatureModifier(Biome.TemperatureModifier.NONE);
         builder.attributes().set(EnvironmentAttributes.NATURAL_MOB_SPAWNS, MobSpawnSettings.EMPTY);
         for (Decoration step : Decoration.values()) {
             builder.generationSettings().getFeatures(step).removeIf(feature ->
@@ -49,6 +51,8 @@ public final class OverworldFeatures implements BiomeModifier {
             || step == Decoration.SURFACE_STRUCTURES
             || step == Decoration.UNDERGROUND_STRUCTURES
             || (path.startsWith("ore_") && !TERRAIN_DEPOSITS.contains(path))
+            || path.startsWith("iceberg_")
+            || path.equals("freeze_top_layer")
             || path.startsWith("sculk_")
             || path.contains("rooted")
             || path.equals("amethyst_geode");

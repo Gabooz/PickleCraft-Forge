@@ -1,0 +1,6 @@
+{
+    "type": "forge:add_features",
+    "biomes": "#minecraft:is_overworld",
+    "features": "picklecraft:sparse_oak",
+    "step": "vegetal_decoration"
+}

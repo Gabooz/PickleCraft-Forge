@@ -28,6 +28,10 @@ After the GitHub remote and branch tracking are configured, double-click **Sync 
 
 ## World generation prototype
 
-Create a new Default world to test the prototype. It uses vanilla Overworld terrain and biome distribution, with vanilla ore deposits and large veins, foliage, mob spawning, and structure generation disabled. Previously generated blocks remain in existing saves. The Overworld also rejects mobs that try to enter it, including mobs loaded from older saves.
+Create a new Default world to test the prototype. It uses vanilla Overworld terrain and biome distribution, with vanilla ore deposits and large veins, foliage, mob spawning, structure generation, and snow and ice generation disabled. Sparse oaks are the exception to the foliage removal. Each chunk has a 60% chance of one placement attempt, which can fail on water or unsuitable ground. Previously generated blocks remain in existing saves. The Overworld also rejects mobs that try to enter it, including mobs loaded from older saves.
 
 Vanilla grid-crafting recipes are disabled in both inventories and crafting tables. The survival inventory has no crafting grid or recipe-book button. Furnace and other non-grid recipes are still available.
+
+The development client uses the wide Steve model. With an empty main hand, logs take two minutes, dirt takes 30 seconds, stone and deepslate take five minutes, and sand takes 15 seconds. Other breakable blocks with positive hardness take about a minute. Leaves and instant-break blocks keep their normal behavior.
+
+To run the automated playtest, use JDK 25 and run `.\gradlew.bat runClient -PpicklecraftSmokeTest`. The test creates a fresh Survival world under `build/playtest`, checks the inventory, Steve skin, mining rates, recipes, and Overworld settings, then exits on success. See `build/playtest/logs/latest.log`.

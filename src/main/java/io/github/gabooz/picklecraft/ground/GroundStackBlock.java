@@ -79,6 +79,18 @@ public final class GroundStackBlock extends BaseEntityBlock {
         if (items.isEmpty()) {
             return InteractionResult.PASS;
         }
+        // Blossoms are processed on their own, outside the tool-assembly stack.
+        if (items.size() == 1 && items.getFirst().is(GroundContent.BLOSSOMS.get())) {
+            if (player.isShiftKeyDown()) {
+                if (!level.isClientSide()) {
+                    stack.replaceWith(new ItemStack(Items.STRING));
+                }
+                return InteractionResult.SUCCESS;
+            }
+            if (!held.isEmpty()) {
+                return InteractionResult.FAIL;
+            }
+        }
         int tool = items.size() == 1 ? TOOLS.indexOf(items.getFirst().getItem()) : -1;
         if (!player.isShiftKeyDown() && !held.isEmpty()) {
             if (tool >= 0 || !GroundContent.isMaterial(held) || items.size() == GroundStack.CAPACITY) {

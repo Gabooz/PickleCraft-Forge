@@ -28,25 +28,26 @@ public record ForageFeature(boolean flowers) implements Feature {
         if (flowers) {
             return random.nextInt(20) == 0 && placeFlowers(level, random, origin);
         }
+        // Roll once per chunk for each surface, then look for a suitable column.
+        boolean grass = random.nextInt(2) == 0;
+        boolean sand = random.nextInt(20) == 0;
         boolean placed = false;
-        int stones = 0;
-        int sticks = 0;
-        for (int attempt = 0; attempt < 20; attempt++) {
+        for (int attempt = 0; attempt < 32 && (grass || sand); attempt++) {
             var pos = surface(level, origin.offset(random.nextInt(16), 0, random.nextInt(16)));
             if (!canForage(level, pos)) {
                 continue;
             }
-            boolean stick = sticks < 3 && random.nextInt(nearOak(level, pos) ? 2 : 18) == 0;
-            if (stick || stones < 4) {
-                var item = stick ? Items.STICK : GroundContent.STONE.get();
-                if (GroundStackBlock.place(level, pos, new ItemStack(item))) {
-                    placed = true;
-                    if (stick) {
-                        sticks++;
-                    } else {
-                        stones++;
-                    }
-                }
+            var soil = level.getBlockState(pos.below());
+            boolean onGrass = grass && soil.is(Blocks.GRASS_BLOCK);
+            boolean onSand = sand && soil.is(BlockTags.SAND);
+            if (!onGrass && !onSand) {
+                continue;
+            }
+            boolean stick = random.nextInt(nearOak(level, pos) ? 2 : 6) == 0;
+            if (GroundStackBlock.place(level, pos, new ItemStack(stick ? Items.STICK : GroundContent.STONE.get()))) {
+                placed = true;
+                grass &= !onGrass;
+                sand &= !onSand;
             }
         }
         return placed;
@@ -66,7 +67,7 @@ public record ForageFeature(boolean flowers) implements Feature {
     }
 
     private static boolean placeFlower(WorldGenLevel level, BlockPos pos) {
-        return canForage(level, pos)
+        return canForage(level, pos) && level.getBlockState(pos.below()).is(Blocks.GRASS_BLOCK)
             && level.setBlock(pos, GroundContent.PLUMARIA.get().defaultBlockState(), Block.UPDATE_CLIENTS);
     }
 
@@ -85,13 +86,8 @@ public record ForageFeature(boolean flowers) implements Feature {
     }
 
     private static boolean canForage(WorldGenLevel level, BlockPos pos) {
-        if (!level.getBiome(pos).is(BiomeTags.IS_OVERWORLD) || !level.isEmptyBlock(pos)
-                || !GroundStackBlock.supported(level, pos)) {
-            return false;
-        }
-        var soil = level.getBlockState(pos.below());
-        return soil.is(BlockTags.DIRT) || soil.is(BlockTags.SAND) || soil.is(BlockTags.BASE_STONE_OVERWORLD)
-            || soil.is(Blocks.GRAVEL) || soil.is(Blocks.TERRACOTTA);
+        return level.getBiome(pos).is(BiomeTags.IS_OVERWORLD) && level.isEmptyBlock(pos)
+            && GroundStackBlock.supported(level, pos);
     }
 
     private static boolean nearOak(WorldGenLevel level, BlockPos pos) {

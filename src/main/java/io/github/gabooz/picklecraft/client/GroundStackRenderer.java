@@ -52,13 +52,14 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
         for (int i = 0; i < state.layers.size(); i++) {
             poses.pushPose();
             if (state.workbench) {
-                poses.translate((i % 4 + 0.5) / 4.0, 0.894, (i / 4 + 0.5) / 4.0);
+                poses.translate(0.5, 0.9 + i / 32.0, 0.5);
+                poses.rotateDegrees(Axis.YP, i * 13);
             } else {
                 poses.translate(0.5, (i + 0.5) / 16.0, 0.5);
                 poses.rotateDegrees(Axis.YP, i * 37);
             }
             poses.rotateDegrees(Axis.XP, -90);
-            float scale = state.workbench ? 0.21F : 0.92F;
+            float scale = state.workbench ? 0.55F : 0.92F;
             poses.scale(scale, scale, state.workbench ? 0.16F : 0.9F);
             state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
             poses.popPose();

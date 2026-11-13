@@ -171,24 +171,56 @@ public final class Playtest {
         require(level.getBlockState(pos).is(io.github.gabooz.picklecraft.ground.GroundContent.WORKBENCH.get()), "Workbench replaced log");
         var bench = (io.github.gabooz.picklecraft.ground.GroundStack) level.getBlockEntity(pos);
         var items = net.minecraft.world.item.Items.OAK_LOG;
-        for (int i = 0; i < 16; i++) {
-            player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(items));
-            io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
-        }
-        require(bench.items().size() == 16, "Workbench holds sixteen items");
+        player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(items, 2));
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(bench.items().size() == 1 && player.getItemInHand(hand).getCount() == 1,
+            "Workbench accepts only one input");
         player.setItemInHand(hand, axe);
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
         require(bench.items().getLast().is(net.minecraft.world.item.Items.OAK_PLANKS), "Axe processes the last log");
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
-        require(bench.items().size() == 16 && bench.items().getLast().is(net.minecraft.world.item.Items.STICK), "Workbench ejects excess output");
+        require(bench.items().size() == 4 && bench.items().getLast().is(net.minecraft.world.item.Items.STICK),
+            "Workbench stacks all four output items");
+        player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(items));
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(bench.items().size() == 4 && player.getItemInHand(hand).is(items), "Output blocks additional inputs");
         player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
-        require(bench.items().size() == 15 && bench.items().getLast().is(items), "Empty hand removes last item");
+        require(bench.items().size() == 3, "Empty hand removes last item");
         player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
         player.setShiftKeyDown(true);
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
         player.setShiftKeyDown(false);
         require(bench.items().isEmpty(), "Shift-click clears workbench");
+        var blossoms = io.github.gabooz.picklecraft.ground.GroundContent.BLOSSOMS.get();
+        player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(blossoms));
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.SHEARS));
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(bench.items().size() == 2 && bench.items().stream().allMatch(item -> item.is(net.minecraft.world.item.Items.STRING)),
+            "Shearing Plumaria blossoms produces two string");
+
+        var groundPos = pos.offset(1, 0, 0);
+        level.setBlockAndUpdate(groundPos.below(), Blocks.GRASS_BLOCK.defaultBlockState());
+        level.setBlockAndUpdate(groundPos, Blocks.AIR.defaultBlockState());
+        var ground = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(groundPos.below()),
+            net.minecraft.core.Direction.UP, groundPos.below(), false);
+        player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(blossoms));
+        require(io.github.gabooz.picklecraft.ground.GroundInteractions.use(
+            new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, groundPos.below(), ground)),
+            "Place blossoms on grass");
+        var stack = (io.github.gabooz.picklecraft.ground.GroundStack) level.getBlockEntity(groundPos);
+        require(stack != null && stack.items().getFirst().is(blossoms), "Ground stack contains blossoms");
+        player.setShiftKeyDown(true);
+        var blossomHit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(groundPos),
+            net.minecraft.core.Direction.UP, groundPos, false);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(
+            new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, groundPos, blossomHit));
+        player.setShiftKeyDown(false);
+        require(stack.items().size() == 1 && stack.items().getFirst().is(net.minecraft.world.item.Items.STRING),
+            "Shift-click converts ground blossoms into one string");
+
     }
     private static void require(boolean condition, String check) {
         if (!condition) {

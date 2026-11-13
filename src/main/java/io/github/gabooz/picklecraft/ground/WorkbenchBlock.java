@@ -1,7 +1,6 @@
 package io.github.gabooz.picklecraft.ground;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.BlockTags;
@@ -76,17 +75,8 @@ public final class WorkbenchBlock extends BaseEntityBlock {
             if (size == 0) {
                 return InteractionResult.FAIL;
             }
-            // A hit on an occupied cell targets that item. A side or empty cell targets the newest item.
-            var hit = event.getHitVec();
+            // New benches have one input. Older saves can still process their newest item.
             int index = size - 1;
-            if (hit.getDirection() == Direction.UP) {
-                int column = Math.clamp((int) ((hit.getLocation().x - pos.getX()) * 4), 0, 3);
-                int row = Math.clamp((int) ((hit.getLocation().z - pos.getZ()) * 4), 0, 3);
-                int cell = row * 4 + column;
-                if (cell < size) {
-                    index = cell;
-                }
-            }
             ItemStack output = transform(bench.items().get(index), held);
             if (output.isEmpty()) {
                 return InteractionResult.FAIL;
@@ -98,7 +88,7 @@ public final class WorkbenchBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
-        if (size == GroundStack.CAPACITY) {
+        if (size != 0) {
             return InteractionResult.FAIL;
         }
         if (!level.isClientSide()) {
@@ -133,6 +123,10 @@ public final class WorkbenchBlock extends BaseEntityBlock {
         }
         if (tool.is(ItemTags.SHOVELS) && input.is(Items.GRAVEL)) {
             return new ItemStack(Items.FLINT);
+        }
+        if (tool.is(Items.SHEARS)
+                && (input.is(GroundContent.BLOSSOMS.get()) || input.is(GroundContent.PLUMARIA_ITEM.get()))) {
+            return new ItemStack(Items.STRING, 2);
         }
         if (tool.is(Items.SHEARS) && input.getItem() instanceof BlockItem blockItem
                 && blockItem.getBlock().defaultBlockState().is(BlockTags.WOOL)) {

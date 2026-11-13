@@ -40,8 +40,10 @@ To run the automated playtest, use JDK 25 and run `.\gradlew.bat runClient -Ppic
 
 Right-click the top of a solid block with a stick, string, or loose stone to place it. Add up to sixteen pieces. Right-click an exact stack of one of each with an empty hand to assemble a stone pickaxe. Right-click the tool to cycle through pickaxe, sword, shovel, and axe. Shift-right-click takes the top piece or the finished tool. Hitting a stack drops its contents.
 
-New Overworld chunks generate loose stones, sticks biased toward oak trees, and occasional single Plumaria plants or pairs. Right-click the flowering plant with an empty hand to collect blossoms. The leaves stay and the plant flowers again after seven Overworld days.
+In new Overworld chunks, look on grass for loose stones, sticks, and occasional Plumaria plants or pairs. Sand has only widely scattered stones and sticks. Right-click the flowering plant with an empty hand to collect blossoms. The leaves stay and the plant flowers again after seven Overworld days. Place blossoms on solid ground and Shift-right-click them for one string, or shear the blossoms on a Workbench for two string.
 
 The Overworld clock runs at quarter speed, giving an 80-minute cycle at 20 ticks per second. Night light varies with the moon. Full-moon sky and ambient light are 30 percent brighter than at new moon during the darkest part of the night.
 
-The PickleCraft creative tab contains the loose stone, placeable Plumaria, blossoms, stick, string, and all four stone tools. For natural spawns, explore newly generated chunks or create a fresh Default world.
+The PickleCraft creative tab contains the Workbench, loose stone, placeable Plumaria, blossoms, stick, string, and all four stone tools. For natural spawns, explore newly generated chunks or create a fresh Default world.
+
+The Workbench accepts one input item at a time. Multi-item outputs stack on its surface. Take the output before adding another input.

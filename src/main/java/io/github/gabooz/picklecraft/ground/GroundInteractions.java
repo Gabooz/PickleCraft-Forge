@@ -27,7 +27,7 @@ public final class GroundInteractions {
             result = InteractionResult.SUCCESS;
         } else if (state.is(GroundContent.STACK.get()) && level.mayInteract(player, pos)) {
             result = GroundStackBlock.interact(level, pos, event.getEntity(), held);
-        } else if (event.getHitVec().getDirection() == Direction.UP && GroundContent.isMaterial(held)
+        } else if (event.getHitVec().getDirection() == Direction.UP && (GroundContent.isMaterial(held) || held.is(GroundContent.BLOSSOMS.get()))
                 && level.mayInteract(event.getEntity(), pos.above()) && level.isEmptyBlock(pos.above())
                 && GroundStackBlock.supported(level, pos.above())) {
             if (!level.isClientSide() && GroundStackBlock.place(level, pos.above(), held)) {

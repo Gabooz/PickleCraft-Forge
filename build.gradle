@@ -38,6 +38,13 @@ dependencies {
     annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.6'
 }
 
+// Forge's development scanner discovers a mod from one output directory.
+sourceSets.main.output.resourcesDir = layout.buildDirectory.dir('classes/java/main').get().asFile
+
+tasks.named('jar') {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 tasks.named('processResources') {
     // Keep the packaged mod metadata in sync with the build's pinned versions.
     def metadata = [version: project.version, minecraft: minecraft_version, forge: forge_version]

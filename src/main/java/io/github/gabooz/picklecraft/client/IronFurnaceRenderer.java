@@ -17,6 +17,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
@@ -30,7 +32,9 @@ public final class IronFurnaceRenderer implements BlockEntityRenderer<IronFurnac
     public static final class State extends BlockEntityRenderState {
         private final ItemStackRenderState iron = new ItemStackRenderState();
         private final ItemStackRenderState fuel = new ItemStackRenderState();
+        private final ItemStackRenderState flame = new ItemStackRenderState();
         private Direction front;
+        private boolean lit;
         private boolean glowing;
     }
 
@@ -45,7 +49,17 @@ public final class IronFurnaceRenderer implements BlockEntityRenderer<IronFurnac
         BlockEntityRenderer.super.extractRenderState(furnace, state, partialTicks, camera, breaking);
         state.front = furnace.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
         var resolver = Minecraft.getInstance().getItemModelResolver();
-        resolver.updateForTopItem(state.fuel, furnace.fuel(), ItemDisplayContext.NONE, furnace.getLevel(), null, 0);
+        state.lit = furnace.getBlockState().getValue(BlockStateProperties.LIT);
+        var fuel = furnace.fuel().copy();
+        if (state.lit && !fuel.isEmpty()) {
+            fuel.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath("picklecraft", "hot_coal"));
+        }
+        resolver.updateForTopItem(state.fuel, fuel, ItemDisplayContext.NONE, furnace.getLevel(), null, 0);
+        var flame = state.lit ? new ItemStack(Items.COAL) : ItemStack.EMPTY;
+        if (state.lit) {
+            flame.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath("picklecraft", "firebox_flame"));
+        }
+        resolver.updateForTopItem(state.flame, flame, ItemDisplayContext.NONE, furnace.getLevel(), null, 0);
         var iron = furnace.iron().copy();
         int time = furnace.elapsed();
         state.glowing = !iron.isEmpty() && time >= 0 && time < IronFurnace.SMELT_TICKS + IronFurnace.COOL_TICKS;
@@ -54,9 +68,9 @@ public final class IronFurnaceRenderer implements BlockEntityRenderer<IronFurnac
             float heat = ingot
                 ? 1F - Math.max(0, time - IronFurnace.SMELT_TICKS) / (float) IronFurnace.COOL_TICKS
                 : time / (float) IronFurnace.INGOT_TICKS;
-            int red = Math.round(105 + 150 * heat);
-            int green = Math.round(95 + 48 * heat);
-            int blue = Math.round(90 - 70 * heat);
+            int red = Math.round(165 + 90 * heat);
+            int green = Math.round(135 + 93 * heat);
+            int blue = Math.round(105 + 64 * heat);
             int color = red << 16 | green << 8 | blue;
             iron.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath("picklecraft", ingot ? "hot_ingot" : "hot_ore"));
             iron.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(), List.of(), List.of(), List.of(color)));
@@ -67,18 +81,29 @@ public final class IronFurnaceRenderer implements BlockEntityRenderer<IronFurnac
     @Override
     public void submit(State state, PoseStack poses, SubmitNodeCollector collector, CameraRenderState camera) {
         poses.pushPose();
-        poses.translate(0.5, 1.18, 0.5);
+        poses.translate(0.5, 0.225, 0.5);
         poses.rotateDegrees(Axis.XP, -90);
-        poses.scale(0.37F, 0.37F, 0.4F);
+        poses.scale(0.43F, 0.43F, 0.53F);
         state.iron.submit(poses, collector, state.glowing ? 0xF000F0 : state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         poses.popPose();
         poses.pushPose();
-        poses.translate(0.5 + state.front.getStepX() * 0.35, 0.32, 0.5 + state.front.getStepZ() * 0.35);
-        if (state.front.getAxis() == Direction.Axis.X) {
-            poses.rotateDegrees(Axis.YP, 90);
-        }
-        poses.scale(0.38F, 0.38F, 0.38F);
-        state.fuel.submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        poses.translate(0.5, 0.16, 0.5);
+        poses.rotateDegrees(Axis.XP, -90);
+        poses.scale(0.54F, 0.54F, 0.95F);
+        state.fuel.submit(poses, collector, state.lit ? 0xF000F0 : state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         poses.popPose();
+
+        if (state.lit) {
+            for (int angle : new int[]{0, 90}) {
+                poses.pushPose();
+                // Cross two upright flame planes behind the iron so it stays visible.
+                poses.translate(0.5 - state.front.getStepX() * 0.16, 0.37,
+                    0.5 - state.front.getStepZ() * 0.16);
+                poses.rotateDegrees(Axis.YP, angle);
+                poses.scale(0.58F, 0.48F, 0.1F);
+                state.flame.submit(poses, collector, 0xF000F0, OverlayTexture.NO_OVERLAY, 0);
+                poses.popPose();
+            }
+        }
     }
 }

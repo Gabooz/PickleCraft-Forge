@@ -31,13 +31,42 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class IronFurnaceBlock extends BaseEntityBlock {
     public static final BooleanProperty TOP = BooleanProperty.create("top");
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
-    private static final VoxelShape CHAMBER = Shapes.or(
-        box(0, 0, 0, 16, 2, 16), box(0, 2, 0, 4, 16, 16), box(12, 2, 0, 16, 16, 16),
-        box(4, 2, 0, 12, 16, 4), box(4, 2, 12, 12, 16, 16));
+    private static final VoxelShape CHUTE = Shapes.or(
+        box(2, 0, 2, 5, 3, 14),
+        box(11, 0, 2, 14, 3, 14),
+        box(5, 0, 2, 11, 3, 5),
+        box(5, 0, 11, 11, 3, 14),
+        box(3, 3, 3, 5, 13, 13),
+        box(11, 3, 3, 13, 13, 13),
+        box(5, 3, 3, 11, 13, 5),
+        box(5, 3, 11, 11, 13, 13),
+        box(2, 13, 2, 5, 15, 14),
+        box(11, 13, 2, 14, 15, 14),
+        box(5, 13, 2, 11, 15, 5),
+        box(5, 13, 11, 11, 15, 14),
+        box(3, 15, 3, 5, 16, 13),
+        box(11, 15, 3, 13, 16, 13),
+        box(5, 15, 3, 11, 16, 5),
+        box(5, 15, 11, 11, 16, 13));
+    private static final VoxelShape FIREBOX = Shapes.or(
+        box(0, 0, 0, 16, 2, 16),
+        box(0, 2, 0, 2, 14, 16),
+        box(14, 2, 0, 16, 14, 16),
+        box(2, 2, 14, 14, 14, 16),
+        box(2, 11, 0, 4, 14, 3),
+        box(12, 11, 0, 14, 14, 3),
+        box(4, 12, 0, 12, 14, 3),
+        box(0, 14, 0, 5, 16, 16),
+        box(11, 14, 0, 16, 16, 16),
+        box(5, 14, 0, 11, 16, 5),
+        box(5, 14, 11, 11, 16, 16));
+
+    private static final Map<Direction, VoxelShape> FIREBOX_BY_FACING = Shapes.rotateHorizontal(FIREBOX);
 
     public IronFurnaceBlock(Properties properties) {
         super(properties);
@@ -56,7 +85,10 @@ public final class IronFurnaceBlock extends BaseEntityBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(TOP) ? CHAMBER : Shapes.block();
+        if (state.getValue(TOP)) {
+            return CHUTE;
+        }
+        return FIREBOX_BY_FACING.get(state.getValue(BlockStateProperties.HORIZONTAL_FACING));
     }
 
     @Override
@@ -105,8 +137,11 @@ public final class IronFurnaceBlock extends BaseEntityBlock {
         var held = event.getItemStack();
         var player = event.getEntity();
         if (held.is(Items.COAL) || held.is(Items.CHARCOAL)) {
-            if (event.getHitVec().getDirection() != state.getValue(BlockStateProperties.HORIZONTAL_FACING)
-                    || !furnace.canFuel()) {
+            var front = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+            var hit = event.getHitVec();
+            double fromFront = (player.getX() - pos.getX() - 0.5) * front.getStepX()
+                + (player.getZ() - pos.getZ() - 0.5) * front.getStepZ();
+            if ((hit.getDirection() != front && fromFront <= 0.5) || !furnace.canFuel()) {
                 return InteractionResult.FAIL;
             }
             if (!level.isClientSide()) {

@@ -54,11 +54,11 @@ public final class IronFurnace extends BlockEntity {
 
     static void tick(ServerLevel level, BlockPos pos, BlockState state, IronFurnace furnace) {
         if (furnace.iron.isEmpty() && level.isEmptyBlock(pos.above(2))) {
-            // The chamber floor catches a dropped item. Only the central shaft reaches this box.
-            var intake = new AABB(pos.getX() + 0.25, pos.getY() + 1.12, pos.getZ() + 0.25,
-                pos.getX() + 0.75, pos.getY() + 1.99, pos.getZ() + 0.75);
+            // Catch the item as it passes down the center of the open chute.
+            var intake = new AABB(pos.getX() + 0.3125, pos.getY() + 1.03, pos.getZ() + 0.3125,
+                pos.getX() + 0.6875, pos.getY() + 1.99, pos.getZ() + 0.6875);
             for (var entity : level.getEntitiesOfClass(ItemEntity.class, intake,
-                    item -> item.getY() > pos.getY() + 1.12 && acceptsIron(item.getItem()))) {
+                    item -> item.getY() > pos.getY() + 1.03 && acceptsIron(item.getItem()))) {
                 var remaining = entity.getItem().copy();
                 furnace.iron = remaining.split(1);
                 if (remaining.isEmpty()) {

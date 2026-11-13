@@ -25,3 +25,9 @@ Start in `PickleCraft.java` for initialization. Put gameplay behavior in its own
 ## Git sync
 
 After the GitHub remote and branch tracking are configured, double-click **Sync PickleCraft.cmd** to pull and push in one step. Save and commit the changes you want to share first. If both sides have new commits, the fast-forward pull stops so you can resolve the divergence deliberately.
+
+## World generation prototype
+
+Create a new Default world to test the prototype. It uses vanilla Overworld terrain and biome distribution, with vanilla ore deposits and large veins, foliage, mob spawning, and structure generation disabled. Previously generated blocks remain in existing saves. The Overworld also rejects mobs that try to enter it, including mobs loaded from older saves.
+
+Vanilla grid-crafting recipes are disabled in both inventories and crafting tables. The survival inventory has no crafting grid or recipe-book button. Furnace and other non-grid recipes are still available.

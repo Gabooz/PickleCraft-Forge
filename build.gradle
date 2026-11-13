@@ -18,6 +18,7 @@ minecraft {
             // Keep development saves and logs under this project.
             workingDir = layout.projectDirectory.dir('run')
             systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+            args '--mixin.config', 'picklecraft.mixins.json'
         }
         register('client')
         register('server') {
@@ -43,6 +44,7 @@ sourceSets.main.output.resourcesDir = layout.buildDirectory.dir('classes/java/ma
 
 tasks.named('jar') {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest.attributes('MixinConfigs': 'picklecraft.mixins.json')
 }
 
 tasks.named('processResources') {

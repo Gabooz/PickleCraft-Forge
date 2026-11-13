@@ -1,0 +1,7 @@
+{
+    "required": true,
+    "minVersion": "0.8.7",
+    "package": "io.github.gabooz.picklecraft.mixin",
+    "mixins": ["ChunkGeneratorMixin", "NoiseBasedChunkGeneratorMixin", "OreVeinRuleMixin", "RecipeMapMixin", "InventoryMenuMixin"],
+    "injectors": {"defaultRequire": 1}
+}

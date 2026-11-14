@@ -89,9 +89,16 @@ public final class GoldFurnaceBlock extends BaseEntityBlock {
         if (front == null) {
             return InteractionResult.PASS;
         }
+        var center = pos.relative(front.getOpposite());
+        for (var cell : shellCells(center)) {
+            if (!level.mayInteract(player, cell)) {
+                return InteractionResult.FAIL;
+            }
+        }
         var state = GroundContent.GOLD_FURNACE.get().defaultBlockState()
             .setValue(BlockStateProperties.HORIZONTAL_FACING, front);
         if (!level.isClientSide() && level.setBlockAndUpdate(pos, state)) {
+            shapeShell(level, pos, front);
             hammer.hurtAndBreak(1, player, event.getHand());
             level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 0.8F, 0.7F);
         }
@@ -100,7 +107,7 @@ public final class GoldFurnaceBlock extends BaseEntityBlock {
 
     static boolean hasShell(Level level, BlockPos grate, Direction front) {
         var center = grate.relative(front.getOpposite());
-        for (var pos : BlockPos.betweenClosed(center.offset(-1, -1, -1), center.offset(1, 1, 1))) {
+        for (var pos : shellCells(center)) {
             if (pos.equals(grate)) {
                 continue;
             }
@@ -108,11 +115,32 @@ public final class GoldFurnaceBlock extends BaseEntityBlock {
                 return false;
             }
             boolean chimney = pos.equals(center) || pos.equals(center.above());
-            if (chimney ? !level.isEmptyBlock(pos) : !level.getBlockState(pos).is(Blocks.RED_SANDSTONE)) {
+            var state = level.getBlockState(pos);
+            boolean shell = state.is(Blocks.RED_SANDSTONE)
+                || (state.is(GroundContent.GOLD_FURNACE_SHELL.get())
+                    && state.getValue(BlockStateProperties.HORIZONTAL_FACING) == front
+                    && state.getValue(GoldFurnaceShellBlock.PART) == GoldFurnaceShellBlock.part(pos, center, front));
+            if (chimney ? !state.isAir() : !shell) {
                 return false;
             }
         }
         return true;
+    }
+
+    private static Iterable<BlockPos> shellCells(BlockPos center) {
+        return BlockPos.betweenClosed(center.offset(-1, -1, -1), center.offset(1, 1, 1));
+    }
+
+    static void shapeShell(Level level, BlockPos grate, Direction front) {
+        var center = grate.relative(front.getOpposite());
+        var shell = GroundContent.GOLD_FURNACE_SHELL.get().defaultBlockState()
+            .setValue(BlockStateProperties.HORIZONTAL_FACING, front);
+        for (var pos : shellCells(center)) {
+            if (!pos.equals(grate) && level.getBlockState(pos).is(Blocks.RED_SANDSTONE)) {
+                level.setBlockAndUpdate(pos, shell.setValue(GoldFurnaceShellBlock.PART,
+                    GoldFurnaceShellBlock.part(pos, center, front)));
+            }
+        }
     }
 
     static InteractionResult use(PlayerInteractEvent.RightClickBlock event) {

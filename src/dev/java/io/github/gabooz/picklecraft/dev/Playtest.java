@@ -407,6 +407,15 @@ public final class Playtest {
         var lit = net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT;
         require(level.getBlockEntity(grate) instanceof io.github.gabooz.picklecraft.ground.GoldFurnace,
             "Hammer forms a gold furnace in a complete shell");
+        var shell = io.github.gabooz.picklecraft.ground.GroundContent.GOLD_FURNACE_SHELL.get();
+        int shapedBlocks = 0;
+        for (var pos : BlockPos.betweenClosed(center.offset(-1, -1, -1), center.offset(1, 1, 1))) {
+            if (level.getBlockState(pos).is(shell)) {
+                shapedBlocks++;
+            }
+        }
+        require(shapedBlocks == 24 && level.isEmptyBlock(center) && level.isEmptyBlock(center.above()),
+            "All sandstone forms the modeled furnace and the shaft stays open");
         var furnace = (io.github.gabooz.picklecraft.ground.GoldFurnace) level.getBlockEntity(grate);
         var ticker = state.getTicker(level, io.github.gabooz.picklecraft.ground.GroundContent.GOLD_FURNACE_ENTITY.get());
         var items = net.minecraft.world.item.Items.RAW_GOLD;

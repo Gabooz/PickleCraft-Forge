@@ -69,6 +69,9 @@ public final class GroundContent {
         new GoldFurnaceBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("gold_furnace"))
             .strength(3.5F).noOcclusion().sound(SoundType.METAL).pushReaction(PushReaction.IMMOVEABLE)
             .lightLevel(state -> state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT) ? 15 : 0)));
+    public static final RegistryObject<GoldFurnaceShellBlock> GOLD_FURNACE_SHELL = BLOCKS.register("gold_furnace_shell", () ->
+        new GoldFurnaceShellBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("gold_furnace_shell"))
+            .strength(2F).noOcclusion().sound(SoundType.STONE).pushReaction(PushReaction.IMMOVEABLE)));
     public static final RegistryObject<BlockEntityType<GoldFurnace>> GOLD_FURNACE_ENTITY = ENTITIES.register("gold_furnace",
         () -> new BlockEntityType<>(GoldFurnace::new, Set.of(GOLD_FURNACE.get())));
 

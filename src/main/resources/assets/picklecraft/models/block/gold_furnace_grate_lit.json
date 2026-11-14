@@ -1,7 +1,6 @@
 {
   "parent": "picklecraft:block/gold_furnace_grate",
   "textures": {
-    "lining": "picklecraft:block/furnace_lining_hot",
-    "ember": "picklecraft:block/furnace_lining_hot"
+    "lining": "picklecraft:block/furnace_lining_hot"
   }
 }

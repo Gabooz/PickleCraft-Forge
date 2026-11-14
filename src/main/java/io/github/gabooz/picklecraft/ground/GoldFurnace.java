@@ -69,6 +69,11 @@ public final class GoldFurnace extends BlockEntity {
     }
 
     void tick(ServerLevel server) {
+        // Upgrade old furnaces and shape replacement sandstone after a repair.
+        if (server.getGameTime() % 20 == 0 && assembled()) {
+            GoldFurnaceBlock.shapeShell(server, worldPosition,
+                getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
+        }
         if (progress >= 0) {
             // smelting advances only while the shell is intact and loaded
             boolean running = assembled();

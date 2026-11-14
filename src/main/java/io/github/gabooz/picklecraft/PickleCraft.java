@@ -43,6 +43,7 @@ public final class PickleCraft {
                 InventoryScreens.register();
                 event.enqueueWork(GroundStackRenderer::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.IronFurnaceRenderer::register);
+                event.enqueueWork(io.github.gabooz.picklecraft.client.GoldFurnaceRenderer::register);
             });
         }
         LOGGER.info("PickleCraft loaded");

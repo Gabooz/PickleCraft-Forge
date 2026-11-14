@@ -27,6 +27,7 @@ import net.minecraft.world.phys.HitResult;
 
 public final class IronTongs extends Item {
     private static final String COOL_AT = "picklecraft_cool_at";
+    private static final String HOLDING_GOLD = "picklecraft_holding_gold";
     private static final Identifier LOADED_MODEL = Identifier.fromNamespaceAndPath("picklecraft", "iron_tongs_loaded");
 
     public IronTongs(Properties properties) {
@@ -46,14 +47,27 @@ public final class IronTongs extends Item {
     }
 
     static void grip(ItemStack stack, long coolAt) {
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> data.putLong(COOL_AT, coolAt));
-        stack.set(DataComponents.ITEM_MODEL, LOADED_MODEL);
+        grip(stack, coolAt, false);
+    }
+
+    static void grip(ItemStack stack, long coolAt, boolean gold) {
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> {
+            data.putLong(COOL_AT, coolAt);
+            if (gold) data.putBoolean(HOLDING_GOLD, true);
+        });
+        stack.set(DataComponents.ITEM_MODEL, gold
+            ? Identifier.fromNamespaceAndPath("picklecraft", "iron_tongs_loaded_gold") : LOADED_MODEL);
     }
 
     static ItemStack release(ItemStack stack) {
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> data.remove(COOL_AT));
+        boolean gold = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+            .copyTag().getBooleanOr(HOLDING_GOLD, false);
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> {
+            data.remove(COOL_AT);
+            data.remove(HOLDING_GOLD);
+        });
         stack.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath("picklecraft", "iron_tongs"));
-        return Items.IRON_INGOT.getDefaultInstance();
+        return (gold ? Items.GOLD_INGOT : Items.IRON_INGOT).getDefaultInstance();
     }
 
     @Override

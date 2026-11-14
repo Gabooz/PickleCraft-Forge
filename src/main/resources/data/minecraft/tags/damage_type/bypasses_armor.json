@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "picklecraft:superheated_iron"
+    "picklecraft:superheated_iron",
+    "picklecraft:superheated_gold"
   ]
 }

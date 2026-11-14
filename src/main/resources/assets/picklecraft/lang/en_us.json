@@ -10,5 +10,9 @@
   "item.picklecraft.iron_tongs": "Iron Tongs",
   "block.picklecraft.anvil": "Anvil",
   "item.picklecraft.stone_hammer": "Stone Hammer",
-  "item.picklecraft.iron_hammer": "Iron Hammer"
+  "item.picklecraft.iron_hammer": "Iron Hammer",
+  "block.picklecraft.gold_furnace": "Gold Furnace",
+  "message.picklecraft.gold_furnace_fuel": "Gold furnace fuel %s/%s",
+  "message.picklecraft.gold_furnace_ignite": "Load gold ore and 10 coal or charcoal before lighting.",
+  "death.attack.picklecraft.superheated_gold": "%1$s grabbed superheated gold and died"
 }

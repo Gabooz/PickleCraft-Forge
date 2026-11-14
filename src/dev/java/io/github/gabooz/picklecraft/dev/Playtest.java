@@ -45,7 +45,7 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 26, "PickleCraft creative tab contains all twenty-six entries");
+            require(tab.getDisplayItems().size() == 33, "PickleCraft creative tab contains all thirty-three entries");
             game.gui.setScreen(new InventoryScreen(game.player));
             require(game.gui.screen() instanceof SurvivalInventoryScreen, "Survival inventory screen");
             require(DefaultPlayerSkin.get(game.player.getUUID()).body().id().getPath().equals("entity/player/wide/steve"),
@@ -85,6 +85,7 @@ public final class Playtest {
         verifyGroundCraft(level, player);
         verifyWorkbench(level, player);
         verifyIronFurnace(level, player);
+        verifyGoldFurnace(level, player);
         require(level.dimensionType().defaultClock().map(clock -> level.clockManager().getInstance(clock).rate() == 0.25F).orElse(false),
             "Overworld clock runs at quarter speed");
         require(!biome.shouldSnow(level, new BlockPos(pos.getX(), 250, pos.getZ())), "No snow at high altitude");
@@ -380,6 +381,66 @@ public final class Playtest {
         level.setBlockAndUpdate(waterPos, Blocks.AIR.defaultBlockState());
 
 
+    }
+
+    private static void verifyGoldFurnace(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        var center = player.blockPosition().offset(-3, 4, 0);
+        var front = net.minecraft.core.Direction.EAST;
+        var grate = center.relative(front);
+        var hand = net.minecraft.world.InteractionHand.MAIN_HAND;
+        for (var pos : BlockPos.betweenClosed(center.offset(-1, -1, -1), center.offset(1, 1, 1))) {
+            level.setBlockAndUpdate(pos, pos.equals(center) || pos.equals(center.above())
+                ? Blocks.AIR.defaultBlockState() : Blocks.RED_SANDSTONE.defaultBlockState());
+        }
+        level.setBlockAndUpdate(grate, Blocks.IRON_BARS.defaultBlockState());
+        var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(grate),
+            front, grate, false);
+        var click = new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, grate, hit);
+        var hammer = io.github.gabooz.picklecraft.ground.GroundContent.STONE_HAMMER.get().getDefaultInstance();
+        player.setItemInHand(hand, hammer);
+        player.setShiftKeyDown(true);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        player.setShiftKeyDown(false);
+        var state = level.getBlockState(grate);
+        var lit = net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT;
+        require(level.getBlockEntity(grate) instanceof io.github.gabooz.picklecraft.ground.GoldFurnace,
+            "Hammer forms a gold furnace in a complete shell");
+        var furnace = (io.github.gabooz.picklecraft.ground.GoldFurnace) level.getBlockEntity(grate);
+        var ticker = state.getTicker(level, io.github.gabooz.picklecraft.ground.GroundContent.GOLD_FURNACE_ENTITY.get());
+        var items = net.minecraft.world.item.Items.RAW_GOLD;
+        var ore = new net.minecraft.world.entity.item.ItemEntity(level, center.getX() + 0.5, center.getY() + 1.5,
+            center.getZ() + 0.5, new net.minecraft.world.item.ItemStack(items, 2));
+        level.addFreshEntity(ore);
+        ticker.tick(level, grate, state, furnace);
+        require(furnace.gold().is(items) && ore.getItem().getCount() == 1, "Gold chute accepts exactly one ore");
+        for (int i = 0; i < 10; i++) {
+            player.setItemInHand(hand, (i % 2 == 0 ? net.minecraft.world.item.Items.COAL
+                : net.minecraft.world.item.Items.CHARCOAL).getDefaultInstance());
+            io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+            if (i == 8) {
+                player.setItemInHand(hand, net.minecraft.world.item.Items.FLINT_AND_STEEL.getDefaultInstance());
+                io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+                require(!level.getBlockState(grate).getValue(lit), "Nine fuel cannot light the furnace");
+            }
+        }
+        require(furnace.fuelCount() == 10 && !level.getBlockState(grate).getValue(lit),
+            "Ten mixed fuel wait for manual ignition");
+        player.setItemInHand(hand, net.minecraft.world.item.Items.FLINT_AND_STEEL.getDefaultInstance());
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(furnace.fuelCount() == 0 && level.getBlockState(grate).getValue(lit), "Manual ignition starts the batch");
+        for (int i = 1; i < io.github.gabooz.picklecraft.ground.GoldFurnace.SMELT_TICKS; i++) {
+            ticker.tick(level, grate, state, furnace);
+        }
+        require(furnace.gold().is(items), "Gold remains ore until the full thirty minutes");
+        ticker.tick(level, grate, state, furnace);
+        require(furnace.gold().is(net.minecraft.world.item.Items.GOLD_INGOT) && furnace.hot()
+            && !level.getBlockState(grate).getValue(lit), "Gold finishes hot after thirty minutes");
+        var tongs = io.github.gabooz.picklecraft.ground.GroundContent.IRON_TONGS.get().getDefaultInstance();
+        player.setItemInHand(hand, tongs);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(furnace.gold().isEmpty() && tongs.get(net.minecraft.core.component.DataComponents.ITEM_MODEL)
+            .getPath().equals("iron_tongs_loaded_gold"), "Tongs pick up hot gold");
     }
 
     private static void require(boolean condition, String check) {

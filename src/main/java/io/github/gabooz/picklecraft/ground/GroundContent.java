@@ -65,6 +65,13 @@ public final class GroundContent {
         new IronFurnaceItem(IRON_FURNACE.get(), new Item.Properties().setId(ITEMS.key("iron_furnace"))
             .useBlockDescriptionPrefix()));
 
+    public static final RegistryObject<GoldFurnaceBlock> GOLD_FURNACE = BLOCKS.register("gold_furnace", () ->
+        new GoldFurnaceBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("gold_furnace"))
+            .strength(3.5F).noOcclusion().sound(SoundType.METAL).pushReaction(PushReaction.IMMOVEABLE)
+            .lightLevel(state -> state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT) ? 15 : 0)));
+    public static final RegistryObject<BlockEntityType<GoldFurnace>> GOLD_FURNACE_ENTITY = ENTITIES.register("gold_furnace",
+        () -> new BlockEntityType<>(GoldFurnace::new, Set.of(GOLD_FURNACE.get())));
+
     public static final RegistryObject<Item> IRON_TONGS = ITEMS.register("iron_tongs", () ->
         new IronTongs(new Item.Properties().setId(ITEMS.key("iron_tongs")).durability(250)));
 
@@ -80,6 +87,13 @@ public final class GroundContent {
                 output.accept(Items.IRON_SHOVEL);
                 output.accept(Items.IRON_AXE);
                 output.accept(IRON_FURNACE_ITEM.get());
+                output.accept(Items.RED_SANDSTONE);
+                output.accept(Items.IRON_BARS);
+                output.accept(Items.FLINT_AND_STEEL);
+                output.accept(Items.RAW_GOLD);
+                output.accept(Items.GOLD_ORE);
+                output.accept(Items.DEEPSLATE_GOLD_ORE);
+                output.accept(Items.GOLD_INGOT);
                 output.accept(IRON_TONGS.get());
                 output.accept(Items.COBBLESTONE);
                 output.accept(Items.COAL);

@@ -17,9 +17,12 @@ public final class GroundInteractions {
         InteractionResult result;
         var player = event.getEntity();
         var state = level.getBlockState(pos);
-        var carved = IronFurnaceBlock.carve(event);
+        var assembled = GoldFurnaceBlock.assemble(event);
+        var carved = assembled.consumesAction() ? assembled : IronFurnaceBlock.carve(event);
         if (carved.consumesAction()) {
             result = carved;
+        } else if (state.is(GroundContent.GOLD_FURNACE.get()) && level.mayInteract(player, pos)) {
+            result = GoldFurnaceBlock.use(event);
         } else if (state.is(GroundContent.IRON_FURNACE.get()) && level.mayInteract(player, pos)) {
             result = IronFurnaceBlock.interact(event);
         } else if (state.is(GroundContent.ANVIL.get()) && level.mayInteract(player, pos)) {

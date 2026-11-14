@@ -12,6 +12,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -100,7 +101,7 @@ public final class IronFurnace extends BlockEntity {
         sync();
     }
 
-    void retrieve(ServerLevel server, Player player, boolean removeFuel, ItemStack tongs) {
+    void retrieve(ServerLevel server, Player player, boolean removeFuel, ItemStack tongs, InteractionHand hand) {
         boolean usingTongs = tongs.is(GroundContent.IRON_TONGS.get());
         if (usingTongs && IronTongs.loaded(tongs)) {
             return;
@@ -112,8 +113,16 @@ public final class IronFurnace extends BlockEntity {
         } else if (!removeFuel && elapsed() >= INGOT_TICKS) {
             boolean hot = elapsed() < SMELT_TICKS + COOL_TICKS;
             ItemStack output = iron.is(Items.IRON_INGOT) ? iron : new ItemStack(Items.IRON_INGOT);
+            if (usingTongs) {
+                tongs.hurtAndBreak(1, player, hand);
+            }
             if (hot && usingTongs) {
-                IronTongs.grip(tongs, startedAt + SMELT_TICKS + COOL_TICKS);
+                if (tongs.isEmpty()) {
+                    // Drop the hot ingot if the tongs break before they can hold it.
+                    Block.popResource(server, worldPosition, output);
+                } else {
+                    IronTongs.grip(tongs, startedAt + SMELT_TICKS + COOL_TICKS);
+                }
             } else {
                 give(player, output);
             }

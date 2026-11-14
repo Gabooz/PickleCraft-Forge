@@ -350,20 +350,23 @@ public final class Playtest {
         require(furnace.fuel().isEmpty() && !level.getBlockState(pos).getValue(
             io.github.gabooz.picklecraft.ground.IronFurnaceBlock.LIT), "Fuel consumed and fire out at 60 seconds");
         worldData.setGameTime(start + 7200);
-        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        var tongs = io.github.gabooz.picklecraft.ground.GroundContent.IRON_TONGS.get().getDefaultInstance();
+        player.setItemInHand(hand, tongs);
         float health = player.getHealth();
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
-        require(furnace.iron().isEmpty() && player.getHealth() == health, "Cooled iron is safe to retrieve");
+        require(furnace.iron().isEmpty() && player.getHealth() == health && tongs.getOrDefault(net.minecraft.core.component.DataComponents.DAMAGE, 0) == 1,
+            "Retrieving cooled iron with tongs costs one durability");
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(tongs.getOrDefault(net.minecraft.core.component.DataComponents.DAMAGE, 0) == 1, "An empty furnace does not wear down tongs");
         player.setItemInHand(hand, net.minecraft.world.item.Items.CHARCOAL.getDefaultInstance());
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
         ticker.tick(level, pos, state, furnace);
         require(furnace.elapsed() == 0, "Charcoal starts the second batch");
         worldData.setGameTime(start + 8400);
         ticker.tick(level, pos, state, furnace);
-        var tongs = io.github.gabooz.picklecraft.ground.GroundContent.IRON_TONGS.get().getDefaultInstance();
         player.setItemInHand(hand, tongs);
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
-        require(furnace.iron().isEmpty() && player.getHealth() == health - 1F
+        require(furnace.iron().isEmpty() && player.getHealth() == health - 1F && tongs.getOrDefault(net.minecraft.core.component.DataComponents.DAMAGE, 0) == 2
             && tongs.get(net.minecraft.core.component.DataComponents.ITEM_MODEL).getPath().equals("iron_tongs_loaded"),
             "Tongs grip hot iron and deal half a heart");
         var waterPos = pos.offset(1, 0, 0);
@@ -373,6 +376,7 @@ public final class Playtest {
         require(tongs.useOn(new net.minecraft.world.item.context.UseOnContext(player, hand, waterHit)).consumesAction()
             && tongs.get(net.minecraft.core.component.DataComponents.ITEM_MODEL).getPath().equals("iron_tongs"),
             "Cauldron quenches iron and empties tongs");
+        require(tongs.getOrDefault(net.minecraft.core.component.DataComponents.DAMAGE, 0) == 3, "Quenching hot iron costs one durability");
         level.setBlockAndUpdate(waterPos, Blocks.AIR.defaultBlockState());
 
 

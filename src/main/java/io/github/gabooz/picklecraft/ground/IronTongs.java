@@ -80,18 +80,22 @@ public final class IronTongs extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        return quench(context.getLevel(), context.getClickedPos(), context.getPlayer(), context.getItemInHand());
+        return quench(context.getLevel(), context.getClickedPos(), context.getPlayer(), context.getHand());
     }
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         var hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
         return hit.getType() == HitResult.Type.BLOCK
-            ? quench(level, hit.getBlockPos(), player, player.getItemInHand(hand)) : InteractionResult.PASS;
+            ? quench(level, hit.getBlockPos(), player, hand) : InteractionResult.PASS;
     }
 
-    private static InteractionResult quench(Level level, BlockPos pos, Player player, ItemStack stack) {
-        if (player == null || !loaded(stack) || !level.mayInteract(player, pos)
+    private static InteractionResult quench(Level level, BlockPos pos, Player player, InteractionHand hand) {
+        if (player == null) {
+            return InteractionResult.PASS;
+        }
+        var stack = player.getItemInHand(hand);
+        if (!loaded(stack) || !level.mayInteract(player, pos)
                 || !(level.getFluidState(pos).is(FluidTags.WATER) || level.getBlockState(pos).is(Blocks.WATER_CAULDRON))) {
             return InteractionResult.PASS;
         }
@@ -102,6 +106,7 @@ public final class IronTongs extends Item {
                 Block.popResource(server, player.blockPosition(), ingot);
             }
             if (hot) {
+                stack.hurtAndBreak(1, player, hand);
                 server.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.8F, 1.15F);
                 server.sendParticles(ParticleTypes.CLOUD, pos.getX() + 0.5, pos.getY() + 0.95,
                     pos.getZ() + 0.5, 14, 0.2, 0.15, 0.2, 0.035);

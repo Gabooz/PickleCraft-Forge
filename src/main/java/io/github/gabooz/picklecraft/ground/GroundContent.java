@@ -66,7 +66,7 @@ public final class GroundContent {
             .useBlockDescriptionPrefix()));
 
     public static final RegistryObject<Item> IRON_TONGS = ITEMS.register("iron_tongs", () ->
-        new IronTongs(new Item.Properties().setId(ITEMS.key("iron_tongs")).stacksTo(1)));
+        new IronTongs(new Item.Properties().setId(ITEMS.key("iron_tongs")).durability(250)));
 
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("picklecraft", () ->
         CreativeModeTab.builder()

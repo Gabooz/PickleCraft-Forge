@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "picklecraft:item/iron_tongs_loaded"
+  }
+}

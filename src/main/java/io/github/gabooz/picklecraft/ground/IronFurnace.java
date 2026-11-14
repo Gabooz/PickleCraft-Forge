@@ -100,7 +100,11 @@ public final class IronFurnace extends BlockEntity {
         sync();
     }
 
-    void retrieve(ServerLevel server, Player player, boolean removeFuel) {
+    void retrieve(ServerLevel server, Player player, boolean removeFuel, ItemStack tongs) {
+        boolean usingTongs = tongs.is(GroundContent.IRON_TONGS.get());
+        if (usingTongs && IronTongs.loaded(tongs)) {
+            return;
+        }
         if (removeFuel && startedAt < 0 && !fuel.isEmpty()) {
             give(player, fuel);
             fuel = ItemStack.EMPTY;
@@ -108,15 +112,19 @@ public final class IronFurnace extends BlockEntity {
         } else if (!removeFuel && elapsed() >= INGOT_TICKS) {
             boolean hot = elapsed() < SMELT_TICKS + COOL_TICKS;
             ItemStack output = iron.is(Items.IRON_INGOT) ? iron : new ItemStack(Items.IRON_INGOT);
+            if (hot && usingTongs) {
+                IronTongs.grip(tongs, startedAt + SMELT_TICKS + COOL_TICKS);
+            } else {
+                give(player, output);
+            }
             iron = ItemStack.EMPTY;
             fuel = ItemStack.EMPTY;
             startedAt = -1;
             setLit(false);
             sync();
-            give(player, output);
             if (hot) {
                 var damage = server.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(HOT_IRON);
-                player.hurtServer(server, new DamageSource(damage), 22F);
+                player.hurtServer(server, new DamageSource(damage), usingTongs ? 1F : 22F);
             }
         }
     }

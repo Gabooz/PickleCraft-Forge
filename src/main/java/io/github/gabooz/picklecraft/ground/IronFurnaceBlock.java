@@ -157,9 +157,9 @@ public final class IronFurnaceBlock extends BaseEntityBlock {
             }
             return InteractionResult.SUCCESS;
         }
-        if (held.isEmpty()) {
+        if (held.isEmpty() || held.is(GroundContent.IRON_TONGS.get())) {
             if (level instanceof ServerLevel server) {
-                furnace.retrieve(server, player, player.isShiftKeyDown());
+                furnace.retrieve(server, player, held.isEmpty() && player.isShiftKeyDown(), held);
             }
             return InteractionResult.SUCCESS;
         }

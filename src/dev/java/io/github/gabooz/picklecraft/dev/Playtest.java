@@ -298,9 +298,21 @@ public final class Playtest {
         require(furnace.elapsed() == 0, "Charcoal starts the second batch");
         worldData.setGameTime(start + 8400);
         ticker.tick(level, pos, state, furnace);
-        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        var tongs = io.github.gabooz.picklecraft.ground.GroundContent.IRON_TONGS.get().getDefaultInstance();
+        player.setItemInHand(hand, tongs);
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
-        require(!player.isAlive(), "Hot iron kills a player without fire protection");
+        require(furnace.iron().isEmpty() && player.getHealth() == health - 1F
+            && tongs.get(net.minecraft.core.component.DataComponents.ITEM_MODEL).getPath().equals("iron_tongs_loaded"),
+            "Tongs grip hot iron and deal half a heart");
+        var waterPos = pos.offset(1, 0, 0);
+        level.setBlockAndUpdate(waterPos, Blocks.WATER_CAULDRON.defaultBlockState());
+        var waterHit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(waterPos),
+            net.minecraft.core.Direction.UP, waterPos, false);
+        require(tongs.useOn(new net.minecraft.world.item.context.UseOnContext(player, hand, waterHit)).consumesAction()
+            && tongs.get(net.minecraft.core.component.DataComponents.ITEM_MODEL).getPath().equals("iron_tongs"),
+            "Cauldron quenches iron and empties tongs");
+        level.setBlockAndUpdate(waterPos, Blocks.AIR.defaultBlockState());
+
 
     }
 

@@ -121,19 +121,19 @@
           "texture": "#lining"
         },
         "east": {
-          "texture": "#lining"
+          "texture": "#stone"
         },
         "south": {
-          "texture": "#lining"
+          "texture": "#stone"
         },
         "west": {
-          "texture": "#lining"
+          "texture": "#stone"
         },
         "up": {
-          "texture": "#lining"
+          "texture": "#stone"
         },
         "down": {
-          "texture": "#lining"
+          "texture": "#stone"
         }
       }
     },
@@ -365,7 +365,7 @@
       "from": [
         1.5,
         2,
-        0
+        -0.3
       ],
       "to": [
         3.5,
@@ -397,7 +397,7 @@
       "from": [
         12.5,
         2,
-        0
+        -0.3
       ],
       "to": [
         14.5,
@@ -429,7 +429,7 @@
       "from": [
         1,
         10,
-        0
+        -0.3
       ],
       "to": [
         4,
@@ -461,7 +461,7 @@
       "from": [
         12,
         10,
-        0
+        -0.3
       ],
       "to": [
         15,
@@ -493,7 +493,7 @@
       "from": [
         6.5,
         12,
-        0
+        -0.3
       ],
       "to": [
         9.5,
@@ -525,7 +525,7 @@
       "from": [
         2,
         4,
-        0
+        -0.3
       ],
       "to": [
         3,
@@ -554,7 +554,7 @@
       "from": [
         13,
         4,
-        0
+        -0.3
       ],
       "to": [
         14,

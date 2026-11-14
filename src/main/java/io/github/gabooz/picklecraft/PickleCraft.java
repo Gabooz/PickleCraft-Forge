@@ -29,6 +29,7 @@ public final class PickleCraft {
         var modBus = context.getModBusGroup();
         OverworldFeatures.SERIALIZERS.register(modBus);
         GroundContent.register(modBus);
+        io.github.gabooz.picklecraft.ground.TongsContainers.register();
         PlayerInteractEvent.RightClickBlock.BUS.addListener(
             GroundInteractions::use);
         PlayerInteractEvent.LeftClickBlock.BUS.addListener(GroundInteractions::hit);

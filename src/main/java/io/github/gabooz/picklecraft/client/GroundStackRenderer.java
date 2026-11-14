@@ -26,6 +26,8 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
 
     public static final class State extends BlockEntityRenderState {
         private boolean workbench;
+        private boolean anvil;
+        private final List<Boolean> blockItems = new ArrayList<>();
         private boolean cube;
         private final List<ItemStackRenderState> layers = new ArrayList<>();
     }
@@ -40,7 +42,9 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
             ModelFeatureRenderer.CrumblingOverlay breaking) {
         BlockEntityRenderer.super.extractRenderState(stack, state, partialTicks, camera, breaking);
         state.workbench = stack.getBlockState().is(GroundContent.WORKBENCH.get());
+        state.anvil = stack.getBlockState().is(GroundContent.ANVIL.get());
         state.layers.clear();
+        state.blockItems.clear();
         var resolver = Minecraft.getInstance().getItemModelResolver();
         var items = stack.items();
         state.cube = state.workbench && !items.isEmpty()
@@ -49,6 +53,7 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
             var model = new ItemStackRenderState();
             resolver.updateForTopItem(model, item, ItemDisplayContext.NONE, stack.getLevel(), null, 0);
             state.layers.add(model);
+            state.blockItems.add(item.getItem() instanceof net.minecraft.world.item.BlockItem);
         }
     }
 
@@ -56,6 +61,20 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
     public void submit(State state, PoseStack poses, SubmitNodeCollector collector, CameraRenderState camera) {
         for (int i = 0; i < state.layers.size(); i++) {
             poses.pushPose();
+            if (state.anvil) {
+                boolean single = state.layers.size() == 1;
+                boolean blockItem = state.blockItems.get(i);
+                float scale = single && !blockItem ? 0.57F : 0.24F;
+                poses.translate(single ? 0.5 : 0.35 + (i % 2) * 0.30,
+                    blockItem ? 1.12 : 1.02, single ? 0.5 : 0.32 + (i / 2) * 0.36);
+                if (!blockItem) {
+                    poses.rotateDegrees(Axis.XP, -90);
+                }
+                poses.scale(scale, scale, scale);
+                state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+                poses.popPose();
+                continue;
+            }
             if (state.cube) {
                 poses.translate(0.5, WorkbenchBlock.SURFACE_HEIGHT + 0.2 + i * 0.04, 0.5);
                 poses.scale(0.4F, 0.4F, 0.4F);

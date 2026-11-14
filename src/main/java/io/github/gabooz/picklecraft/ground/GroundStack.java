@@ -17,6 +17,8 @@ public final class GroundStack extends BlockEntity {
     public static final int CAPACITY = 16;
     private final List<ItemStack> items = new ArrayList<>();
 
+    private boolean shaping;
+
     public GroundStack(BlockPos pos, BlockState state) {
         super(GroundContent.STACK_ENTITY.get(), pos, state);
     }
@@ -32,6 +34,7 @@ public final class GroundStack extends BlockEntity {
 
     ItemStack pop() {
         ItemStack item = items.removeLast();
+        shaping = false;
         sync();
         return item;
     }
@@ -39,6 +42,16 @@ public final class GroundStack extends BlockEntity {
     void replaceWith(ItemStack item) {
         items.clear();
         add(item);
+    }
+
+    // Only freshly crafted tools can be cycled. Placing a finished tool cannot change it.
+    boolean isShaping() {
+        return shaping;
+    }
+
+    void shape(ItemStack tool) {
+        shaping = true;
+        replaceWith(tool);
     }
 
     void process(int index, ItemStack output) {
@@ -70,6 +83,7 @@ public final class GroundStack extends BlockEntity {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+        output.putBoolean("shaping", shaping);
         output.store("items", ItemStack.CODEC.listOf(), items);
     }
 
@@ -77,6 +91,7 @@ public final class GroundStack extends BlockEntity {
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         items.clear();
+        shaping = input.getBooleanOr("shaping", false);
         input.read("items", ItemStack.CODEC.listOf()).orElse(List.of()).stream()
             .filter(item -> !item.isEmpty()).limit(CAPACITY).map(item -> item.copyWithCount(1)).forEach(items::add);
     }

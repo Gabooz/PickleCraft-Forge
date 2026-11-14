@@ -7,5 +7,6 @@
   "block.picklecraft.workbench": "Workbench",
   "block.picklecraft.iron_furnace": "Iron Furnace",
   "death.attack.picklecraft.superheated_iron": "%1$s grabbed superheated iron and died",
-  "item.picklecraft.iron_tongs": "Iron Tongs"
+  "item.picklecraft.iron_tongs": "Iron Tongs",
+  "block.picklecraft.anvil": "Anvil"
 }

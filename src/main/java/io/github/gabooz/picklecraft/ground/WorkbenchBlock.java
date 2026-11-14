@@ -74,6 +74,31 @@ public final class WorkbenchBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
+        if (player.isShiftKeyDown() && held.is(Items.IRON_INGOT)) {
+            if (!level.isClientSide()) {
+                var contents = bench.items();
+                if (level.setBlockAndUpdate(pos, GroundContent.ANVIL.get().defaultBlockState())) {
+                    held.consume(1, player);
+                    contents.forEach(item -> popResource(level, pos.above(), item));
+                    level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ANVIL_USE,
+                        net.minecraft.sounds.SoundSource.BLOCKS, 0.65F, 1.1F);
+                }
+            }
+            return InteractionResult.SUCCESS;
+        }
+
+        if (size > 0 && held.isStackable()
+                && ItemStack.isSameItemSameComponents(held, bench.items().getLast())) {
+            if (!level.isClientSide()) {
+                while (!bench.items().isEmpty() && held.getCount() < held.getMaxStackSize()
+                        && ItemStack.isSameItemSameComponents(held, bench.items().getLast())) {
+                    bench.pop();
+                    held.grow(1);
+                }
+            }
+            return InteractionResult.SUCCESS;
+        }
+
         if (isTool(held)) {
             if (size == 0) {
                 return InteractionResult.FAIL;

@@ -34,10 +34,16 @@ public final class GroundContent {
     public static final RegistryObject<BlockItem> WORKBENCH_ITEM = ITEMS.register("workbench", () ->
         new BlockItem(WORKBENCH.get(), new Item.Properties().setId(ITEMS.key("workbench")).useBlockDescriptionPrefix()));
 
+    public static final RegistryObject<AnvilBlock> ANVIL = BLOCKS.register("anvil", () ->
+        new AnvilBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("anvil"))
+            .strength(5F).noOcclusion().sound(SoundType.ANVIL).pushReaction(PushReaction.IMMOVEABLE)));
+    public static final RegistryObject<BlockItem> ANVIL_ITEM = ITEMS.register("anvil", () ->
+        new BlockItem(ANVIL.get(), new Item.Properties().setId(ITEMS.key("anvil")).useBlockDescriptionPrefix()));
+
     public static final RegistryObject<Item> STONE = ITEMS.register("loose_stone", () -> new Item(new Item.Properties().setId(ITEMS.key("loose_stone"))));
     public static final RegistryObject<Item> BLOSSOMS = ITEMS.register("plumaria_blossoms", () -> new Item(new Item.Properties().setId(ITEMS.key("plumaria_blossoms"))));
     public static final RegistryObject<BlockEntityType<GroundStack>> STACK_ENTITY = ENTITIES.register("ground_stack",
-        () -> new BlockEntityType<>(GroundStack::new, Set.of(STACK.get(), WORKBENCH.get())));
+        () -> new BlockEntityType<>(GroundStack::new, Set.of(STACK.get(), WORKBENCH.get(), ANVIL.get())));
     public static final RegistryObject<BlockEntityType<PlumariaGrowth>> PLUMARIA_ENTITY = ENTITIES.register("plumaria",
         () -> new BlockEntityType<>(PlumariaGrowth::new, Set.of(PLUMARIA.get())));
 
@@ -63,6 +69,11 @@ public final class GroundContent {
             .icon(() -> BLOSSOMS.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(WORKBENCH_ITEM.get());
+                output.accept(ANVIL_ITEM.get());
+                output.accept(Items.IRON_PICKAXE);
+                output.accept(Items.IRON_SWORD);
+                output.accept(Items.IRON_SHOVEL);
+                output.accept(Items.IRON_AXE);
                 output.accept(IRON_FURNACE_ITEM.get());
                 output.accept(IRON_TONGS.get());
                 output.accept(Items.COBBLESTONE);

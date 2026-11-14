@@ -45,7 +45,7 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 19, "PickleCraft creative tab contains all nineteen entries");
+            require(tab.getDisplayItems().size() == 24, "PickleCraft creative tab contains all twenty-four entries");
             game.gui.setScreen(new InventoryScreen(game.player));
             require(game.gui.screen() instanceof SurvivalInventoryScreen, "Survival inventory screen");
             require(DefaultPlayerSkin.get(game.player.getUUID()).body().id().getPath().equals("entity/player/wide/steve"),
@@ -180,7 +180,6 @@ public final class Playtest {
         level.setBlockAndUpdate(pos.above(), Blocks.AIR.defaultBlockState());
         player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(items, 2));
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
-        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
         require(bench.items().size() == 1 && player.getItemInHand(hand).getCount() == 1,
             "Workbench accepts only one input");
         player.setItemInHand(hand, axe);
@@ -207,6 +206,47 @@ public final class Playtest {
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
         require(bench.items().size() == 2 && bench.items().stream().allMatch(item -> item.is(net.minecraft.world.item.Items.STRING)),
             "Shearing Plumaria blossoms produces two string");
+
+        var string = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STRING, 63);
+        player.setItemInHand(hand, string);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(string.getCount() == 64 && bench.items().size() == 1,
+            "Workbench merges matching output up to the held stack limit");
+
+        var ingot = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_INGOT, 2);
+        player.setItemInHand(hand, ingot);
+        player.setShiftKeyDown(true);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        player.setShiftKeyDown(false);
+        require(level.getBlockState(pos).is(io.github.gabooz.picklecraft.ground.GroundContent.ANVIL.get()),
+            "Shift-clicking a workbench with an ingot makes an anvil");
+        var anvil = (io.github.gabooz.picklecraft.ground.GroundStack) level.getBlockEntity(pos);
+        require(anvil.items().isEmpty(), "Anvil starts clear after conversion");
+        player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.COBBLESTONE, 5));
+        for (int i = 0; i < 5; i++) {
+            io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        }
+        require(anvil.items().size() == 4, "Anvil holds at most four loose items");
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        for (int i = 0; i < 4; i++) {
+            player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+            io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        }
+        for (var ingredient : java.util.List.of(net.minecraft.world.item.Items.STICK, net.minecraft.world.item.Items.IRON_INGOT)) {
+            player.setItemInHand(hand, ingredient.getDefaultInstance());
+            io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        }
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        for (var tool : java.util.List.of(net.minecraft.world.item.Items.IRON_PICKAXE, net.minecraft.world.item.Items.IRON_SWORD,
+                net.minecraft.world.item.Items.IRON_SHOVEL, net.minecraft.world.item.Items.IRON_AXE,
+                net.minecraft.world.item.Items.IRON_PICKAXE)) {
+            io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+            require(anvil.items().size() == 1 && anvil.items().getFirst().is(tool), "Anvil shapes " + tool);
+        }
+        player.setShiftKeyDown(true);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        player.setShiftKeyDown(false);
+        require(anvil.items().isEmpty(), "Shift-click removes the finished iron tool");
 
         var groundPos = pos.offset(1, 0, 0);
         level.setBlockAndUpdate(groundPos.below(), Blocks.GRASS_BLOCK.defaultBlockState());

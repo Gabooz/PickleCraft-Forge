@@ -22,6 +22,8 @@ public final class GroundInteractions {
             result = carved;
         } else if (state.is(GroundContent.IRON_FURNACE.get()) && level.mayInteract(player, pos)) {
             result = IronFurnaceBlock.interact(event);
+        } else if (state.is(GroundContent.ANVIL.get()) && level.mayInteract(player, pos)) {
+            result = AnvilBlock.use(event);
         } else if (state.is(GroundContent.WORKBENCH.get()) && level.mayInteract(player, pos)) {
             result = WorkbenchBlock.use(event);
         } else if (player.isShiftKeyDown() && state.is(net.minecraft.tags.BlockTags.LOGS)
@@ -54,8 +56,18 @@ public final class GroundInteractions {
         var pos = event.getPos();
         if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START
                 || !event.getEntity().mayBuild() || !event.getEntity().isWithinBlockInteractionRange(pos, 1.0)
-                || !level.mayInteract(event.getEntity(), pos)
-                || !level.getBlockState(pos).is(GroundContent.STACK.get())) {
+                || !level.mayInteract(event.getEntity(), pos)) {
+            return false;
+        }
+        var state = level.getBlockState(pos);
+        if (state.is(GroundContent.ANVIL.get()) && level.getBlockEntity(pos) instanceof GroundStack anvil
+                && !anvil.items().isEmpty()) {
+            if (!level.isClientSide()) {
+                net.minecraft.world.level.block.Block.popResource(level, pos.above(), anvil.pop());
+            }
+            return true;
+        }
+        if (!state.is(GroundContent.STACK.get())) {
             return false;
         }
         if (!level.isClientSide()) {

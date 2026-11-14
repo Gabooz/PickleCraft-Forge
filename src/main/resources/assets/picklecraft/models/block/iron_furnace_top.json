@@ -2,10 +2,11 @@
   "parent": "minecraft:block/block",
   "textures": {
     "particle": "minecraft:block/cobblestone",
-    "stone": "minecraft:block/cobblestone",
-    "trim": "minecraft:block/andesite",
-    "lining": "minecraft:block/deepslate",
-    "frame": "minecraft:block/polished_andesite"
+    "stone": "picklecraft:block/furnace_masonry",
+    "trim": "minecraft:block/polished_andesite",
+    "lining": "picklecraft:block/furnace_lining",
+    "frame": "picklecraft:block/furnace_band",
+    "hearth": "picklecraft:block/furnace_lining"
   },
   "elements": [
     {

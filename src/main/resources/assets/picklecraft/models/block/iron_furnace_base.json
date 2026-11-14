@@ -2,11 +2,11 @@
   "parent": "minecraft:block/block",
   "textures": {
     "particle": "minecraft:block/cobblestone",
-    "stone": "minecraft:block/cobblestone",
-    "trim": "minecraft:block/andesite",
-    "lining": "minecraft:block/deepslate",
-    "frame": "minecraft:block/polished_andesite",
-    "hearth": "minecraft:block/smooth_stone"
+    "stone": "picklecraft:block/furnace_masonry",
+    "trim": "minecraft:block/polished_andesite",
+    "lining": "picklecraft:block/furnace_lining",
+    "frame": "picklecraft:block/furnace_band",
+    "hearth": "picklecraft:block/furnace_lining"
   },
   "elements": [
     {
@@ -57,7 +57,7 @@
           "texture": "#stone"
         },
         "east": {
-          "texture": "#stone"
+          "texture": "#lining"
         },
         "south": {
           "texture": "#stone"
@@ -95,7 +95,7 @@
           "texture": "#stone"
         },
         "west": {
-          "texture": "#stone"
+          "texture": "#lining"
         },
         "up": {
           "texture": "#stone"
@@ -261,7 +261,7 @@
           "texture": "#trim"
         },
         "down": {
-          "texture": "#trim"
+          "texture": "#lining"
         }
       }
     },
@@ -293,7 +293,7 @@
           "texture": "#trim"
         },
         "down": {
-          "texture": "#trim"
+          "texture": "#lining"
         }
       }
     },
@@ -325,7 +325,7 @@
           "texture": "#trim"
         },
         "down": {
-          "texture": "#trim"
+          "texture": "#lining"
         }
       }
     },
@@ -357,7 +357,7 @@
           "texture": "#trim"
         },
         "down": {
-          "texture": "#trim"
+          "texture": "#lining"
         }
       }
     },
@@ -511,6 +511,64 @@
           "texture": "#frame"
         },
         "south": {
+          "texture": "#frame"
+        },
+        "east": {
+          "texture": "#frame"
+        },
+        "west": {
+          "texture": "#frame"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        4,
+        0
+      ],
+      "to": [
+        3,
+        10,
+        1
+      ],
+      "faces": {
+        "up": {
+          "texture": "#frame"
+        },
+        "down": {
+          "texture": "#frame"
+        },
+        "north": {
+          "texture": "#frame"
+        },
+        "east": {
+          "texture": "#frame"
+        },
+        "west": {
+          "texture": "#frame"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        4,
+        0
+      ],
+      "to": [
+        14,
+        10,
+        1
+      ],
+      "faces": {
+        "up": {
+          "texture": "#frame"
+        },
+        "down": {
+          "texture": "#frame"
+        },
+        "north": {
           "texture": "#frame"
         },
         "east": {

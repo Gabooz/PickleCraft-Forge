@@ -97,10 +97,10 @@ public final class IronFurnaceRenderer implements BlockEntityRenderer<IronFurnac
             for (int angle : new int[]{0, 90}) {
                 poses.pushPose();
                 // Cross two upright flame planes behind the iron so it stays visible.
-                poses.translate(0.5 - state.front.getStepX() * 0.16, 0.37,
+                poses.translate(0.5 - state.front.getStepX() * 0.16, 0.46,
                     0.5 - state.front.getStepZ() * 0.16);
                 poses.rotateDegrees(Axis.YP, angle);
-                poses.scale(0.58F, 0.48F, 0.1F);
+                poses.scale(0.85F, 0.71F, 0.1F);
                 state.flame.submit(poses, collector, 0xF000F0, OverlayTexture.NO_OVERLAY, 0);
                 poses.popPose();
             }

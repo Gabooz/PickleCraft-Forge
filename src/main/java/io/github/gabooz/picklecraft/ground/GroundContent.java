@@ -54,6 +54,9 @@ public final class GroundContent {
         new IronFurnaceItem(IRON_FURNACE.get(), new Item.Properties().setId(ITEMS.key("iron_furnace"))
             .useBlockDescriptionPrefix()));
 
+    public static final RegistryObject<Item> IRON_TONGS = ITEMS.register("iron_tongs", () ->
+        new Item(new Item.Properties().setId(ITEMS.key("iron_tongs")).stacksTo(1)));
+
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("picklecraft", () ->
         CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.picklecraft"))
@@ -61,6 +64,7 @@ public final class GroundContent {
             .displayItems((parameters, output) -> {
                 output.accept(WORKBENCH_ITEM.get());
                 output.accept(IRON_FURNACE_ITEM.get());
+                output.accept(IRON_TONGS.get());
                 output.accept(Items.COBBLESTONE);
                 output.accept(Items.COAL);
                 output.accept(Items.CHARCOAL);

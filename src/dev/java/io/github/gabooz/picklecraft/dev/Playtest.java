@@ -45,7 +45,7 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 33, "PickleCraft creative tab contains all thirty-three entries");
+            require(tab.getDisplayItems().size() == 34, "PickleCraft creative tab contains all thirty-four entries");
             game.gui.setScreen(new InventoryScreen(game.player));
             require(game.gui.screen() instanceof SurvivalInventoryScreen, "Survival inventory screen");
             require(DefaultPlayerSkin.get(game.player.getUUID()).body().id().getPath().equals("entity/player/wide/steve"),
@@ -86,6 +86,7 @@ public final class Playtest {
         verifyWorkbench(level, player);
         verifyIronFurnace(level, player);
         verifyGoldFurnace(level, player);
+        verifyOpenBarrel(level, player);
         require(level.dimensionType().defaultClock().map(clock -> level.clockManager().getInstance(clock).rate() == 0.25F).orElse(false),
             "Overworld clock runs at quarter speed");
         require(!biome.shouldSnow(level, new BlockPos(pos.getX(), 250, pos.getZ())), "No snow at high altitude");
@@ -441,6 +442,61 @@ public final class Playtest {
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
         require(furnace.gold().isEmpty() && tongs.get(net.minecraft.core.component.DataComponents.ITEM_MODEL)
             .getPath().equals("iron_tongs_loaded_gold"), "Tongs pick up hot gold");
+    }
+
+    private static void verifyOpenBarrel(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        var pos = player.blockPosition().offset(0, 1, 2);
+        var direction = net.minecraft.core.Direction.UP;
+        var hand = net.minecraft.world.InteractionHand.MAIN_HAND;
+        var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos),
+            direction, pos, false);
+        var click = new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, pos, hit);
+        var block = io.github.gabooz.picklecraft.ground.GroundContent.OPEN_BARREL.get();
+        level.setBlockAndUpdate(pos, block.defaultBlockState());
+        level.setBlockAndUpdate(pos.above(), Blocks.AIR.defaultBlockState());
+        var barrel = (io.github.gabooz.picklecraft.ground.OpenBarrel) level.getBlockEntity(pos);
+        var stone = net.minecraft.world.item.Items.COBBLESTONE;
+        var axe = net.minecraft.world.item.Items.IRON_AXE;
+        var stack = new net.minecraft.world.item.ItemStack(stone, 60);
+        player.setItemInHand(hand, stack);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        var tool = axe.getDefaultInstance();
+        tool.set(net.minecraft.core.component.DataComponents.DAMAGE, 7);
+        player.setItemInHand(hand, tool);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        var top = new net.minecraft.world.item.ItemStack(stone, 5);
+        player.setItemInHand(hand, top);
+        player.setShiftKeyDown(true);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(top.getCount() == 4 && barrel.contents().getLast().getCount() == 1,
+            "Sneaking inserts one item into the barrel");
+        player.setShiftKeyDown(false);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(top.getCount() == 2 && barrel.contents().getLast().getCount() == 3,
+            "Barrel accepts only as many items as fit");
+        player.setShiftKeyDown(true);
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(barrel.contents().getLast().getCount() == 2, "Sneaking withdraws one item");
+        player.setShiftKeyDown(false);
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(barrel.contents().size() == 2 && barrel.contents().getFirst().getCount() == 60
+            && barrel.contents().getLast().is(axe)
+            && barrel.contents().getLast().getOrDefault(net.minecraft.core.component.DataComponents.DAMAGE, 0) == 7,
+            "Barrel withdraws a contiguous run and preserves the tool underneath");
+        player.setShiftKeyDown(true);
+        var hitBarrel = new net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock(player, pos, direction,
+            net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock.Action.START);
+        require(io.github.gabooz.picklecraft.ground.GroundInteractions.hit(hitBarrel)
+            && barrel.contents().isEmpty() && level.getBlockState(pos).is(block),
+            "Sneak hit empties the barrel in place");
+        player.setShiftKeyDown(false);
+        var drops = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+            new net.minecraft.world.phys.AABB(pos.above()), entity -> entity.getItem().is(axe) || entity.getItem().is(stone));
+        require(drops.stream().mapToInt(entity -> entity.getItem().getCount()).sum() == 61,
+            "All remaining items spill into the world");
     }
 
     private static void require(boolean condition, String check) {

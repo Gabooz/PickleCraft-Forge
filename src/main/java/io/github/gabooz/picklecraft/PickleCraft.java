@@ -42,6 +42,7 @@ public final class PickleCraft {
             FMLClientSetupEvent.getBus(modBus).addListener(event -> {
                 InventoryScreens.register();
                 event.enqueueWork(GroundStackRenderer::register);
+                event.enqueueWork(io.github.gabooz.picklecraft.client.OpenBarrelRenderer::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.IronFurnaceRenderer::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.GoldFurnaceRenderer::register);
             });

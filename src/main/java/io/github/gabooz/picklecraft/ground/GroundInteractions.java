@@ -21,6 +21,8 @@ public final class GroundInteractions {
         var carved = assembled.consumesAction() ? assembled : IronFurnaceBlock.carve(event);
         if (carved.consumesAction()) {
             result = carved;
+        } else if (state.is(GroundContent.OPEN_BARREL.get()) && level.mayInteract(player, pos)) {
+            result = OpenBarrelBlock.use(event);
         } else if (state.is(GroundContent.GOLD_FURNACE.get()) && level.mayInteract(player, pos)) {
             result = GoldFurnaceBlock.use(event);
         } else if (state.is(GroundContent.IRON_FURNACE.get()) && level.mayInteract(player, pos)) {
@@ -63,6 +65,13 @@ public final class GroundInteractions {
             return false;
         }
         var state = level.getBlockState(pos);
+        if (state.is(GroundContent.OPEN_BARREL.get()) && event.getEntity().isShiftKeyDown()
+                && level.getBlockEntity(pos) instanceof OpenBarrel barrel) {
+            if (!level.isClientSide()) {
+                barrel.spill();
+            }
+            return true;
+        }
         if (state.is(GroundContent.ANVIL.get()) && level.getBlockEntity(pos) instanceof GroundStack anvil
                 && !anvil.items().isEmpty()) {
             if (!level.isClientSide()) {

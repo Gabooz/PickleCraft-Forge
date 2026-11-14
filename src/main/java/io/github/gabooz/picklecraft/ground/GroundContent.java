@@ -72,6 +72,14 @@ public final class GroundContent {
     public static final RegistryObject<BlockEntityType<GoldFurnace>> GOLD_FURNACE_ENTITY = ENTITIES.register("gold_furnace",
         () -> new BlockEntityType<>(GoldFurnace::new, Set.of(GOLD_FURNACE.get())));
 
+    public static final RegistryObject<OpenBarrelBlock> OPEN_BARREL = BLOCKS.register("open_barrel", () ->
+        new OpenBarrelBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("open_barrel"))
+            .strength(2.5F).noOcclusion().sound(SoundType.WOOD).pushReaction(PushReaction.IMMOVEABLE)));
+    public static final RegistryObject<BlockItem> OPEN_BARREL_ITEM = ITEMS.register("open_barrel", () ->
+        new BlockItem(OPEN_BARREL.get(), new Item.Properties().setId(ITEMS.key("open_barrel")).useBlockDescriptionPrefix()));
+    public static final RegistryObject<BlockEntityType<OpenBarrel>> BARREL_ENTITY = ENTITIES.register("open_barrel",
+        () -> new BlockEntityType<>(OpenBarrel::new, Set.of(OPEN_BARREL.get())));
+
     public static final RegistryObject<Item> IRON_TONGS = ITEMS.register("iron_tongs", () ->
         new IronTongs(new Item.Properties().setId(ITEMS.key("iron_tongs")).durability(250)));
 
@@ -81,6 +89,7 @@ public final class GroundContent {
             .icon(() -> BLOSSOMS.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(WORKBENCH_ITEM.get());
+                output.accept(OPEN_BARREL_ITEM.get());
                 output.accept(ANVIL_ITEM.get());
                 output.accept(Items.IRON_PICKAXE);
                 output.accept(Items.IRON_SWORD);

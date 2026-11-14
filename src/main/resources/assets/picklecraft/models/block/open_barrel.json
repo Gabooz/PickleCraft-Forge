@@ -1,0 +1,17 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "minecraft:block/barrel_side",
+    "side": "minecraft:block/barrel_side",
+    "rim": "minecraft:block/barrel_top",
+    "base": "minecraft:block/barrel_bottom",
+    "inside": "minecraft:block/spruce_planks"
+  },
+  "elements": [
+    {"from": [0, 0, 0], "to": [16, 1, 16], "faces": {"north": {"texture": "#side"}, "south": {"texture": "#side"}, "east": {"texture": "#side"}, "west": {"texture": "#side"}, "down": {"texture": "#base"}, "up": {"texture": "#inside"}}},
+    {"from": [0, 1, 0], "to": [1, 16, 16], "faces": {"west": {"texture": "#side"}, "east": {"texture": "#inside"}, "up": {"texture": "#rim"}, "north": {"texture": "#side"}, "south": {"texture": "#side"}}},
+    {"from": [15, 1, 0], "to": [16, 16, 16], "faces": {"east": {"texture": "#side"}, "west": {"texture": "#inside"}, "up": {"texture": "#rim"}, "north": {"texture": "#side"}, "south": {"texture": "#side"}}},
+    {"from": [1, 1, 0], "to": [15, 16, 1], "faces": {"north": {"texture": "#side"}, "south": {"texture": "#inside"}, "up": {"texture": "#rim"}}},
+    {"from": [1, 1, 15], "to": [15, 16, 16], "faces": {"south": {"texture": "#side"}, "north": {"texture": "#inside"}, "up": {"texture": "#rim"}}}
+  ]
+}

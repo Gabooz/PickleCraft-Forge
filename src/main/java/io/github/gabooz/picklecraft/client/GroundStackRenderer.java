@@ -27,7 +27,6 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
     public static final class State extends BlockEntityRenderState {
         private boolean workbench;
         private boolean anvil;
-        private final List<Boolean> blockItems = new ArrayList<>();
         private boolean cube;
         private final List<ItemStackRenderState> layers = new ArrayList<>();
     }
@@ -44,7 +43,6 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
         state.workbench = stack.getBlockState().is(GroundContent.WORKBENCH.get());
         state.anvil = stack.getBlockState().is(GroundContent.ANVIL.get());
         state.layers.clear();
-        state.blockItems.clear();
         var resolver = Minecraft.getInstance().getItemModelResolver();
         var items = stack.items();
         state.cube = state.workbench && !items.isEmpty()
@@ -53,7 +51,6 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
             var model = new ItemStackRenderState();
             resolver.updateForTopItem(model, item, ItemDisplayContext.NONE, stack.getLevel(), null, 0);
             state.layers.add(model);
-            state.blockItems.add(item.getItem() instanceof net.minecraft.world.item.BlockItem);
         }
     }
 
@@ -61,20 +58,6 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
     public void submit(State state, PoseStack poses, SubmitNodeCollector collector, CameraRenderState camera) {
         for (int i = 0; i < state.layers.size(); i++) {
             poses.pushPose();
-            if (state.anvil) {
-                boolean single = state.layers.size() == 1;
-                boolean blockItem = state.blockItems.get(i);
-                float scale = single && !blockItem ? 0.57F : 0.24F;
-                poses.translate(single ? 0.5 : 0.35 + (i % 2) * 0.30,
-                    blockItem ? 1.12 : 1.02, single ? 0.5 : 0.32 + (i / 2) * 0.36);
-                if (!blockItem) {
-                    poses.rotateDegrees(Axis.XP, -90);
-                }
-                poses.scale(scale, scale, scale);
-                state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
-                poses.popPose();
-                continue;
-            }
             if (state.cube) {
                 poses.translate(0.5, WorkbenchBlock.SURFACE_HEIGHT + 0.2 + i * 0.04, 0.5);
                 poses.scale(0.4F, 0.4F, 0.4F);
@@ -86,11 +69,11 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
                 poses.translate(0.5, 0.9 + i / 32.0, 0.5);
                 poses.rotateDegrees(Axis.YP, i * 13);
             } else {
-                poses.translate(0.5, (i + 0.5) / 16.0, 0.5);
+                poses.translate(0.5, (state.anvil ? 1.0 : 0.0) + (i + 0.5) / 16.0, 0.5);
                 poses.rotateDegrees(Axis.YP, i * 37);
             }
             poses.rotateDegrees(Axis.XP, -90);
-            float scale = state.workbench ? 0.55F : 0.92F;
+            float scale = state.anvil ? 0.57F : state.workbench ? 0.55F : 0.92F;
             poses.scale(scale, scale, state.workbench ? 0.16F : 0.9F);
             state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
             poses.popPose();

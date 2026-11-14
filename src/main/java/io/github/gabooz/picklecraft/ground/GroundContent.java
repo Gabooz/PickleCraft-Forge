@@ -40,6 +40,11 @@ public final class GroundContent {
     public static final RegistryObject<BlockItem> ANVIL_ITEM = ITEMS.register("anvil", () ->
         new BlockItem(ANVIL.get(), new Item.Properties().setId(ITEMS.key("anvil")).useBlockDescriptionPrefix()));
 
+    public static final RegistryObject<Item> STONE_HAMMER = ITEMS.register("stone_hammer", () ->
+        new Item(new Item.Properties().setId(ITEMS.key("stone_hammer")).durability(131)));
+    public static final RegistryObject<Item> IRON_HAMMER = ITEMS.register("iron_hammer", () ->
+        new Item(new Item.Properties().setId(ITEMS.key("iron_hammer")).durability(250)));
+
     public static final RegistryObject<Item> STONE = ITEMS.register("loose_stone", () -> new Item(new Item.Properties().setId(ITEMS.key("loose_stone"))));
     public static final RegistryObject<Item> BLOSSOMS = ITEMS.register("plumaria_blossoms", () -> new Item(new Item.Properties().setId(ITEMS.key("plumaria_blossoms"))));
     public static final RegistryObject<BlockEntityType<GroundStack>> STACK_ENTITY = ENTITIES.register("ground_stack",
@@ -92,6 +97,8 @@ public final class GroundContent {
                 output.accept(Items.STONE_SWORD);
                 output.accept(Items.STONE_SHOVEL);
                 output.accept(Items.STONE_AXE);
+                output.accept(STONE_HAMMER.get());
+                output.accept(IRON_HAMMER.get());
             }).build());
 
     private GroundContent() {}
@@ -103,6 +110,10 @@ public final class GroundContent {
         TABS.register(bus);
         ENTITIES.register(bus);
         FEATURES.register(bus);
+    }
+
+    public static boolean isHammer(ItemStack stack) {
+        return stack.is(STONE_HAMMER.get()) || stack.is(IRON_HAMMER.get());
     }
 
     public static boolean isMaterial(ItemStack stack) {

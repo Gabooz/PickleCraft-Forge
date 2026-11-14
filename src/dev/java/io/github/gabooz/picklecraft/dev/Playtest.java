@@ -45,7 +45,7 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 24, "PickleCraft creative tab contains all twenty-four entries");
+            require(tab.getDisplayItems().size() == 26, "PickleCraft creative tab contains all twenty-six entries");
             game.gui.setScreen(new InventoryScreen(game.player));
             require(game.gui.screen() instanceof SurvivalInventoryScreen, "Survival inventory screen");
             require(DefaultPlayerSkin.get(game.player.getUUID()).body().id().getPath().equals("entity/player/wide/steve"),
@@ -118,10 +118,15 @@ public final class Playtest {
         require(stack.items().getFirst().is(net.minecraft.world.item.Items.STONE_PICKAXE), "Assemble a pickaxe");
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
         require(stack.items().getFirst().is(net.minecraft.world.item.Items.STONE_SWORD), "Cycle to a sword");
+        for (var tool : java.util.List.of(net.minecraft.world.item.Items.STONE_SHOVEL,
+                net.minecraft.world.item.Items.STONE_AXE, io.github.gabooz.picklecraft.ground.GroundContent.STONE_HAMMER.get())) {
+            io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+            require(stack.items().getFirst().is(tool), "Cycle ground recipe to " + tool);
+        }
         player.setShiftKeyDown(true);
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
         player.setShiftKeyDown(false);
-        require(level.isEmptyBlock(pos), "Pick up the assembled tool");
+        require(level.isEmptyBlock(pos), "Pick up the assembled stone hammer");
 
         for (int layer = 0; layer < 17; layer++) {
             if (layer == 0) {
@@ -213,6 +218,17 @@ public final class Playtest {
         require(string.getCount() == 64 && bench.items().size() == 1,
             "Workbench merges matching output up to the held stack limit");
 
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        player.setItemInHand(hand, net.minecraft.world.item.Items.COBBLESTONE.getDefaultInstance());
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        var hammer = io.github.gabooz.picklecraft.ground.GroundContent.STONE_HAMMER.get().getDefaultInstance();
+        player.setItemInHand(hand, hammer);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(bench.items().size() >= 3 && bench.items().size() <= 4
+            && bench.items().stream().allMatch(item -> item.is(io.github.gabooz.picklecraft.ground.GroundContent.STONE.get())),
+            "Hammer crushes cobblestone into three or four loose stones");
+
         var ingot = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_INGOT, 2);
         player.setItemInHand(hand, ingot);
         player.setShiftKeyDown(true);
@@ -237,16 +253,22 @@ public final class Playtest {
             io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
         }
         player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(anvil.items().size() == 1 && anvil.items().getFirst().is(net.minecraft.world.item.Items.STICK),
+            "Empty hand removes the top item from a ready anvil recipe");
+        player.setItemInHand(hand, net.minecraft.world.item.Items.IRON_INGOT.getDefaultInstance());
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        player.setItemInHand(hand, hammer);
         for (var tool : java.util.List.of(net.minecraft.world.item.Items.IRON_PICKAXE, net.minecraft.world.item.Items.IRON_SWORD,
                 net.minecraft.world.item.Items.IRON_SHOVEL, net.minecraft.world.item.Items.IRON_AXE,
+                io.github.gabooz.picklecraft.ground.GroundContent.IRON_HAMMER.get(),
                 net.minecraft.world.item.Items.IRON_PICKAXE)) {
             io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
             require(anvil.items().size() == 1 && anvil.items().getFirst().is(tool), "Anvil shapes " + tool);
         }
-        player.setShiftKeyDown(true);
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
         io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
-        player.setShiftKeyDown(false);
-        require(anvil.items().isEmpty(), "Shift-click removes the finished iron tool");
+        require(anvil.items().isEmpty(), "Empty hand removes the finished iron tool");
 
         var groundPos = pos.offset(1, 0, 0);
         level.setBlockAndUpdate(groundPos.below(), Blocks.GRASS_BLOCK.defaultBlockState());

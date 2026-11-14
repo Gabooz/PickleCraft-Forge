@@ -105,7 +105,11 @@ public final class WorkbenchBlock extends BaseEntityBlock {
             }
             // New benches have one input. Older saves can still process their newest item.
             int index = size - 1;
-            ItemStack output = transform(bench.items().get(index), held);
+            ItemStack input = bench.items().get(index);
+            boolean crush = GroundContent.isHammer(held) && input.is(Items.COBBLESTONE);
+            ItemStack output = crush
+                ? new ItemStack(GroundContent.STONE.get(), level.isClientSide() ? 3 : 3 + level.getRandom().nextInt(2))
+                : transform(input, held);
             if (output.isEmpty()) {
                 return InteractionResult.FAIL;
             }
@@ -127,7 +131,7 @@ public final class WorkbenchBlock extends BaseEntityBlock {
     }
 
     private static boolean isTool(ItemStack item) {
-        return item.has(DataComponents.TOOL) || item.is(ItemTags.SWORDS) || item.is(ItemTags.AXES)
+        return GroundContent.isHammer(item) || item.has(DataComponents.TOOL) || item.is(ItemTags.SWORDS) || item.is(ItemTags.AXES)
             || item.is(ItemTags.SHOVELS) || item.is(ItemTags.PICKAXES) || item.is(ItemTags.HOES) || item.is(Items.SHEARS);
     }
 

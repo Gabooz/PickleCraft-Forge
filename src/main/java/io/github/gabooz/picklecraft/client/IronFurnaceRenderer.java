@@ -65,15 +65,14 @@ public final class IronFurnaceRenderer implements BlockEntityRenderer<IronFurnac
         state.glowing = !iron.isEmpty() && time >= 0 && time < IronFurnace.SMELT_TICKS + IronFurnace.COOL_TICKS;
         if (state.glowing) {
             boolean ingot = time >= IronFurnace.INGOT_TICKS;
-            float heat = ingot
-                ? 0.72F + 0.28F * (1F - Math.max(0, time - IronFurnace.SMELT_TICKS) / (float) IronFurnace.COOL_TICKS)
-                : time / (float) IronFurnace.INGOT_TICKS;
-            int red = Math.round(165 + 90 * heat);
-            int green = ingot ? Math.round(126 + 102 * heat * heat) : Math.round(135 + 93 * heat);
-            int blue = ingot ? Math.round(35 + 134 * heat * heat) : Math.round(105 + 64 * heat);
-            int color = red << 16 | green << 8 | blue;
-            iron.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath("picklecraft", ingot ? "hot_ingot" : "hot_ore"));
-            iron.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(), List.of(), List.of(), List.of(color)));
+            iron.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath("picklecraft", ingot
+                ? (time < IronFurnace.SMELT_TICKS ? "white_hot_ingot" : "hot_ingot") : "hot_ore"));
+            if (!ingot) {
+                float heat = time / (float) IronFurnace.INGOT_TICKS;
+                int color = Math.round(165 + 90 * heat) << 16
+                    | Math.round(135 + 93 * heat) << 8 | Math.round(105 + 64 * heat);
+                iron.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(), List.of(), List.of(), List.of(color)));
+            }
         }
         resolver.updateForTopItem(state.iron, iron, ItemDisplayContext.NONE, furnace.getLevel(), null, 0);
     }

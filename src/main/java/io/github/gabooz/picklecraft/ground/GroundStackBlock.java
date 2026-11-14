@@ -18,7 +18,10 @@ import java.util.List;
 
 public final class GroundStackBlock extends BaseEntityBlock {
     public static final IntegerProperty LAYERS = IntegerProperty.create("layers", 1, GroundStack.CAPACITY);
-    private static final List<Item> TOOLS = List.of(Items.STONE_PICKAXE, Items.STONE_SWORD, Items.STONE_SHOVEL, Items.STONE_AXE);
+    private static List<Item> tools() {
+        return List.of(Items.STONE_PICKAXE, Items.STONE_SWORD, Items.STONE_SHOVEL, Items.STONE_AXE,
+            GroundContent.STONE_HAMMER.get());
+    }
 
     public GroundStackBlock(Properties properties) {
         super(properties);
@@ -91,7 +94,8 @@ public final class GroundStackBlock extends BaseEntityBlock {
                 return InteractionResult.FAIL;
             }
         }
-        int tool = items.size() == 1 ? TOOLS.indexOf(items.getFirst().getItem()) : -1;
+        var tools = tools();
+        int tool = items.size() == 1 ? tools.indexOf(items.getFirst().getItem()) : -1;
         if (!player.isShiftKeyDown() && !held.isEmpty()) {
             if (tool >= 0 || !GroundContent.isMaterial(held) || items.size() == GroundStack.CAPACITY) {
                 return InteractionResult.FAIL;
@@ -104,7 +108,7 @@ public final class GroundStackBlock extends BaseEntityBlock {
         }
         if (!level.isClientSide()) {
             if (!player.isShiftKeyDown() && tool >= 0) {
-                stack.replaceWith(new ItemStack(TOOLS.get((tool + 1) % TOOLS.size())));
+                stack.replaceWith(new ItemStack(tools.get((tool + 1) % tools.size())));
             } else if (!player.isShiftKeyDown() && formsTool(items)) {
                 stack.replaceWith(new ItemStack(Items.STONE_PICKAXE));
             } else {

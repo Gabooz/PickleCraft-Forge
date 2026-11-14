@@ -2,7 +2,6 @@ package io.github.gabooz.picklecraft.ground;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
@@ -21,8 +20,6 @@ import java.util.List;
 
 public final class AnvilBlock extends BaseEntityBlock {
     private static final int CAPACITY = 4;
-    private static final List<Item> TOOLS = List.of(
-        Items.IRON_PICKAXE, Items.IRON_SWORD, Items.IRON_SHOVEL, Items.IRON_AXE);
     private static final VoxelShape SHAPE = Shapes.or(
         Block.box(2, 0, 2, 14, 4, 14), Block.box(4, 4, 3, 12, 10, 13),
         Block.box(3, 10, 0, 13, 16, 16));
@@ -61,24 +58,29 @@ public final class AnvilBlock extends BaseEntityBlock {
         }
         var items = anvil.items();
         boolean shaping = anvil.isShaping();
-        if (held.isEmpty() && !items.isEmpty()) {
+        boolean ready = items.size() == 2 && items.stream().anyMatch(item -> item.is(Items.STICK))
+            && items.stream().anyMatch(item -> item.is(Items.IRON_INGOT));
+        if (GroundContent.isHammer(held) && !player.isShiftKeyDown()) {
+            if ((!ready && !shaping) || !level.isEmptyBlock(pos.above())) {
+                return InteractionResult.FAIL;
+            }
             if (!level.isClientSide()) {
-                if (player.isShiftKeyDown()) {
-                    var taken = anvil.pop();
-                    if (!player.addItem(taken)) {
-                        popResource(level, pos.above(), taken);
-                    }
-                } else if (shaping) {
-                    int next = (TOOLS.indexOf(items.getFirst().getItem()) + 1) % TOOLS.size();
-                    anvil.shape(new ItemStack(TOOLS.get(next)));
-                } else if (items.size() == 2 && items.stream().anyMatch(item -> item.is(Items.STICK))
-                        && items.stream().anyMatch(item -> item.is(Items.IRON_INGOT))) {
-                    anvil.shape(new ItemStack(TOOLS.getFirst()));
-                } else {
-                    var taken = anvil.pop();
-                    if (!player.addItem(taken)) {
-                        popResource(level, pos.above(), taken);
-                    }
+                var tools = List.of(Items.IRON_PICKAXE, Items.IRON_SWORD, Items.IRON_SHOVEL, Items.IRON_AXE,
+                    GroundContent.IRON_HAMMER.get());
+                int next = shaping ? (tools.indexOf(items.getFirst().getItem()) + 1) % tools.size() : 0;
+                anvil.shape(new ItemStack(tools.get(next)));
+                held.hurtAndBreak(1, player, event.getHand());
+                level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ANVIL_USE,
+                    net.minecraft.sounds.SoundSource.BLOCKS, 0.55F, 1.2F);
+            }
+            return InteractionResult.SUCCESS;
+        }
+        // Sneaking retrieves the result or last ingredient, even with the hammer still in hand.
+        if (!items.isEmpty() && (held.isEmpty() || (GroundContent.isHammer(held) && player.isShiftKeyDown()))) {
+            if (!level.isClientSide()) {
+                var taken = anvil.pop();
+                if (!player.addItem(taken)) {
+                    popResource(level, pos.above(), taken);
                 }
             }
             return InteractionResult.SUCCESS;

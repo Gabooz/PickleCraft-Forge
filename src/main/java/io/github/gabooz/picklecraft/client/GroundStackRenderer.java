@@ -59,8 +59,10 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
         for (int i = 0; i < state.layers.size(); i++) {
             poses.pushPose();
             if (state.cube) {
-                poses.translate(0.5, WorkbenchBlock.SURFACE_HEIGHT + 0.2 + i * 0.04, 0.5);
-                poses.scale(0.4F, 0.4F, 0.4F);
+                float size = 0.4F;
+                // The model origin is centered, so raise it by half its height minus the buried third.
+                poses.translate(0.5, WorkbenchBlock.SURFACE_HEIGHT + size / 6.0 + i * 0.04, 0.5);
+                poses.scale(size, size, size);
                 state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
                 poses.popPose();
                 continue;

@@ -55,9 +55,7 @@ public final class GoldFurnaceShellBlock extends Block {
             int x = part % 3;
             int z = part / 3 % 3;
             var shape = switch (part / 9) {
-                case 0 -> Shapes.or(inset(x, z, 0, 3, 0), inset(x, z, 3, 5, 1),
-                    inset(x, z, 5, 13, 2), inset(x, z, 13, 16, 0));
-                case 1 -> Shapes.block();
+                case 0, 1 -> Shapes.block();
                 default -> Shapes.or(inset(x, z, 0, 4, 2), inset(x, z, 4, 9, 5),
                     inset(x, z, 9, 13, 8), inset(x, z, 13, 16, 11));
             };

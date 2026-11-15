@@ -51,7 +51,7 @@ public final class GoldFurnaceRenderer implements BlockEntityRenderer<GoldFurnac
         state.lit = furnace.getBlockState().getValue(BlockStateProperties.LIT);
         state.hot = furnace.hot();
         state.heat = furnace.heat();
-        // Show a small pile while the furnace tracks all ten fuel items.
+        // Show up to four pieces in a broad fuel bed while tracking all ten fuel items.
         state.fuelCount = state.lit ? 4 : (furnace.fuelCount() * 4 + GoldFurnace.FUEL_REQUIRED - 1)
             / GoldFurnace.FUEL_REQUIRED;
         var gold = furnace.gold().copy();
@@ -83,15 +83,18 @@ public final class GoldFurnaceRenderer implements BlockEntityRenderer<GoldFurnac
         int light = state.lit || state.hot ? 0xF000F0 : state.lightCoords;
         for (int i = 0; i < state.fuelCount; i++) {
             poses.pushPose();
-            poses.translate((i % 2 == 0 ? -0.045 : 0.045), 0.1 + i * 0.038, -0.02 + (i % 3 - 1) * 0.032);
+            // Spread the first three pieces across the hearth, then cap them with a fourth.
+            double x = i == 1 ? -0.17 : i == 2 ? 0.17 : 0;
+            double z = i == 0 ? 0.19 : i == 3 ? 0.13 : -0.015;
+            poses.translate(x, 0.12 + i * 0.035, z);
             poses.rotateDegrees(Axis.YP, i * 29);
             poses.rotateDegrees(Axis.XP, -90);
-            poses.scale(0.43F, 0.37F, 0.68F);
+            poses.scale(0.68F, 0.62F, 0.85F);
             state.fuel.submit(poses, collector, light, OverlayTexture.NO_OVERLAY, 0);
             poses.popPose();
         }
         poses.pushPose();
-        poses.translate(0, 0.15 + state.fuelCount * 0.036, -0.11);
+        poses.translate(0, 0.15 + state.fuelCount * 0.044, -0.11);
         poses.rotateDegrees(Axis.XP, -90);
         poses.scale(0.62F, 0.62F, 0.62F);
         state.ore.submit(poses, collector, light, OverlayTexture.NO_OVERLAY, 0);

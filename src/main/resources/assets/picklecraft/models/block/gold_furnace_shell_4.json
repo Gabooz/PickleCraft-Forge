@@ -5,15 +5,13 @@
     "stone": "minecraft:block/red_sandstone",
     "cut": "minecraft:block/cut_red_sandstone",
     "carved": "minecraft:block/chiseled_red_sandstone",
-    "black": "minecraft:block/polished_blackstone",
-    "brick": "minecraft:block/polished_blackstone_bricks",
     "copper": "minecraft:block/cut_copper",
     "pin": "minecraft:block/raw_gold_block",
     "iron": "picklecraft:block/furnace_band",
     "lining": "picklecraft:block/furnace_lining"
   },
   "elements": [
-    {"from": [0, 0, 0], "to": [16, 3, 16], "faces": {"north": {"texture": "#black"}, "south": {"texture": "#black"}, "west": {"texture": "#black"}, "east": {"texture": "#black"}, "up": {"texture": "#black"}, "down": {"texture": "#black"}}},
+    {"from": [0, 0, 0], "to": [16, 3, 16], "faces": {"north": {"texture": "#cut"}, "south": {"texture": "#cut"}, "west": {"texture": "#cut"}, "east": {"texture": "#cut"}, "up": {"texture": "#cut"}, "down": {"texture": "#cut"}}},
     {"from": [0, 3, 0], "to": [16, 5, 16], "faces": {"north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper"}, "east": {"texture": "#copper"}, "up": {"texture": "#copper"}, "down": {"texture": "#copper"}}},
     {"from": [0, 5, 0], "to": [16, 13, 16], "faces": {"north": {"texture": "#stone"}, "south": {"texture": "#stone"}, "west": {"texture": "#stone"}, "east": {"texture": "#stone"}, "up": {"texture": "#stone"}, "down": {"texture": "#stone"}}},
     {"from": [0, 13, 0], "to": [16, 16, 16], "faces": {"north": {"texture": "#cut"}, "south": {"texture": "#cut"}, "west": {"texture": "#cut"}, "east": {"texture": "#cut"}, "up": {"texture": "#cut"}, "down": {"texture": "#cut"}}}

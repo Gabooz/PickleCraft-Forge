@@ -75,6 +75,12 @@ public final class GroundContent {
     public static final RegistryObject<BlockEntityType<GoldFurnace>> GOLD_FURNACE_ENTITY = ENTITIES.register("gold_furnace",
         () -> new BlockEntityType<>(GoldFurnace::new, Set.of(GOLD_FURNACE.get())));
 
+    public static final RegistryObject<StockpileBlock> STOCKPILE = BLOCKS.register("stockpile", () ->
+        new StockpileBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("stockpile"))
+            .strength(2F).sound(SoundType.STONE).pushReaction(PushReaction.IMMOVEABLE)));
+    public static final RegistryObject<BlockEntityType<Stockpile>> STOCKPILE_ENTITY = ENTITIES.register("stockpile",
+        () -> new BlockEntityType<>(Stockpile::new, Set.of(STOCKPILE.get())));
+
     public static final RegistryObject<OpenBarrelBlock> OPEN_BARREL = BLOCKS.register("open_barrel", () ->
         new OpenBarrelBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("open_barrel"))
             .strength(2.5F).noOcclusion().sound(SoundType.WOOD).pushReaction(PushReaction.IMMOVEABLE)));

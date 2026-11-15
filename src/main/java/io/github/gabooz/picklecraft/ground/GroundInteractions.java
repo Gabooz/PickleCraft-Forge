@@ -14,7 +14,11 @@ public final class GroundInteractions {
         var level = event.getLevel();
         var pos = event.getPos();
         var held = event.getItemStack();
-        InteractionResult result;
+        InteractionResult result = StockpileBlock.interact(event);
+        if (result != InteractionResult.PASS) {
+            event.setCancellationResult(result);
+            return true;
+        }
         var player = event.getEntity();
         var state = level.getBlockState(pos);
         var assembled = GoldFurnaceBlock.assemble(event);

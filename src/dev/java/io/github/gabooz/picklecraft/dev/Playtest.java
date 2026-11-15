@@ -87,6 +87,7 @@ public final class Playtest {
         verifyIronFurnace(level, player);
         verifyGoldFurnace(level, player);
         verifyOpenBarrel(level, player);
+        verifyStockpile(level, player);
         require(level.dimensionType().defaultClock().map(clock -> level.clockManager().getInstance(clock).rate() == 0.25F).orElse(false),
             "Overworld clock runs at quarter speed");
         require(!biome.shouldSnow(level, new BlockPos(pos.getX(), 250, pos.getZ())), "No snow at high altitude");
@@ -506,6 +507,54 @@ public final class Playtest {
             new net.minecraft.world.phys.AABB(pos.above()), entity -> entity.getItem().is(axe) || entity.getItem().is(stone));
         require(drops.stream().mapToInt(entity -> entity.getItem().getCount()).sum() == 61,
             "All remaining items spill into the world");
+    }
+
+    private static void verifyStockpile(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        var hand = net.minecraft.world.InteractionHand.MAIN_HAND;
+        var coal = net.minecraft.world.item.Items.COAL;
+        var stone = net.minecraft.world.item.Items.STONE;
+        for (int size : new int[]{3, 9}) {
+            var corner = player.blockPosition().offset(1, 5, size == 3 ? 0 : 4);
+            for (int x = 0; x < size; x++) {
+                for (int z = 0; z < size; z++) {
+                    var cell = corner.offset(x, 0, z);
+                    boolean xEdge = x == 0 || x == size - 1;
+                    boolean zEdge = z == 0 || z == size - 1;
+                    if (xEdge || zEdge) {
+                        level.setBlockAndUpdate(cell, (xEdge && zEdge ? Blocks.OAK_LOG : Blocks.STONE_BRICKS).defaultBlockState());
+                    } else {
+                        level.setBlockAndUpdate(cell, Blocks.AIR.defaultBlockState());
+                        level.setBlockAndUpdate(cell.below(), Blocks.DIRT_PATH.defaultBlockState());
+                    }
+                }
+            }
+            var controller = corner.offset(1, 0, 0);
+            var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(controller),
+                net.minecraft.core.Direction.UP, controller, false);
+            var click = new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, controller, hit);
+            var hammer = io.github.gabooz.picklecraft.ground.GroundContent.STONE_HAMMER.get().getDefaultInstance();
+            player.setItemInHand(hand, hammer);
+            player.setShiftKeyDown(true);
+            require(io.github.gabooz.picklecraft.ground.GroundInteractions.use(click), "Hammer forms a " + size + "x" + size + " stockpile");
+            player.setShiftKeyDown(false);
+            var pile = (io.github.gabooz.picklecraft.ground.Stockpile) level.getBlockEntity(controller);
+            require(pile != null && pile.capacity() == size * size * size, "Stockpile capacity is width cubed");
+            var coalStack = new net.minecraft.world.item.ItemStack(coal, 64);
+            player.setItemInHand(hand, coalStack);
+            io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+            require(coalStack.isEmpty() && pile.sample().is(coal), "First deposit sets the stockpile type");
+            player.setItemInHand(hand, stone.getDefaultInstance());
+            io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+            require(player.getItemInHand(hand).is(stone) && pile.sample().is(coal), "Stockpile rejects a different item type");
+            var otherRim = corner.offset(0, 0, 1);
+            var otherHit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(otherRim),
+                net.minecraft.core.Direction.UP, otherRim, false);
+            player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+            io.github.gabooz.picklecraft.ground.GroundInteractions.use(
+                new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, otherRim, otherHit));
+            require(pile.sample().isEmpty(), "Another rim block withdraws the last stack");
+        }
     }
 
     private static void require(boolean condition, String check) {

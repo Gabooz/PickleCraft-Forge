@@ -74,9 +74,13 @@ public final class OpenBarrelRenderer implements BlockEntityRenderer<OpenBarrel,
         for (var run : state.runs) {
             for (int i = 0; i < run.count(); i++, layer++) {
                 poses.pushPose();
-                double x = (layout.nextFloat() - 0.5) * 0.22;
-                double z = (layout.nextFloat() - 0.5) * 0.22;
                 float angle = layout.nextFloat() * 360;
+                float scale = 0.32F + layout.nextFloat() * 0.12F;
+                double radians = Math.toRadians(angle);
+                double halfFootprint = scale * (Math.abs(Math.cos(radians)) + Math.abs(Math.sin(radians))) / 2;
+                double travel = 7.0 / 16 - halfFootprint;
+                double x = (layout.nextFloat() * 2 - 1) * travel;
+                double z = (layout.nextFloat() * 2 - 1) * travel;
                 double y = FLOOR + (layer + 0.5) * LAYER_HEIGHT;
                 if (run.fullCube()) {
                     poses.translate(0.5, y, 0.5);
@@ -85,7 +89,7 @@ public final class OpenBarrelRenderer implements BlockEntityRenderer<OpenBarrel,
                     poses.translate(0.5 + x, y, 0.5 + z);
                     poses.rotateDegrees(Axis.YP, angle);
                     poses.rotateDegrees(Axis.XP, -90);
-                    poses.scale(0.45F, 0.45F, (float) (LAYER_HEIGHT * 0.9));
+                    poses.scale(scale, scale, (float) (LAYER_HEIGHT * 0.9));
                 }
                 run.model().submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
                 poses.popPose();

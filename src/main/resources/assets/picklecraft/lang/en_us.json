@@ -16,5 +16,6 @@
   "message.picklecraft.gold_furnace_ignite": "Load gold ore and 10 coal or charcoal before lighting.",
   "death.attack.picklecraft.superheated_gold": "%1$s grabbed superheated gold and died",
   "block.picklecraft.open_barrel": "Open Barrel",
-  "block.picklecraft.gold_furnace_shell": "Gold Furnace Shell"
+  "block.picklecraft.gold_furnace_shell": "Gold Furnace Shell",
+  "block.picklecraft.stockpile": "Stockpile"
 }

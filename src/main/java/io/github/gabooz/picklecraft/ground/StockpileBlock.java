@@ -25,6 +25,20 @@ import java.util.List;
 public final class StockpileBlock extends BaseEntityBlock {
     public StockpileBlock(Properties properties) {
         super(properties);
+        registerDefaultState(stateDefinition.any().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition.Builder<
+            net.minecraft.world.level.block.Block, BlockState> builder) {
+        builder.add(BlockStateProperties.HORIZONTAL_FACING);
+    }
+
+    @Override
+    protected net.minecraft.world.phys.shapes.VoxelShape getShape(BlockState state,
+            net.minecraft.world.level.BlockGetter level, BlockPos pos,
+            net.minecraft.world.phys.shapes.CollisionContext context) {
+        return StockpileTrimBlock.RIM.get(state.getValue(BlockStateProperties.HORIZONTAL_FACING));
     }
 
     @Override
@@ -152,13 +166,19 @@ public final class StockpileBlock extends BaseEntityBlock {
         for (int x = 0; x < size; x++) {
             for (int z = 0; z < size; z++) {
                 var point = corner.offset(x, 0, z);
-                if (point.equals(controller)) continue;
                 boolean xEdge = x == 0 || x == edge;
                 boolean zEdge = z == 0 || z == edge;
                 var part = xEdge && zEdge ? Part.POST : xEdge || zEdge ? Part.RIM : Part.FLOOR;
                 if (part == Part.FLOOR) point = point.below();
                 var front = z == 0 ? Direction.NORTH : z == edge ? Direction.SOUTH
                     : x == 0 ? Direction.WEST : Direction.EAST;
+                if (point.equals(controller)) {
+                    var anchor = level.getBlockState(point);
+                    if (anchor.getValue(BlockStateProperties.HORIZONTAL_FACING) != front) {
+                        level.setBlockAndUpdate(point, anchor.setValue(BlockStateProperties.HORIZONTAL_FACING, front));
+                    }
+                    continue;
+                }
                 var shaped = trim.setValue(StockpileTrimBlock.PART, part)
                     .setValue(BlockStateProperties.HORIZONTAL_FACING, part == Part.RIM ? front : Direction.NORTH);
                 var before = level.getBlockState(point);

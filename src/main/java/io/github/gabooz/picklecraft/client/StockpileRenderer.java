@@ -113,27 +113,31 @@ public final class StockpileRenderer implements BlockEntityRenderer<Stockpile, S
         boolean logs = state.arrangement == Arrangement.LOGS;
         boolean bricks = state.arrangement == Arrangement.BRICKS;
         int width = Math.min(7, state.interior + 1);
-        float cell = state.interior * 0.85F / width;
+        float cell = state.interior * 0.97F / width;
         int columns = logs ? width : width * width;
-        int pieces = Math.max(1, (int) Math.ceil(Math.sqrt(state.fill) * columns * (bricks ? 5 : 3)));
+        int pieces = Math.max(1, (int) Math.ceil(Math.sqrt(state.fill) * columns * (bricks ? 7 : 4)));
         // Build each layer from the center out so a partially filled pile stays balanced.
         for (int i = 0; i < pieces; i++) {
             int layer = i / columns;
             int column = i % columns;
             int x = centeredIndex(column % width, width);
             int z = logs ? 0 : centeredIndex(column / width, width);
-            float height = cell * (bricks ? 0.32F : 0.55F);
+            float height = cell * (bricks ? 0.46F : 0.78F);
             poses.pushPose();
             poses.translate((x - (width - 1) / 2.0) * cell, height * (layer + 0.5),
                 logs ? 0 : (z - (width - 1) / 2.0) * cell);
             if (logs) {
-                poses.scale(cell * 0.92F, height * 0.98F, state.interior * 0.74F);
+                poses.scale(cell * 0.92F, height * 0.98F, state.interior * 0.90F);
                 poses.rotateDegrees(Axis.XP, 90);
             } else {
                 poses.scale(cell * 0.92F, height * 0.98F, cell * 0.92F);
                 if (bricks) {
                     poses.rotateDegrees(Axis.YP, (layer % 2) * 90);
-                    if (state.flatBricks) poses.rotateDegrees(Axis.XP, -90);
+                    if (state.flatBricks) {
+                        // A sprite is only one pixel thick; use overlapping courses so a tower reads as masonry.
+                        poses.rotateDegrees(Axis.XP, -90);
+                        poses.scale(1, 1, 12);
+                    }
                 }
             }
             state.material.submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
@@ -154,7 +158,7 @@ public final class StockpileRenderer implements BlockEntityRenderer<Stockpile, S
             for (int x = -grid; x <= grid; x++) {
                 double distance = Math.hypot(x, z) / grid;
                 if (distance > 1) continue;
-                float height = (float) (0.045 + (1 - distance) * fullness * (0.35 + state.interior * 0.11));
+                float height = (float) (0.045 + (1 - distance) * fullness * (0.65 + state.interior * 0.15));
                 poses.pushPose();
                 poses.translate(x * cell, height / 2, z * cell);
                 poses.scale(cell, height, cell);
@@ -169,27 +173,27 @@ public final class StockpileRenderer implements BlockEntityRenderer<Stockpile, S
         boolean granules = type == Arrangement.DUST;
         boolean flat = type == Arrangement.ITEMS || type == Arrangement.COAL || type == Arrangement.DUST;
         float fullness = (float) Math.sqrt(state.fill);
-        float reach = Math.min(state.interior * 0.40F, 0.13F + state.interior * 0.35F * fullness);
+        float reach = Math.min(state.interior * 0.48F, 0.22F + state.interior * 0.40F * fullness);
         if (type == Arrangement.SAND) {
             sandBank(state, poses, collector, reach, fullness);
             return;
         }
         float pieceScale = switch (type) {
-            case DUST -> 0.24F;
-            case COAL, ROCK -> 0.38F;
-            case ITEMS -> 0.44F;
-            default -> 0.54F;
+            case DUST -> 0.31F;
+            case COAL, ROCK -> 0.50F;
+            case ITEMS -> 0.57F;
+            default -> 0.65F;
         };
         int grid = Math.clamp((int) Math.ceil(reach / (pieceScale * 0.7)), 1, 7);
         float step = reach / grid;
-        float height = pieceScale * (flat ? 0.12F : 0.61F);
+        float height = pieceScale * (flat ? 0.23F : 0.72F);
         for (int z = -grid; z <= grid; z++) {
             for (int x = -grid; x <= grid; x++) {
                 float radius = (float) Math.hypot(x, z) / grid;
-                if (radius > 1 || (radius > 0.72F && random.nextFloat() < 0.20F)) continue;
+                if ((state.fill < 0.006F && (x != 0 || z != 0)) || radius > 1 || (radius > 0.72F && random.nextFloat() < 0.20F)) continue;
                 float scatterX = (random.nextFloat() - 0.5F) * step * 0.62F;
                 float scatterZ = (random.nextFloat() - 0.5F) * step * 0.62F;
-                int layers = 1 + Math.round((1 - radius) * fullness * (granules ? 3 : 2));
+                int layers = 1 + Math.round((1 - radius) * fullness * (granules ? 6 : 5));
                 for (int layer = 0; layer < layers; layer++) {
                     float scale = pieceScale * (0.82F + random.nextFloat() * 0.30F);
                     poses.pushPose();
@@ -198,7 +202,7 @@ public final class StockpileRenderer implements BlockEntityRenderer<Stockpile, S
                     poses.rotateDegrees(Axis.YP, random.nextFloat() * 360);
                     if (flat) poses.rotateDegrees(Axis.XP, -90 + random.nextFloat() * 20 - 10);
                     else if (type == Arrangement.ROCK) poses.rotateDegrees(Axis.ZP, random.nextFloat() * 36 - 18);
-                    poses.scale(scale, scale, scale);
+                    poses.scale(scale, scale, flat ? scale * 2.5F : scale);
                     int light = granules && random.nextInt(7) == 0 ? 0xF000F0 : state.lightCoords;
                     state.material.submit(poses, collector, light, OverlayTexture.NO_OVERLAY, 0);
                     poses.popPose();

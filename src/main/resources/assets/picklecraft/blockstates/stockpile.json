@@ -1,7 +1,20 @@
 {
   "variants": {
-    "": {
-      "model": "picklecraft:block/stockpile"
+    "facing=north": {
+      "model": "picklecraft:block/stockpile",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "picklecraft:block/stockpile",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "picklecraft:block/stockpile",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "picklecraft:block/stockpile",
+      "y": 270
     }
   }
 }

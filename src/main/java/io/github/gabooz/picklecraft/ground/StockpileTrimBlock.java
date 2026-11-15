@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
 
 import java.util.List;
 
@@ -36,6 +37,8 @@ public final class StockpileTrimBlock extends Block implements EntityBlock {
     }
 
     static final EnumProperty<Part> PART = EnumProperty.create("part", Part.class);
+    static final java.util.Map<Direction, VoxelShape> RIM = Shapes.rotateHorizontal(box(0, 0, 4, 16, 8, 12));
+    private static final VoxelShape POST = Shapes.or(box(4, 0, 4, 12, 10, 12), box(5, 10, 5, 11, 10.75, 11));
     private static final VoxelShape FLOOR = box(0, 0, 0, 16, 15, 16);
 
     public StockpileTrimBlock(Properties properties) {
@@ -51,7 +54,11 @@ public final class StockpileTrimBlock extends Block implements EntityBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(PART) == Part.FLOOR ? FLOOR : net.minecraft.world.phys.shapes.Shapes.block();
+        return switch (state.getValue(PART)) {
+            case FLOOR -> FLOOR;
+            case POST -> POST;
+            case RIM -> RIM.get(state.getValue(BlockStateProperties.HORIZONTAL_FACING));
+        };
     }
 
     @Override

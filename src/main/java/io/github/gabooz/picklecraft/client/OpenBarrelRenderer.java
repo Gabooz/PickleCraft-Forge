@@ -13,8 +13,11 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -29,10 +32,11 @@ public final class OpenBarrelRenderer implements BlockEntityRenderer<OpenBarrel,
         BlockEntityRenderers.register(GroundContent.BARREL_ENTITY.get(), context -> new OpenBarrelRenderer());
     }
 
-    private record Run(ItemStackRenderState model, int count, boolean block) {}
+    private record Run(ItemStackRenderState model, int count, boolean fullCube) {}
 
     public static final class State extends BlockEntityRenderState {
         private final List<Run> runs = new ArrayList<>();
+        private long layoutSeed;
     }
 
     @Override
@@ -45,27 +49,43 @@ public final class OpenBarrelRenderer implements BlockEntityRenderer<OpenBarrel,
             ModelFeatureRenderer.CrumblingOverlay breaking) {
         BlockEntityRenderer.super.extractRenderState(barrel, state, partialTicks, camera, breaking);
         state.runs.clear();
+        state.layoutSeed = barrel.getBlockPos().asLong();
         var resolver = Minecraft.getInstance().getItemModelResolver();
         for (var stack : barrel.contents()) {
             var model = new ItemStackRenderState();
             resolver.updateForTopItem(model, stack, ItemDisplayContext.NONE, barrel.getLevel(), null, 0);
-            state.runs.add(new Run(model, stack.getCount(), stack.getItem() instanceof BlockItem));
+            state.runs.add(new Run(model, stack.getCount(), fillsSlab(stack.getItem())));
         }
+    }
+
+    private static boolean fillsSlab(net.minecraft.world.item.Item item) {
+        if (item instanceof BlockItem blockItem) {
+            var block = blockItem.getBlock().defaultBlockState();
+            return !block.hasBlockEntity() && block.isCollisionShapeFullBlock(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
+        }
+        return false;
     }
 
     @Override
     public void submit(State state, PoseStack poses, SubmitNodeCollector collector, CameraRenderState camera) {
+        // The same barrel and layer always get the same pose, even as the pile grows.
+        var layout = RandomSource.create(state.layoutSeed);
         int layer = 0;
         for (var run : state.runs) {
             for (int i = 0; i < run.count(); i++, layer++) {
                 poses.pushPose();
-                poses.translate(0.5, FLOOR + (layer + 0.5) * LAYER_HEIGHT, 0.5);
-                if (run.block()) {
+                double x = (layout.nextFloat() - 0.5) * 0.22;
+                double z = (layout.nextFloat() - 0.5) * 0.22;
+                float angle = layout.nextFloat() * 360;
+                double y = FLOOR + (layer + 0.5) * LAYER_HEIGHT;
+                if (run.fullCube()) {
+                    poses.translate(0.5, y, 0.5);
                     poses.scale(0.875F, (float) LAYER_HEIGHT, 0.875F);
                 } else {
-                    poses.rotateDegrees(Axis.YP, layer * 31);
+                    poses.translate(0.5 + x, y, 0.5 + z);
+                    poses.rotateDegrees(Axis.YP, angle);
                     poses.rotateDegrees(Axis.XP, -90);
-                    poses.scale(0.6F, 0.6F, 0.09F);
+                    poses.scale(0.45F, 0.45F, (float) (LAYER_HEIGHT * 0.9));
                 }
                 run.model().submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
                 poses.popPose();

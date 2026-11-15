@@ -1,0 +1,26 @@
+{
+  "variants": {
+    "part=post": {
+      "model": "picklecraft:block/stockpile_post"
+    },
+    "part=floor": {
+      "model": "picklecraft:block/stockpile_floor"
+    },
+    "facing=north,part=rim": {
+      "model": "picklecraft:block/stockpile_rim",
+      "y": 0
+    },
+    "facing=east,part=rim": {
+      "model": "picklecraft:block/stockpile_rim",
+      "y": 90
+    },
+    "facing=south,part=rim": {
+      "model": "picklecraft:block/stockpile_rim",
+      "y": 180
+    },
+    "facing=west,part=rim": {
+      "model": "picklecraft:block/stockpile_rim",
+      "y": 270
+    }
+  }
+}

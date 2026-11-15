@@ -540,6 +540,12 @@ public final class Playtest {
             player.setShiftKeyDown(false);
             var pile = (io.github.gabooz.picklecraft.ground.Stockpile) level.getBlockEntity(controller);
             require(pile != null && pile.capacity() == size * size * size, "Stockpile capacity is width cubed");
+            var trim = io.github.gabooz.picklecraft.ground.GroundContent.STOCKPILE_TRIM.get();
+            require(level.getBlockState(corner).is(trim)
+                && level.getBlockState(corner.offset(0, 0, 1)).is(trim)
+                && level.getBlockState(corner.offset(1, -1, 1)).is(trim)
+                && level.isEmptyBlock(corner.offset(1, 0, 1)),
+                "Assembled stockpile has modeled corners, rim and recessed floor");
             var coalStack = new net.minecraft.world.item.ItemStack(coal, 64);
             player.setItemInHand(hand, coalStack);
             io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);

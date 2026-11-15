@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import io.github.gabooz.picklecraft.ground.GroundContent;
 import io.github.gabooz.picklecraft.ground.Stockpile;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -37,6 +38,7 @@ public final class StockpileRenderer implements BlockEntityRenderer<Stockpile, S
         private double centerZ;
         private int interior;
         private long seed;
+        private boolean flatBricks;
     }
 
     @Override
@@ -55,11 +57,23 @@ public final class StockpileRenderer implements BlockEntityRenderer<Stockpile, S
         BlockEntityRenderer.super.extractRenderState(pile, state, partialTicks, camera, breaking);
         var sample = pile.displayItem();
         state.arrangement = arrangement(sample);
+        state.flatBricks = state.arrangement == Arrangement.BRICKS && !(sample.getItem() instanceof BlockItem);
         state.fill = pile.displayFill();
         state.interior = pile.size() - 2;
         state.centerX = pile.corner().getX() - pile.getBlockPos().getX() + pile.size() / 2.0;
         state.centerZ = pile.corner().getZ() - pile.getBlockPos().getZ() + pile.size() / 2.0;
         state.seed = pile.getBlockPos().asLong();
+        var level = pile.getLevel();
+        if (level != null) {
+            // The controller is solid and may be shaded by the rim. Light the pile from open air above it.
+            var surface = pile.corner().offset(pile.size() / 2, 1, pile.size() / 2);
+            var overRim = pile.getBlockPos().above();
+            int block = Math.max(level.getBrightness(LightLayer.BLOCK, surface),
+                level.getBrightness(LightLayer.BLOCK, overRim));
+            int sky = Math.max(level.getBrightness(LightLayer.SKY, surface),
+                level.getBrightness(LightLayer.SKY, overRim));
+            state.lightCoords = sky << 20 | block << 4;
+        }
         Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.material, sample,
             ItemDisplayContext.NONE, pile.getLevel(), null, 0);
     }
@@ -117,7 +131,10 @@ public final class StockpileRenderer implements BlockEntityRenderer<Stockpile, S
                 poses.rotateDegrees(Axis.XP, 90);
             } else {
                 poses.scale(cell * 0.92F, height * 0.98F, cell * 0.92F);
-                if (bricks) poses.rotateDegrees(Axis.YP, (layer % 2) * 90);
+                if (bricks) {
+                    poses.rotateDegrees(Axis.YP, (layer % 2) * 90);
+                    if (state.flatBricks) poses.rotateDegrees(Axis.XP, -90);
+                }
             }
             state.material.submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
             poses.popPose();
@@ -152,35 +169,41 @@ public final class StockpileRenderer implements BlockEntityRenderer<Stockpile, S
         boolean granules = type == Arrangement.DUST;
         boolean flat = type == Arrangement.ITEMS || type == Arrangement.COAL || type == Arrangement.DUST;
         float fullness = (float) Math.sqrt(state.fill);
-        float reach = state.interior * (0.17F + 0.24F * fullness);
+        float reach = Math.min(state.interior * 0.40F, 0.13F + state.interior * 0.35F * fullness);
         if (type == Arrangement.SAND) {
             sandBank(state, poses, collector, reach, fullness);
             return;
         }
-        float size = switch (type) {
-            case DUST -> 0.20F;
-            case COAL, ROCK -> 0.34F;
-            case ITEMS -> 0.40F;
-            default -> 0.55F;
+        float pieceScale = switch (type) {
+            case DUST -> 0.24F;
+            case COAL, ROCK -> 0.38F;
+            case ITEMS -> 0.44F;
+            default -> 0.54F;
         };
-        int pieces = Math.clamp((int) Math.ceil((granules ? 50 : 26) * state.interior * fullness), 1, 160);
-        for (int i = 0; i < pieces; i++) {
-            double angle = random.nextDouble() * Math.TAU;
-            double radius = Math.sqrt(random.nextDouble());
-            float scale = size * (0.68F + random.nextFloat() * 0.55F);
-            double height = (1 - radius) * fullness * (0.24 + state.interior * 0.075);
-            // Ground some pieces at every radius, then heap the others towards the middle.
-            if (i % 3 == 0) height = 0;
-            poses.pushPose();
-            poses.translate(Math.cos(angle) * radius * reach, height + scale * (flat ? 0.18 : 0.5),
-                Math.sin(angle) * radius * reach);
-            poses.rotateDegrees(Axis.YP, random.nextFloat() * 360);
-            if (flat) poses.rotateDegrees(Axis.XP, -70 - random.nextFloat() * 35);
-            else if (type == Arrangement.ROCK) poses.rotateDegrees(Axis.ZP, random.nextFloat() * 45 - 22.5F);
-            poses.scale(scale, scale, scale);
-            int light = type == Arrangement.DUST && i % 7 == 0 ? 0xF000F0 : state.lightCoords;
-            state.material.submit(poses, collector, light, OverlayTexture.NO_OVERLAY, 0);
-            poses.popPose();
+        int grid = Math.clamp((int) Math.ceil(reach / (pieceScale * 0.7)), 1, 7);
+        float step = reach / grid;
+        float height = pieceScale * (flat ? 0.12F : 0.61F);
+        for (int z = -grid; z <= grid; z++) {
+            for (int x = -grid; x <= grid; x++) {
+                float radius = (float) Math.hypot(x, z) / grid;
+                if (radius > 1 || (radius > 0.72F && random.nextFloat() < 0.20F)) continue;
+                float scatterX = (random.nextFloat() - 0.5F) * step * 0.62F;
+                float scatterZ = (random.nextFloat() - 0.5F) * step * 0.62F;
+                int layers = 1 + Math.round((1 - radius) * fullness * (granules ? 3 : 2));
+                for (int layer = 0; layer < layers; layer++) {
+                    float scale = pieceScale * (0.82F + random.nextFloat() * 0.30F);
+                    poses.pushPose();
+                    poses.translate(x * step + scatterX, height * (layer + 0.5),
+                        z * step + scatterZ);
+                    poses.rotateDegrees(Axis.YP, random.nextFloat() * 360);
+                    if (flat) poses.rotateDegrees(Axis.XP, -90 + random.nextFloat() * 20 - 10);
+                    else if (type == Arrangement.ROCK) poses.rotateDegrees(Axis.ZP, random.nextFloat() * 36 - 18);
+                    poses.scale(scale, scale, scale);
+                    int light = granules && random.nextInt(7) == 0 ? 0xF000F0 : state.lightCoords;
+                    state.material.submit(poses, collector, light, OverlayTexture.NO_OVERLAY, 0);
+                    poses.popPose();
+                }
+            }
         }
     }
 }

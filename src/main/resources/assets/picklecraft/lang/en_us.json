@@ -17,5 +17,6 @@
   "death.attack.picklecraft.superheated_gold": "%1$s grabbed superheated gold and died",
   "block.picklecraft.open_barrel": "Open Barrel",
   "block.picklecraft.gold_furnace_shell": "Gold Furnace Shell",
-  "block.picklecraft.stockpile": "Stockpile"
+  "block.picklecraft.stockpile": "Stockpile",
+  "block.picklecraft.stockpile_trim": "Stockpile Trim"
 }

@@ -1,0 +1,48 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "minecraft:block/stone_bricks",
+    "stone": "minecraft:block/stone_bricks",
+    "band": "minecraft:block/stripped_spruce_log",
+    "end": "minecraft:block/stripped_spruce_log_top",
+    "cap": "minecraft:block/spruce_planks",
+    "metal": "minecraft:block/exposed_cut_copper",
+    "soil": "picklecraft:block/stockpile_floor",
+    "soil_side": "minecraft:block/dirt_path_side",
+    "dirt": "minecraft:block/dirt"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        15,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#soil_side"
+        },
+        "south": {
+          "texture": "#soil_side"
+        },
+        "east": {
+          "texture": "#soil_side"
+        },
+        "west": {
+          "texture": "#soil_side"
+        },
+        "up": {
+          "texture": "#soil"
+        },
+        "down": {
+          "texture": "#dirt"
+        }
+      }
+    }
+  ]
+}

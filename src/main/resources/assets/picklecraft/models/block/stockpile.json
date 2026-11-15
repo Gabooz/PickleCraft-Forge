@@ -2,8 +2,14 @@
   "parent": "minecraft:block/block",
   "textures": {
     "particle": "minecraft:block/stone_bricks",
-    "brick": "minecraft:block/stone_bricks",
-    "band": "minecraft:block/stripped_spruce_log"
+    "stone": "minecraft:block/stone_bricks",
+    "band": "minecraft:block/stripped_spruce_log",
+    "end": "minecraft:block/stripped_spruce_log_top",
+    "cap": "minecraft:block/spruce_planks",
+    "metal": "minecraft:block/exposed_cut_copper",
+    "soil": "minecraft:block/dirt_path_top",
+    "soil_side": "minecraft:block/dirt_path_side",
+    "dirt": "minecraft:block/dirt"
   },
   "elements": [
     {
@@ -14,34 +20,34 @@
       ],
       "to": [
         16,
-        15,
+        11,
         16
       ],
       "faces": {
         "north": {
-          "texture": "#brick"
+          "texture": "#stone"
         },
         "south": {
-          "texture": "#brick"
-        },
-        "west": {
-          "texture": "#brick"
+          "texture": "#stone"
         },
         "east": {
-          "texture": "#brick"
+          "texture": "#stone"
+        },
+        "west": {
+          "texture": "#stone"
         },
         "up": {
-          "texture": "#brick"
+          "texture": "#stone"
         },
         "down": {
-          "texture": "#brick"
+          "texture": "#stone"
         }
       }
     },
     {
       "from": [
         0,
-        15,
+        11,
         0
       ],
       "to": [
@@ -56,14 +62,49 @@
         "south": {
           "texture": "#band"
         },
-        "west": {
-          "texture": "#band"
-        },
         "east": {
           "texture": "#band"
         },
-        "up": {
+        "west": {
           "texture": "#band"
+        },
+        "up": {
+          "texture": "#cap"
+        },
+        "down": {
+          "texture": "#band"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        16,
+        5
+      ],
+      "to": [
+        11,
+        16.6,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#metal"
+        },
+        "south": {
+          "texture": "#metal"
+        },
+        "east": {
+          "texture": "#metal"
+        },
+        "west": {
+          "texture": "#metal"
+        },
+        "up": {
+          "texture": "#metal"
+        },
+        "down": {
+          "texture": "#metal"
         }
       }
     }

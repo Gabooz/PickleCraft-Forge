@@ -78,6 +78,11 @@ public final class GroundContent {
     public static final RegistryObject<StockpileBlock> STOCKPILE = BLOCKS.register("stockpile", () ->
         new StockpileBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("stockpile"))
             .strength(2F).sound(SoundType.STONE).pushReaction(PushReaction.IMMOVEABLE)));
+    public static final RegistryObject<StockpileTrimBlock> STOCKPILE_TRIM = BLOCKS.register("stockpile_trim", () ->
+        new StockpileTrimBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("stockpile_trim"))
+            .strength(2F).noOcclusion().sound(SoundType.STONE).pushReaction(PushReaction.IMMOVEABLE)));
+    static final RegistryObject<BlockEntityType<StockpilePost>> STOCKPILE_POST_ENTITY = ENTITIES.register("stockpile_post",
+        () -> new BlockEntityType<>(StockpilePost::new, Set.of(STOCKPILE_TRIM.get())));
     public static final RegistryObject<BlockEntityType<Stockpile>> STOCKPILE_ENTITY = ENTITIES.register("stockpile",
         () -> new BlockEntityType<>(Stockpile::new, Set.of(STOCKPILE.get())));
 

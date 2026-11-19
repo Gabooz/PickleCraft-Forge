@@ -28,6 +28,9 @@ abstract class NightLightMixin {
             Minecraft.getInstance().player.blockPosition()).index();
         float moon = 1F - Math.min(phase, 8 - phase) / 4F;
         float darkness = 1F - night + night * (0.13F + 0.039F * moon);
+        if (io.github.gabooz.picklecraft.client.ZombieZoneClient.active()) {
+            darkness *= 1F - night * 0.22F;
+        }
         state.skyFactor *= darkness;
         state.ambientColor = new Vector3f(state.ambientColor).mul(darkness);
         state.brightness *= 1F - night;

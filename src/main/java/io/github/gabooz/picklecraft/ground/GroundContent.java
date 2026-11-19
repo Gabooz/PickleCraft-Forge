@@ -130,6 +130,7 @@ public final class GroundContent {
                 output.accept(BLOSSOMS.get());
                 output.accept(Items.STICK);
                 output.accept(Items.STRING);
+                output.accept(Items.BONE);
                 output.accept(Items.STONE_PICKAXE);
                 output.accept(Items.STONE_SWORD);
                 output.accept(Items.STONE_SHOVEL);
@@ -156,6 +157,6 @@ public final class GroundContent {
     }
 
     public static boolean isMaterial(ItemStack stack) {
-        return stack.is(Items.STICK) || stack.is(Items.STRING) || stack.is(STONE.get());
+        return stack.is(Items.BONE) || stack.is(Items.STICK) || stack.is(Items.STRING) || stack.is(STONE.get());
     }
 }

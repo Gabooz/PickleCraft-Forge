@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * Register challenge definitions during mod setup, before worlds start generating.
  * Each hex chooses one definition deterministically, and invokes it once per chunk.
- * The empty registry deliberately leaves every region without a challenge.
+ * Definitions can restrict eligibility to a deterministic subset of their zones.
  */
 public final class BiomeChallenges {
     @FunctionalInterface
@@ -29,12 +29,18 @@ public final class BiomeChallenges {
     }
 
     public record Definition(Identifier id, Set<HexRegions.Kind> biomes, int weight, Generation generation,
-            Predicate<Mob> allowedMobs) {
+            Predicate<Mob> allowedMobs, Predicate<HexRegions.Region> eligibleZone) {
         public Definition(Identifier id, Set<HexRegions.Kind> biomes, int weight, Generation generation) {
-            this(id, biomes, weight, generation, mob -> false);
+            this(id, biomes, weight, generation, mob -> false, zone -> true);
         }
+        public Definition(Identifier id, Set<HexRegions.Kind> biomes, int weight, Generation generation,
+                Predicate<Mob> allowedMobs) {
+            this(id, biomes, weight, generation, allowedMobs, zone -> true);
+        }
+
         public Definition {
             java.util.Objects.requireNonNull(id);
+            java.util.Objects.requireNonNull(eligibleZone);
             java.util.Objects.requireNonNull(generation);
             java.util.Objects.requireNonNull(allowedMobs);
             biomes = Set.copyOf(biomes);
@@ -58,6 +64,9 @@ public final class BiomeChallenges {
 
     /** Future mob challenges can explicitly allow their own creatures in their region. */
     public static boolean allowsMob(Level level, Mob mob) {
+        if (mob instanceof io.github.gabooz.picklecraft.zombies.ZoneZombie) {
+            return io.github.gabooz.picklecraft.zombies.ZombieZones.allows(mob);
+        }
         if (definitions.isEmpty() || !(level instanceof ServerLevel server)
                 || !(server.getChunkSource().getGenerator().getBiomeSource() instanceof HexBiomeSource)) {
             return false;
@@ -68,7 +77,7 @@ public final class BiomeChallenges {
     }
 
     public static Optional<Definition> select(HexRegions.Region region) {
-        var eligible = definitions.stream().filter(entry -> entry.biomes().contains(region.kind())).toList();
+        var eligible = definitions.stream().filter(entry -> entry.biomes().contains(region.kind()) && entry.eligibleZone().test(region)).toList();
         int total = eligible.stream().mapToInt(Definition::weight).sum();
         if (total == 0) return Optional.empty();
         long choice = Math.floorMod(region.seed(), (long) total);

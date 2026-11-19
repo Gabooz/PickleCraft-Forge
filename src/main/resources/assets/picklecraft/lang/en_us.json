@@ -22,5 +22,9 @@
   "generator.picklecraft.picklecraft": "PickleCraft",
   "biome.picklecraft.grasslands": "Grasslands",
   "biome.picklecraft.mountains": "Mountains",
-  "biome.picklecraft.oak_forest": "Oak Forest"
+  "biome.picklecraft.oak_forest": "Oak Forest",
+  "entity.picklecraft.zone_zombie": "Zone Zombie",
+  "entity.picklecraft.zone_zombie.0": "Tank Zombie",
+  "entity.picklecraft.zone_zombie.1": "Runner Zombie",
+  "entity.picklecraft.zone_zombie.2": "Blind Zombie"
 }

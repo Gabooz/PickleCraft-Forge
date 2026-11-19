@@ -15,7 +15,8 @@
   ],
   "client": [
     "NightLightMixin",
-    "WorldCreationUiStateMixin"
+    "WorldCreationUiStateMixin",
+    "ZombieFogMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -61,7 +61,16 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 34, "PickleCraft creative tab contains all thirty-four entries");
+            require(tab.getDisplayItems().size() == 35, "PickleCraft creative tab contains all thirty-five entries");
+            try (var fogRenderer = new net.minecraft.client.renderer.fog.FogRenderer()) {
+                io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(true);
+                var fog = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
+                require(fog.renderDistanceEnd == 7 && fog.environmentalEnd <= 7,
+                    "Zombie zone fog limits visibility to seven blocks");
+                io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(false);
+                var clear = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
+                require(clear.renderDistanceEnd > 7, "Cleared zone restores ordinary visibility");
+            }
             game.gui.setScreen(new InventoryScreen(game.player));
             require(game.gui.screen() instanceof SurvivalInventoryScreen, "Survival inventory screen");
             require(DefaultPlayerSkin.get(game.player.getUUID()).body().id().getPath().equals("entity/player/wide/steve"),
@@ -82,7 +91,8 @@ public final class Playtest {
 
     private static void verifyServer(net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player) {
         verifyHexWorld(level);
-        verifyZoneMines(level);
+        if (!"zombies".equals(System.getenv("PICKLECRAFT_TEST_FOCUS"))) verifyZoneMines(level);
+        verifyZombieRosters(level, player);
         var pos = player.blockPosition().below();
         for (var entry : Map.<Block, Integer>of(Blocks.OAK_LOG, 120, Blocks.DIRT, 30, Blocks.STONE, 300,
                 Blocks.SAND, 15, Blocks.COBBLESTONE, 60).entrySet()) {
@@ -132,7 +142,9 @@ public final class Playtest {
                         }
                     }
                 }
-                require(io.github.gabooz.picklecraft.world.BiomeChallenges.select(cell).isEmpty(), "Challenges start disabled");
+                require(io.github.gabooz.picklecraft.world.BiomeChallenges.select(cell).isPresent()
+                    == io.github.gabooz.picklecraft.zombies.ZombieZones.assigned(cell),
+                    "Zombie challenge selection follows grassland eligibility");
             }
         }
         require(seen.size() == 3 && counts[0] > counts[2] && mountainLinks > 100,
@@ -232,6 +244,91 @@ public final class Playtest {
         }
         com.mojang.logging.LogUtils.getLogger().info("MINE ZONE COUNTS none={}, iron={}, gold={}",
             counts[0], counts[1], counts[2]);
+    }
+
+    private static void verifyZombieRosters(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        var sampler = level.getChunkSource().randomState().createClimateSampler(
+            net.minecraft.world.level.levelgen.densityfunction.SamplerContext.EMPTY_UNCACHED);
+        long seed = io.github.gabooz.picklecraft.world.HexRegions.seed(sampler);
+        int grasslands = 0;
+        int assigned = 0;
+        io.github.gabooz.picklecraft.world.HexRegions.Region example = null;
+        for (int q = -70; q <= 70; q++) {
+            for (int r = -70; r <= 70; r++) {
+                var region = io.github.gabooz.picklecraft.world.HexRegions.cell(q, r, seed);
+                if (region.kind() == io.github.gabooz.picklecraft.world.HexRegions.Kind.GRASSLANDS) grasslands++;
+                if (io.github.gabooz.picklecraft.zombies.ZombieZones.assigned(region)) {
+                    require(region.kind() == io.github.gabooz.picklecraft.world.HexRegions.Kind.GRASSLANDS,
+                        "Zombie challenges are exclusive to grasslands");
+                    assigned++;
+                    if (example == null) example = region;
+                }
+            }
+        }
+        require(assigned / (float) grasslands > 0.14 && assigned / (float) grasslands < 0.16,
+            "About fifteen percent of grasslands receive zombies");
+        var ledger = io.github.gabooz.picklecraft.zombies.ZombieLedger.get(level);
+        var zone = ledger.zone(example);
+        require(zone.souls.size() >= 18 && zone.souls.size() <= 25, "Each roster has eighteen to twenty-five members");
+        var actors = new java.util.ArrayList<io.github.gabooz.picklecraft.zombies.ZoneZombie>();
+        for (int type = 0; type < 3; type++) {
+            zone.souls.set(type, new io.github.gabooz.picklecraft.zombies.ZombieLedger.Soul(type, 1,
+                io.github.gabooz.picklecraft.zombies.ZoneZombie.healthFor(type)));
+            var actor = io.github.gabooz.picklecraft.zombies.ZombieContent.ZOMBIE.get().create(level,
+                net.minecraft.world.entity.EntitySpawnReason.NATURAL);
+            actor.assign(zone, type, 1);
+            actor.setPos(player.getX() + 3 + type, player.getY() + 1, player.getZ());
+            require(actor.getMaxHealth() == (type == 0 ? 90 : type == 1 ? 60 : 70),
+                "Roster variant has the specified maximum health");
+            require(actor.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)
+                == (type == 0 ? 8 : type == 1 ? 12 : 14), "Roster variant has the specified attack strength");
+            require(io.github.gabooz.picklecraft.zombies.ZombieZones.allows(actor), "A current roster incarnation can join");
+            require(level.addFreshEntity(actor), "Managed zombies pass mob suppression");
+            actors.add(actor);
+        }
+        var first = actors.getFirst();
+        var lamp = first.blockPosition().above(3);
+        level.setBlockAndUpdate(lamp, Blocks.GLOWSTONE.defaultBlockState());
+        // Process the light queue before checking the zombie's movement preference.
+        var lightEngine = level.getChunkSource().getLightEngine();
+        var pendingLight = lightEngine.waitForPendingTasks(lamp.getX() >> 4, lamp.getZ() >> 4);
+        lightEngine.tryScheduleUpdate();
+        level.getServer().managedBlock(pendingLight::isDone);
+        require(first.getWalkTargetValue(first.blockPosition(), level) < 0,
+            "Zombie navigation treats light as forbidden");
+        level.setBlockAndUpdate(lamp, Blocks.AIR.defaultBlockState());
+        first.setHealth(5);
+        var worldData = (net.minecraft.world.level.storage.ServerLevelData) level.getLevelData();
+        long startTime = level.getGameTime();
+        var clock = level.dimensionType().defaultClock().orElseThrow();
+        long clockTime = level.getDefaultClockTime();
+        level.clockManager().setTotalTicks(clock, 23000);
+        first.tick();
+        require(first.retreating() && first.getHealth() == 90, "Dawn triggers retreat and restores health");
+        int before = zone.remaining();
+        first.hurtServer(level, first.damageSources().generic(), 200);
+        require(zone.remaining() == before - 1 && !zone.alive(0), "A killed roster member stays permanently dead");
+        var ops = net.minecraft.resources.RegistryOps.create(net.minecraft.nbt.NbtOps.INSTANCE, level.registryAccess());
+        var saved = io.github.gabooz.picklecraft.zombies.ZombieLedger.CODEC.encodeStart(ops, ledger).getOrThrow();
+        var restored = io.github.gabooz.picklecraft.zombies.ZombieLedger.CODEC.parse(ops, saved).getOrThrow();
+        require(!restored.find(zone.q, zone.r).alive(0), "Saving and loading preserves permanent deaths");
+        ledger.dawn(zone, 2);
+        require(!zone.alive(0) && zone.souls.get(1).health() == 60, "Night reset heals survivors without resurrection");
+        var second = actors.get(1);
+        second.discard();
+        require(!io.github.gabooz.picklecraft.zombies.ZombieZones.allows(second),
+            "A detached incarnation cannot rejoin after unload");
+        actors.get(2).discard();
+        for (int slot = 0; slot < zone.souls.size(); slot++) ledger.kill(zone, slot);
+        require(zone.remaining() == 0, "All roster members can be permanently cleared");
+        var cleared = io.github.gabooz.picklecraft.zombies.ZombieLedger.CODEC.encodeStart(ops, ledger).getOrThrow();
+        require(io.github.gabooz.picklecraft.zombies.ZombieLedger.CODEC.parse(ops, cleared).getOrThrow()
+            .find(zone.q, zone.r).remaining() == 0, "A cleared zone remains cleared after save and load");
+        level.clockManager().setTotalTicks(clock, clockTime);
+        worldData.setGameTime(startTime);
+        com.mojang.logging.LogUtils.getLogger().info("ZOMBIE ZONES grasslands={}, challenged={}, roster={}",
+            grasslands, assigned, zone.souls.size());
     }
 
     private static void verifyGroundCraft(net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player) {

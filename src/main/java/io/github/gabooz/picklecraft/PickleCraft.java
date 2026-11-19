@@ -29,6 +29,7 @@ public final class PickleCraft {
         var modBus = context.getModBusGroup();
         OverworldFeatures.SERIALIZERS.register(modBus);
         GroundContent.register(modBus);
+        io.github.gabooz.picklecraft.zombies.ZombieContent.register(modBus);
         io.github.gabooz.picklecraft.world.PickleWorldgen.register(modBus);
         io.github.gabooz.picklecraft.ground.TongsContainers.register();
         PlayerInteractEvent.RightClickBlock.BUS.addListener(
@@ -42,6 +43,7 @@ public final class PickleCraft {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             FMLClientSetupEvent.getBus(modBus).addListener(event -> {
                 InventoryScreens.register();
+                event.enqueueWork(io.github.gabooz.picklecraft.client.ZombieZoneClient::register);
                 event.enqueueWork(GroundStackRenderer::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.StockpileRenderer::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.OpenBarrelRenderer::register);

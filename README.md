@@ -74,7 +74,7 @@ It specifies eligible region kinds, selection weight, and a generation callback.
 The callback receives the selected hex and runs once per generated chunk, so
 hazards, resources, and structures can follow a stable region-wide choice.
 An optional mob predicate lets that challenge permit its creatures through the
-mod's usual mob suppression. The registry starts empty.
+mod's usual mob suppression. The zombie challenge is registered for a seeded 15% subset of grassland zones.
 
 
 Mine zones use a separate deterministic roll per hex. One third contain ore,
@@ -84,3 +84,25 @@ plus emerald deposits in mountain zones. Their vanilla placement counts, height
 ranges, sizes, and air-exposure rules are preserved. Large iron/copper veins
 are also converted. Ore blocks are checked against the warped zone boundary.
 Newly generated chunks in PickleCraft worlds use these rules.
+
+
+## Zombie grasslands
+
+About 15% of grassland hex zones have a persistent roster of 18–25 zombies.
+Tank, runner, and blind variants are selected with equal probability for each
+roster member. Tanks have 45 hearts, normal zombie speed, a 10% larger body,
+and 4-heart attacks. Runners have 30 hearts, baby-zombie speed, and 6-heart
+attacks. Blind zombies have 35 hearts, slightly slower movement, and 7-heart
+attacks. Their navigation heading varies by up to 60 degrees to either side.
+Individual detection ranges and initial headings are seeded per roster member.
+
+Zombies spawn on dark, solid, loaded ground 28–75 blocks from nearby survival
+players between clock ticks 13000 and 23000. At dawn they heal and retreat from
+players. Chasing them keeps them loaded and killable. Retired or unloaded
+incarnations cannot duplicate roster members. Death from any cause permanently
+removes the individual. The roster is saved in the Overworld's saved data.
+
+Uncleared zones have seven-block fog throughout the day and night, plus extra
+night darkness. Killing the entire roster clears those effects. Sparse bones
+decorate newly generated challenge zones. Zombies reject paths through emitted
+block light and seek darker ground when caught in light.

@@ -60,7 +60,7 @@ The ingot appears after 55 seconds. The fire goes out after one minute, and cool
 ## PickleCraft world generation
 
 New worlds default to the **PickleCraft** world type. Its pointy hex regions have
-2,500-block sides, with roughly 250 blocks of broad boundary variation and finer
+roughly 1,071-block sides, with roughly 100 blocks of broad boundary variation and finer
 edge detail. Grasslands and oak forests cluster, mountain cells follow broad
 ridges, and river biomes still follow the vanilla climate sampler. Use a new
 PickleCraft world to try this generation.
@@ -102,7 +102,8 @@ players. Chasing them keeps them loaded and killable. Retired or unloaded
 incarnations cannot duplicate roster members. Death from any cause permanently
 removes the individual. The roster is saved in the Overworld's saved data.
 
-Uncleared zones have seven-block fog throughout the day and night, plus extra
+Uncleared zones have fifteen-block fog by day. At night visibility is seven blocks,
+or twelve blocks near emitted light. Night Vision removes zone fog. They also have extra
 night darkness. Killing the entire roster clears those effects. Sparse bones
 decorate newly generated challenge zones. Zombies reject paths through emitted
 block light and seek darker ground when caught in light.
@@ -120,3 +121,22 @@ generation without loading chunks.
 
 Newly generated terrain has lowlands around sea level and lower mountain
 ranges. Existing generated terrain keeps its saved shape.
+
+
+## Cattle
+
+Five percent of grassland zones receive one founding herd of two or three animals,
+including exactly one bull. The orange/tan bull has larger horns and a slightly
+larger body. Cows and bulls are the only peaceful animals that spawn naturally.
+
+Breed a cow with a bull using wheat. Each calf inherits the rounded-up average of
+its parents' seven stats. Each stat has a five-percent total chance to mutate by
+plus or minus one, bounded to 0–50. All founder stats are 25. Stats are stored but
+have no gameplay effects yet.
+
+Calves mature after fifteen Overworld clock days and follow their own mother.
+A mother can nurture one calf within twelve blocks. Additional calves, or calves
+separated for a full day, take half a heart of damage per second until reunited
+or dead. Mothers cannot breed while any of their calves are still immature.
+Adult cows can be milked once per clock day. Adult cattle drop 25–35 raw beef and
+7–12 leather. Cow and bull spawn eggs are available in the PickleCraft creative tab.

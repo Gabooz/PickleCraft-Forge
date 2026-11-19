@@ -29,6 +29,7 @@ public final class PickleCraft {
         var modBus = context.getModBusGroup();
         OverworldFeatures.SERIALIZERS.register(modBus);
         GroundContent.register(modBus);
+        io.github.gabooz.picklecraft.cattle.CattleContent.register(modBus);
         io.github.gabooz.picklecraft.map.ZoneMapNetwork.register();
         io.github.gabooz.picklecraft.zombies.ZombieContent.register(modBus);
         io.github.gabooz.picklecraft.world.PickleWorldgen.register(modBus);
@@ -44,6 +45,7 @@ public final class PickleCraft {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             FMLClientSetupEvent.getBus(modBus).addListener(event -> {
                 InventoryScreens.register();
+                event.enqueueWork(io.github.gabooz.picklecraft.client.CattleRenderers::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.ZombieZoneClient::register);
                 event.enqueueWork(GroundStackRenderer::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.StockpileRenderer::register);
@@ -59,6 +61,7 @@ public final class PickleCraft {
         return !event.getLevel().isClientSide()
             && event.getLevel().dimension().equals(Level.OVERWORLD)
             && event.getEntity() instanceof Mob mob
+            && !(mob instanceof io.github.gabooz.picklecraft.cattle.HerdCow)
             && !io.github.gabooz.picklecraft.world.BiomeChallenges.allowsMob(event.getLevel(), mob);
     }
 }

@@ -19,7 +19,7 @@ public final class ZoneMapScreen extends Screen {
     private final long seed;
     private double centerX;
     private double centerZ;
-    private double pixelsPerBlock = 0.014;
+    private double pixelsPerBlock = 35.0 / HexRegions.SIDE;
     private boolean follow = true;
     private boolean dragging;
     private int[] colors = new int[0];
@@ -230,7 +230,7 @@ public final class ZoneMapScreen extends Screen {
         if (!inside(mouseX, mouseY)) return false;
         double x = worldX(mouseX);
         double z = worldZ(mouseY);
-        pixelsPerBlock = Math.clamp(pixelsPerBlock * Math.pow(1.25, vertical), 0.008, 0.16);
+        pixelsPerBlock = Math.clamp(pixelsPerBlock * Math.pow(1.25, vertical), 20.0 / HexRegions.SIDE, 400.0 / HexRegions.SIDE);
         follow = false;
         centerX = x - (mouseX - originX()) / pixelsPerBlock;
         centerZ = z - (mouseY - originY()) / pixelsPerBlock;

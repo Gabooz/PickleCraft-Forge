@@ -13,14 +13,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 abstract class ZombieFogMixin {
     @Inject(method = "setupFog", at = @At("RETURN"))
     private void picklecraft$zoneFog(CallbackInfoReturnable<FogData> callback) {
-        if (!ZombieZoneClient.active()) return;
+        var game = Minecraft.getInstance();
+        if (!ZombieZoneClient.active() || game.player == null
+                || game.player.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION)) return;
+        long phase = Math.floorMod(game.level.getDefaultClockTime(), 24000);
+        boolean nighttime = phase >= 13000 && phase < 23000;
+        boolean nearLight = Math.max(game.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK,
+            game.player.blockPosition().above()), game.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK,
+                game.player.blockPosition())) > 0;
+        float distance = nighttime ? nearLight ? 12 : 7 : 15;
         var fog = callback.getReturnValue();
         fog.environmentalStart = Math.min(fog.environmentalStart, 1.5F);
-        fog.environmentalEnd = Math.min(fog.environmentalEnd, 7F);
+        fog.environmentalEnd = Math.min(fog.environmentalEnd, distance);
         fog.renderDistanceStart = 1.5F;
-        fog.renderDistanceEnd = 7;
-        fog.skyEnd = 7;
-        fog.cloudEnd = 7;
+        fog.renderDistanceEnd = distance;
+        fog.skyEnd = distance;
+        fog.cloudEnd = distance;
         var level = Minecraft.getInstance().level;
         long time = Math.floorMod(level.getDefaultClockTime(), 24000);
         float night = Math.clamp(Math.min(time - 12000, 24000 - time) / 1500F, 0, 1);

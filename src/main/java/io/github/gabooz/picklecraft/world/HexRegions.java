@@ -2,9 +2,10 @@ package io.github.gabooz.picklecraft.world;
 
 import net.minecraft.world.level.biome.Climate;
 
-/** Pointy-topped hexagons with 2,500-block sides and smoothly warped boundaries. */
+/** Pointy-topped hexagons with roughly 1,071-block sides and smoothly warped boundaries. */
 public final class HexRegions {
-    public static final double SIDE = 2500;
+    public static final double SCALE = 3.0 / 7.0;
+    public static final double SIDE = 2500 * SCALE;
     private static final double ROOT_THREE = Math.sqrt(3);
 
     public enum Kind { GRASSLANDS, MOUNTAINS, OAK_FOREST }
@@ -18,10 +19,10 @@ public final class HexRegions {
     }
 
     public static Region at(double x, double z, long seed) {
-        double warpedX = x + noise(x / 740, z / 740, seed + 11) * 230
-            + noise(x / 210, z / 210, seed + 12) * 48;
-        double warpedZ = z + noise(x / 740, z / 740, seed + 21) * 230
-            + noise(x / 210, z / 210, seed + 22) * 48;
+        double warpedX = x + noise(x / (740 * SCALE), z / (740 * SCALE), seed + 11) * 230 * SCALE
+            + noise(x / (210 * SCALE), z / (210 * SCALE), seed + 12) * 48 * SCALE;
+        double warpedZ = z + noise(x / (740 * SCALE), z / (740 * SCALE), seed + 21) * 230 * SCALE
+            + noise(x / (210 * SCALE), z / (210 * SCALE), seed + 22) * 48 * SCALE;
         double q = (ROOT_THREE / 3 * warpedX - warpedZ / 3) / SIDE;
         double r = warpedZ * 2 / (3 * SIDE);
         int rq = (int) Math.round(q);
@@ -40,10 +41,10 @@ public final class HexRegions {
         double z = SIDE * 1.5 * r;
         // Long coherent ridges group mountain cells into chains. A broader moisture
         // field groups forests, with grasslands a little more common than forest.
-        double ridge = Math.abs(noise(x / 17000, z / 17000, seed + 91)
-            + noise(x / 6500, z / 6500, seed + 92) * 0.22);
-        double woodland = noise(x / 10500, z / 10500, seed + 61)
-            + noise(x / 4700, z / 4700, seed + 62) * 0.18;
+        double ridge = Math.abs(noise(x / (17000 * SCALE), z / (17000 * SCALE), seed + 91)
+            + noise(x / (6500 * SCALE), z / (6500 * SCALE), seed + 92) * 0.22);
+        double woodland = noise(x / (10500 * SCALE), z / (10500 * SCALE), seed + 61)
+            + noise(x / (4700 * SCALE), z / (4700 * SCALE), seed + 62) * 0.18;
         Kind kind = ridge < 0.15 ? Kind.MOUNTAINS : woodland > 0.08 ? Kind.OAK_FOREST : Kind.GRASSLANDS;
         return new Region(q, r, kind, hash(q, r, seed));
     }
@@ -66,7 +67,7 @@ public final class HexRegions {
             for (int r = region.r - 1; r <= region.r + 1; r++) {
                 double cx = SIDE * ROOT_THREE * (q + r / 2.0);
                 double cz = SIDE * 1.5 * r;
-                double w = Math.exp(-(Math.hypot(x - cx, z - cz) - nearest) / 210);
+                double w = Math.exp(-(Math.hypot(x - cx, z - cz) - nearest) / (210 * SCALE));
                 weight += w;
                 if (cell(q, r, seed).kind == Kind.MOUNTAINS) mountains += w;
             }

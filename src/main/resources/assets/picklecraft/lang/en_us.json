@@ -28,5 +28,9 @@
   "entity.picklecraft.zone_zombie.1": "Runner Zombie",
   "entity.picklecraft.zone_zombie.2": "Blind Zombie",
   "item.picklecraft.zone_map": "Creative Zone Map",
-  "message.picklecraft.zone_map_world": "Use this map in a PickleCraft Overworld."
+  "message.picklecraft.zone_map_world": "Use this map in a PickleCraft Overworld.",
+  "entity.picklecraft.herd_cow": "Cow",
+  "entity.picklecraft.bull": "Bull",
+  "item.picklecraft.herd_cow_spawn_egg": "Herd Cow Spawn Egg",
+  "item.picklecraft.bull_spawn_egg": "Bull Spawn Egg"
 }

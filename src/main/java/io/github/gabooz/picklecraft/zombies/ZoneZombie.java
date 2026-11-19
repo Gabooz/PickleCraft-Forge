@@ -25,6 +25,7 @@ public final class ZoneZombie extends Zombie {
     private long lastDawn = Long.MIN_VALUE;
     private int attackCooldown;
     private double blindOffset;
+    private boolean escapingLight;
 
     public ZoneZombie(EntityType<? extends Zombie> type, Level level) {
         super(type, level);
@@ -125,10 +126,12 @@ public final class ZoneZombie extends Zombie {
         int light = Math.max(level.getBrightness(LightLayer.BLOCK, blockPosition()),
             level.getBrightness(LightLayer.BLOCK, blockPosition().above()));
         if (light > 0) {
-            getNavigation().stop();
-            if (tickCount % 10 == 0) escapeLight(level, light);
+            if (!escapingLight) getNavigation().stop();
+            if (!escapingLight || getNavigation().isDone() || tickCount % 10 == 0) escapeLight(level, light);
+            escapingLight = true;
             return;
         }
+        escapingLight = false;
         var walking = getNavigation().getPath();
         if (walking != null && !walking.isDone()
                 && level.getBrightness(LightLayer.BLOCK, walking.getNodePos(walking.getNextNodeIndex())) > 0) {
@@ -147,7 +150,10 @@ public final class ZoneZombie extends Zombie {
             return;
         }
         if (level.getBrightness(LightLayer.BLOCK, nearest.blockPosition()) > 0) {
-            getNavigation().stop();
+            if (tickCount % 10 == 0) {
+                var away = position().subtract(nearest.position()).multiply(1, 0, 1).normalize();
+                safeMove(level, position().add(away.scale(12)), 0, true);
+            }
             return;
         }
         if (distanceToSqr(nearest) < 4.0 && getSensing().hasLineOfSight(nearest) && attackCooldown == 0) {
@@ -166,37 +172,36 @@ public final class ZoneZombie extends Zombie {
     }
 
     private void escapeLight(ServerLevel level, int currentLight) {
-        getNavigation().stop();
-        BlockPos best = null;
-        double score = -Double.MAX_VALUE;
-        for (int i = 0; i < 32; i++) {
-            var candidate = blockPosition().offset(random.nextInt(25) - 12, 0, random.nextInt(25) - 12);
+        record Escape(BlockPos pos, double score) {}
+        var candidates = new java.util.ArrayList<Escape>();
+        for (int i = 0; i < 48; i++) {
+            var candidate = blockPosition().offset(random.nextInt(33) - 16, 0, random.nextInt(33) - 16);
             if (!level.hasChunkAt(candidate)) continue;
             candidate = level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, candidate);
-            int light = level.getBrightness(LightLayer.BLOCK, candidate);
-            double value = (currentLight - light) * 100 - candidate.distSqr(blockPosition());
-            if (light < currentLight && value > score) {
-                score = value;
-                best = candidate;
+            int light = Math.max(level.getBrightness(LightLayer.BLOCK, candidate),
+                level.getBrightness(LightLayer.BLOCK, candidate.above()));
+            if (light < currentLight) {
+                candidates.add(new Escape(candidate, (currentLight - light) * 100 - candidate.distSqr(blockPosition())));
             }
         }
-        if (best != null) safeMove(level, Vec3.atBottomCenterOf(best), currentLight, true);
+        candidates.sort(java.util.Comparator.comparingDouble(Escape::score).reversed());
+        for (var candidate : candidates) {
+            if (safeMove(level, Vec3.atBottomCenterOf(candidate.pos()), currentLight, true)) return;
+        }
     }
 
-    private void safeMove(ServerLevel level, Vec3 target, int maxLight, boolean escaping) {
+    private boolean safeMove(ServerLevel level, Vec3 target, int maxLight, boolean escaping) {
         var pos = BlockPos.containing(target);
-        if (!level.hasChunkAt(pos)) return;
+        if (!level.hasChunkAt(pos)) return false;
         Path path = getNavigation().createPath(pos, 1);
-        if (path == null) return;
-        int previousLight = maxLight;
+        if (path == null) return false;
         for (int i = 0; i < path.getNodeCount(); i++) {
             var node = path.getNodePos(i);
             int light = Math.max(level.getBrightness(LightLayer.BLOCK, node),
                 level.getBrightness(LightLayer.BLOCK, node.above()));
-            if (light > (escaping ? previousLight : maxLight)) return;
-            previousLight = light;
+            if (light > maxLight) return false;
         }
-        getNavigation().moveTo(path, 1.0);
+        return getNavigation().moveTo(path, escaping ? 1.35 : 1.0);
     }
 
     private void remember(ServerLevel level) {

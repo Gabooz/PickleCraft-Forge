@@ -107,6 +107,8 @@ public final class GroundContent {
             .displayItems((parameters, output) -> {
                 output.accept(WORKBENCH_ITEM.get());
                 output.accept(ZONE_MAP.get());
+                output.accept(io.github.gabooz.picklecraft.cattle.CattleContent.COW_EGG.get());
+                output.accept(io.github.gabooz.picklecraft.cattle.CattleContent.BULL_EGG.get());
                 output.accept(OPEN_BARREL_ITEM.get());
                 output.accept(ANVIL_ITEM.get());
                 output.accept(Items.IRON_PICKAXE);

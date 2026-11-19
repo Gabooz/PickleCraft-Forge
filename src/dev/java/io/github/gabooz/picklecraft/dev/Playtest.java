@@ -64,12 +64,42 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 36, "PickleCraft creative tab contains all thirty-six entries");
+            require(tab.getDisplayItems().size() == 38, "PickleCraft creative tab contains all thirty-eight entries");
             try (var fogRenderer = new net.minecraft.client.renderer.fog.FogRenderer()) {
                 io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(true);
                 var fog = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
-                require(fog.renderDistanceEnd == 7 && fog.environmentalEnd <= 7,
-                    "Zombie zone fog limits visibility to seven blocks");
+                require(fog.renderDistanceEnd == 15 && fog.environmentalEnd <= 15,
+                    "Daytime zombie zone fog limits visibility to fifteen blocks");
+                var clock = game.level.dimensionType().defaultClock().orElseThrow();
+                var clockState = game.level.clockManager().getInstance(clock);
+                long priorTime = clockState.totalTicks();
+                float priorPartial = clockState.partialTick();
+                float priorRate = clockState.rate();
+                game.level.clockManager().handleUpdates(game.level.getGameTime(),
+                    Map.of(clock, new net.minecraft.world.clock.ClockNetworkState(18000, 0, 0.25F)));
+                var dark = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
+                require(dark.renderDistanceEnd == 7, "Nighttime fog stays seven blocks without light");
+                var lamp = game.player.blockPosition().above(3);
+                var oldLamp = game.level.getBlockState(lamp);
+                game.level.setBlock(lamp, Blocks.GLOWSTONE.defaultBlockState(), 3);
+                game.level.getChunkSource().getLightEngine().checkBlock(lamp);
+                game.level.getChunkSource().getLightEngine().runLightUpdates();
+                var lit = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
+                require(lit.renderDistanceEnd == 12, "Nearby light extends nighttime fog to twelve blocks");
+                game.level.clockManager().handleUpdates(game.level.getGameTime(),
+                    Map.of(clock, new net.minecraft.world.clock.ClockNetworkState(6000, 0, 0.25F)));
+                var litDay = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
+                require(litDay.renderDistanceEnd == 15, "Daytime fog stays fifteen blocks near light");
+                game.level.setBlock(lamp, oldLamp, 3);
+                game.level.getChunkSource().getLightEngine().checkBlock(lamp);
+                game.level.getChunkSource().getLightEngine().runLightUpdates();
+                game.level.clockManager().handleUpdates(game.level.getGameTime(),
+                    Map.of(clock, new net.minecraft.world.clock.ClockNetworkState(priorTime, priorPartial, priorRate)));
+                game.player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.NIGHT_VISION, 200));
+                var nightVision = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
+                require(nightVision.renderDistanceEnd > 15, "Night Vision removes the zone fog");
+                game.player.removeEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION);
                 io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(false);
                 var clear = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
                 require(clear.renderDistanceEnd > 7, "Cleared zone restores ordinary visibility");
@@ -134,8 +164,8 @@ public final class Playtest {
             for (int r = -6; r <= 6 && kinds.size() < 3; r++) {
                 var cell = io.github.gabooz.picklecraft.world.HexRegions.cell(q, r, seed);
                 if (kinds.contains(cell.kind())) continue;
-                int x = (int) Math.round(2500 * Math.sqrt(3) * (q + r / 2.0));
-                int z = 3750 * r;
+                int x = (int) Math.round(io.github.gabooz.picklecraft.world.HexRegions.SIDE * Math.sqrt(3) * (q + r / 2.0));
+                int z = (int) Math.round(io.github.gabooz.picklecraft.world.HexRegions.SIDE * 1.5 * r);
                 int height = level.getChunkSource().getGenerator().getBaseHeight(x, z,
                     net.minecraft.world.level.levelgen.Heightmap.Types.OCEAN_FLOOR_WG, level, level.getChunkSource().randomState());
                 require(height >= 55 && height <= (cell.kind() ==
@@ -152,6 +182,7 @@ public final class Playtest {
         verifyHexWorld(level);
         if (System.getenv("PICKLECRAFT_TEST_FOCUS") == null) verifyZoneMines(level);
         verifyZombieRosters(level, player);
+        verifyCattle(level, player);
         var pos = player.blockPosition().below();
         for (var entry : Map.<Block, Integer>of(Blocks.OAK_LOG, 120, Blocks.DIRT, 30, Blocks.STONE, 300,
                 Blocks.SAND, 15, Blocks.COBBLESTONE, 60).entrySet()) {
@@ -254,7 +285,7 @@ public final class Playtest {
                 counts[mine.ordinal()]++;
                 if (Math.abs(q) <= 3 && Math.abs(r) <= 3) {
                     examples.putIfAbsent(mine, new BlockPos(
-                        (int) Math.round(2500 * Math.sqrt(3) * (q + r / 2.0)), -24, 3750 * r));
+                        (int) Math.round(io.github.gabooz.picklecraft.world.HexRegions.SIDE * Math.sqrt(3) * (q + r / 2.0)), -24, (int) Math.round(io.github.gabooz.picklecraft.world.HexRegions.SIDE * 1.5 * r)));
                 }
             }
         }
@@ -347,6 +378,12 @@ public final class Playtest {
             actors.add(actor);
         }
         var first = actors.getFirst();
+        var arena = first.blockPosition();
+        for (var floor : BlockPos.betweenClosed(arena.offset(-17, -1, -17), arena.offset(17, -1, 17))) {
+            level.setBlock(floor, Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+            level.setBlock(floor.above(), Blocks.AIR.defaultBlockState(), 2);
+            level.setBlock(floor.above(2), Blocks.AIR.defaultBlockState(), 2);
+        }
         var lamp = first.blockPosition().above(3);
         level.setBlockAndUpdate(lamp, Blocks.GLOWSTONE.defaultBlockState());
         // Process the light queue before checking the zombie's movement preference.
@@ -356,6 +393,13 @@ public final class Playtest {
         level.getServer().managedBlock(pendingLight::isDone);
         require(first.getWalkTargetValue(first.blockPosition(), level) < 0,
             "Zombie navigation treats light as forbidden");
+        first.setOnGround(true);
+        first.tickCount = 20;
+        first.tick();
+        require(!first.getNavigation().isDone(), "A zombie chooses an escape path from a light source");
+        first.tickCount = 21;
+        first.tick();
+        require(!first.getNavigation().isDone(), "A zombie keeps its escape path on subsequent ticks");
         level.setBlockAndUpdate(lamp, Blocks.AIR.defaultBlockState());
         first.setHealth(5);
         var worldData = (net.minecraft.world.level.storage.ServerLevelData) level.getLevelData();
@@ -388,6 +432,115 @@ public final class Playtest {
         worldData.setGameTime(startTime);
         com.mojang.logging.LogUtils.getLogger().info("ZOMBIE ZONES grasslands={}, challenged={}, roster={}",
             grasslands, assigned, zone.souls.size());
+    }
+
+    private static void verifyCattle(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        long seed = io.github.gabooz.picklecraft.zombies.ZombieZones.seed(level);
+        int grass = 0;
+        int herds = 0;
+        for (int q = -80; q <= 80; q++) {
+            for (int r = -80; r <= 80; r++) {
+                var zone = io.github.gabooz.picklecraft.world.HexRegions.cell(q, r, seed);
+                if (zone.kind() == io.github.gabooz.picklecraft.world.HexRegions.Kind.GRASSLANDS) grass++;
+                if (io.github.gabooz.picklecraft.cattle.CattleHerds.assigned(zone)) {
+                    herds++;
+                    require(zone.kind() == io.github.gabooz.picklecraft.world.HexRegions.Kind.GRASSLANDS,
+                        "Cattle are assigned only to grasslands");
+                    require(io.github.gabooz.picklecraft.cattle.CattleHerds.size(zone) >= 2
+                        && io.github.gabooz.picklecraft.cattle.CattleHerds.size(zone) <= 3, "Founding herds contain two or three animals");
+                }
+            }
+        }
+        require(herds / (float) grass > 0.04 && herds / (float) grass < 0.06, "Five percent of grasslands receive cattle");
+        var mother = io.github.gabooz.picklecraft.cattle.CattleContent.COW.get().create(level, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+        var father = io.github.gabooz.picklecraft.cattle.CattleContent.BULL.get().create(level, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+        mother.setPos(player.getX() + 6, player.getY() + 1, player.getZ());
+        father.setPos(player.getX() + 8, player.getY() + 1, player.getZ());
+        require(level.addFreshEntity(mother) && level.addFreshEntity(father), "Cattle pass peaceful-mob suppression");
+        require(father.isBull() && father.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.SCALE) == 1.1,
+            "Bull has its larger scale");
+        require(father.getVariant().is(net.minecraft.world.entity.animal.cow.CowVariants.WARM), "Bull uses the tan warm-cow appearance");
+        for (var stat : io.github.gabooz.picklecraft.cattle.CattleStats.Stat.values()) {
+            require(mother.stats().get(stat) == 25 && father.stats().get(stat) == 25, "Founding cattle stats start at twenty-five");
+        }
+        mother.setInLove(player);
+        father.setInLove(player);
+        require(mother.canMate(father) && !mother.canMate(mother), "Only opposite cattle sexes can breed");
+        mother.spawnChildFromBreeding(level, father);
+        var babies = level.getEntitiesOfClass(io.github.gabooz.picklecraft.cattle.HerdCow.class,
+            mother.getBoundingBox().inflate(8), cow -> cow.isBaby() && mother.getUUID().equals(cow.mother()));
+        require(babies.size() == 1, "Breeding creates exactly one mother-linked calf");
+        var calf = babies.getFirst();
+        require(!mother.canFallInLove(), "A mother cannot breed while caring for a calf");
+        var clock = level.dimensionType().defaultClock().orElseThrow();
+        long original = level.getDefaultClockTime();
+        var hand = net.minecraft.world.InteractionHand.MAIN_HAND;
+        player.setItemInHand(hand, net.minecraft.world.item.Items.BUCKET.getDefaultInstance());
+        require(mother.mobInteract(player, hand).consumesAction()
+            && player.getItemInHand(hand).is(net.minecraft.world.item.Items.MILK_BUCKET), "An adult cow can be milked");
+        player.setItemInHand(hand, net.minecraft.world.item.Items.BUCKET.getDefaultInstance());
+        require(!mother.mobInteract(player, hand).consumesAction(), "A cow cannot be milked twice in one day");
+        require(!father.mobInteract(player, hand).consumesAction(), "Bulls cannot be milked");
+
+        var twin = io.github.gabooz.picklecraft.cattle.CattleContent.COW.get().create(level, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+        twin.assignMother(mother, original);
+        twin.setPos(mother.getX() + 2, mother.getY(), mother.getZ());
+        level.addFreshEntity(twin);
+        float twinHealth = twin.getHealth();
+        level.clockManager().setTotalTicks(clock, original + 24001);
+        twin.tickCount = 20;
+        twin.tick();
+        require(twin.getHealth() < twinHealth, "The second calf is not nurtured and starves after a day");
+        calf.tickCount = 20;
+        calf.tick();
+        float calfHealth = calf.getHealth();
+        calf.setPos(mother.getX() + 40, mother.getY(), mother.getZ());
+        level.clockManager().setTotalTicks(clock, original + 48002);
+        calf.tickCount = 20;
+        calf.tick();
+        require(calf.getHealth() < calfHealth, "A separated calf starts taking damage after a day");
+        player.setItemInHand(hand, net.minecraft.world.item.Items.BUCKET.getDefaultInstance());
+        require(mother.mobInteract(player, hand).consumesAction(), "Cow milk becomes available on a later day");
+        level.clockManager().setTotalTicks(clock, original + 15 * 24000L);
+        calf.tickCount = 20;
+        calf.tick();
+        require(!calf.isBaby() && mother.canFallInLove(), "Calves mature in fifteen clock days and release the mother");
+
+        var random = net.minecraft.util.RandomSource.create(123456);
+        int mutations = 0;
+        int trials = 10000;
+        for (int attempt = 0; attempt < trials; attempt++) {
+            var childStats = io.github.gabooz.picklecraft.cattle.CattleStats.inherit(mother.stats(), father.stats(), random);
+            for (var stat : io.github.gabooz.picklecraft.cattle.CattleStats.Stat.values()) {
+                int value = childStats.get(stat);
+                require(value >= 24 && value <= 26, "A newborn's mutation changes a stat by at most one");
+                if (value != 25) mutations++;
+            }
+        }
+        require(mutations > trials * 7 * 0.04 && mutations < trials * 7 * 0.06, "Each stat mutates about five percent of the time");
+        var ops = net.minecraft.resources.RegistryOps.create(net.minecraft.nbt.NbtOps.INSTANCE, level.registryAccess());
+        var data = io.github.gabooz.picklecraft.cattle.CattleData.get(level);
+        data.markSpawned(123456, 0);
+        var encoded = io.github.gabooz.picklecraft.cattle.CattleData.CODEC.encodeStart(ops, data).getOrThrow();
+        var restored = io.github.gabooz.picklecraft.cattle.CattleData.CODEC.parse(ops, encoded).getOrThrow();
+        require(restored.spawned(123456) == 1, "Completed herd spawns survive saving");
+        var dropArea = father.getBoundingBox().inflate(3);
+        father.hurtServer(level, father.damageSources().generic(), 200);
+        int beef = 0;
+        int leather = 0;
+        for (var item : level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, dropArea)) {
+            if (item.getItem().is(net.minecraft.world.item.Items.BEEF)) beef += item.getItem().getCount();
+            if (item.getItem().is(net.minecraft.world.item.Items.LEATHER)) leather += item.getItem().getCount();
+        }
+        require(beef >= 25 && beef <= 35 && leather >= 7 && leather <= 12, "Adult cattle have the requested raw-beef and leather yields");
+        calf.discard();
+        twin.discard();
+        mother.discard();
+        father.discard();
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        level.clockManager().setTotalTicks(clock, original);
+        com.mojang.logging.LogUtils.getLogger().info("CATTLE CHECK grasslands={}, herds={}, mutations={}", grass, herds, mutations);
     }
 
     private static void verifyGroundCraft(net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player) {

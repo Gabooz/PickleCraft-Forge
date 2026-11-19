@@ -26,6 +26,9 @@ public final class Playtest {
     private boolean started;
     private boolean checked;
     private int joinedTicks;
+    private boolean awaitingMap;
+    private int mapTicks;
+    private boolean screenshotRequested;
 
     public static void register() {
         TickEvent.ClientTickEvent.Post.BUS.addListener(new Playtest()::tick);
@@ -61,7 +64,7 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 35, "PickleCraft creative tab contains all thirty-five entries");
+            require(tab.getDisplayItems().size() == 36, "PickleCraft creative tab contains all thirty-six entries");
             try (var fogRenderer = new net.minecraft.client.renderer.fog.FogRenderer()) {
                 io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(true);
                 var fog = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
@@ -78,8 +81,16 @@ public final class Playtest {
             game.getSingleplayerServer().execute(() -> {
                 try {
                     verifyServer(game.getSingleplayerServer().overworld(), game.getSingleplayerServer().getPlayerList().getPlayers().getFirst());
-                    com.mojang.logging.LogUtils.getLogger().info("PICKLECRAFT PLAYTEST PASSED");
-                    game.execute(game::stop);
+                    verifyTerrainHeights(game.getSingleplayerServer().overworld());
+                    var player = game.getSingleplayerServer().getPlayerList().getPlayers().getFirst();
+                    var map = io.github.gabooz.picklecraft.ground.GroundContent.ZONE_MAP.get();
+                    require(map.use(player.level(), player, net.minecraft.world.InteractionHand.MAIN_HAND)
+                        == net.minecraft.world.InteractionResult.FAIL, "Survival players cannot open the creative map");
+                    player.setGameMode(GameType.CREATIVE);
+                    player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, map.getDefaultInstance());
+                    require(map.use(player.level(), player, net.minecraft.world.InteractionHand.MAIN_HAND).consumesAction(),
+                        "Right-click opens the map for a creative player");
+                    game.execute(() -> awaitingMap = true);
                 } catch (RuntimeException | AssertionError error) {
                     System.err.println("PICKLECRAFT PLAYTEST FAILED");
                     error.printStackTrace();
@@ -87,11 +98,59 @@ public final class Playtest {
                 }
             });
         }
+        if (awaitingMap && !screenshotRequested) {
+            mapTicks++;
+            if (game.gui.screen() instanceof io.github.gabooz.picklecraft.client.ZoneMapScreen map && mapTicks >= 15) {
+                var button = new net.minecraft.client.input.MouseButtonInfo(
+                    com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT, 0);
+                var click = new net.minecraft.client.input.MouseButtonEvent(80, 80, button);
+                require(map.mouseClicked(click, false), "Map accepts a pan drag");
+                require(map.mouseDragged(new net.minecraft.client.input.MouseButtonEvent(120, 95, button), 40, 15),
+                    "Map pans through its mouse entry point");
+                require(map.mouseReleased(new net.minecraft.client.input.MouseButtonEvent(120, 95, button)),
+                    "Map releases its pan drag");
+                require(map.mouseScrolled(100, 100, 0, 1), "Map zooms through its mouse entry point");
+                require(map.mouseScrolled(100, 100, 0, -1), "Map zooms back out");
+                require(map.keyPressed(new net.minecraft.client.input.KeyEvent(
+                    com.mojang.blaze3d.platform.InputConstants.KEY_R, 0, 0)), "Map centers on the live player");
+                screenshotRequested = true;
+                net.minecraft.client.Screenshot.grab(game.gameDirectory, "zone-map.png", game.gameRenderer.mainRenderTarget(), 1,
+                    message -> game.execute(() -> {
+                        com.mojang.logging.LogUtils.getLogger().info("PICKLECRAFT PLAYTEST PASSED");
+                        game.stop();
+                    }));
+            } else if (mapTicks > 200) {
+                throw new AssertionError("Creative map packet did not open its screen");
+            }
+        }
+    }
+
+    private static void verifyTerrainHeights(net.minecraft.server.level.ServerLevel level) {
+        var sampler = level.getChunkSource().randomState().createClimateSampler(
+            net.minecraft.world.level.levelgen.densityfunction.SamplerContext.EMPTY_UNCACHED);
+        long seed = io.github.gabooz.picklecraft.world.HexRegions.seed(sampler);
+        var kinds = java.util.EnumSet.noneOf(io.github.gabooz.picklecraft.world.HexRegions.Kind.class);
+        for (int q = -6; q <= 6 && kinds.size() < 3; q++) {
+            for (int r = -6; r <= 6 && kinds.size() < 3; r++) {
+                var cell = io.github.gabooz.picklecraft.world.HexRegions.cell(q, r, seed);
+                if (kinds.contains(cell.kind())) continue;
+                int x = (int) Math.round(2500 * Math.sqrt(3) * (q + r / 2.0));
+                int z = 3750 * r;
+                int height = level.getChunkSource().getGenerator().getBaseHeight(x, z,
+                    net.minecraft.world.level.levelgen.Heightmap.Types.OCEAN_FLOOR_WG, level, level.getChunkSource().randomState());
+                require(height >= 55 && height <= (cell.kind() ==
+                    io.github.gabooz.picklecraft.world.HexRegions.Kind.MOUNTAINS ? 145 : 90),
+                    "Biome surface height stays in the intended lowland or mountain range");
+                kinds.add(cell.kind());
+                com.mojang.logging.LogUtils.getLogger().info("ZONE HEIGHT biome={}, y={}", cell.kind(), height);
+            }
+        }
+        require(kinds.size() == 3, "Checked the heights of all three biome types");
     }
 
     private static void verifyServer(net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player) {
         verifyHexWorld(level);
-        if (!"zombies".equals(System.getenv("PICKLECRAFT_TEST_FOCUS"))) verifyZoneMines(level);
+        if (System.getenv("PICKLECRAFT_TEST_FOCUS") == null) verifyZoneMines(level);
         verifyZombieRosters(level, player);
         var pos = player.blockPosition().below();
         for (var entry : Map.<Block, Integer>of(Blocks.OAK_LOG, 120, Blocks.DIRT, 30, Blocks.STONE, 300,

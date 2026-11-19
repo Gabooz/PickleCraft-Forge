@@ -106,3 +106,17 @@ Uncleared zones have seven-block fog throughout the day and night, plus extra
 night darkness. Killing the entire roster clears those effects. Sparse bones
 decorate newly generated challenge zones. Zombies reject paths through emitted
 block light and seek darker ground when caught in light.
+
+
+## Creative zone map
+
+Find the **Creative Zone Map** in the PickleCraft tab and right-click it in
+Creative mode. Drag to pan, scroll to zoom around the cursor, press R to center
+on the player, and press F to toggle following. The white arrow tracks the
+player's position and facing. Colors show the actual warped biome zones, while
+the grid shows their underlying hex cells. Fe and Au mark planned iron and gold
+mines, and Z marks a zombie challenge. Hover for zone details. The map previews
+generation without loading chunks.
+
+Newly generated terrain has lowlands around sea level and lower mountain
+ranges. Existing generated terrain keeps its saved shape.

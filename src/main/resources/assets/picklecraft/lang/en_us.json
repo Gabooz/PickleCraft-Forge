@@ -26,5 +26,7 @@
   "entity.picklecraft.zone_zombie": "Zone Zombie",
   "entity.picklecraft.zone_zombie.0": "Tank Zombie",
   "entity.picklecraft.zone_zombie.1": "Runner Zombie",
-  "entity.picklecraft.zone_zombie.2": "Blind Zombie"
+  "entity.picklecraft.zone_zombie.2": "Blind Zombie",
+  "item.picklecraft.zone_map": "Creative Zone Map",
+  "message.picklecraft.zone_map_world": "Use this map in a PickleCraft Overworld."
 }

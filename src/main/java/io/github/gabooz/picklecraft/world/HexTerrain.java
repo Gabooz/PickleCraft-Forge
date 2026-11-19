@@ -25,17 +25,20 @@ public record HexTerrain(DensityFunction input, DensityFunction temperature, Den
 
             @Override
             public float sampleValue(SamplerContext sampling, int x, int y, int z) {
+                return shape(sampling, x, y, z, base.sampleValue(sampling, x, y, z));
+            }
+
+            private float shape(SamplerContext sampling, int x, int y, int z, float original) {
                 if (seed == null) seed = Double.doubleToLongBits(climate.sampleValue(sampling, 0, 0, 0));
-                float original = base.sampleValue(sampling, x, y, z);
                 if (y < 48) return original;
                 var column = columnCache.get();
                 if (column == null || column.x() != x || column.z() != z) {
                     double mountains = HexRegions.mountainWeight(x, z, seed);
                     double valley = Math.clamp((Math.abs(ridge.sampleValue(sampling, x, 0, z)) - 0.025) / 0.10, 0, 1);
                     valley = valley * valley * (3 - 2 * valley);
-                    double hills = HexRegions.noise(x / 790.0, z / 790.0, seed + 113) * 11;
-                    double peaks = 85 + HexRegions.noise(x / 490.0, z / 490.0, seed + 111) * 60;
-                    double height = 61 + valley * (16 + hills + mountains * peaks);
+                    double hills = HexRegions.noise(x / 790.0, z / 790.0, seed + 113) * 6;
+                    double peaks = 38 + HexRegions.noise(x / 490.0, z / 490.0, seed + 111) * 22;
+                    double height = 61 + valley * (9 + hills + mountains * peaks);
                     column = new Column(x, z, height);
                     columnCache.set(column);
                 }
@@ -46,7 +49,17 @@ public record HexTerrain(DensityFunction input, DensityFunction temperature, Den
 
             @Override
             public void sampleVolume(SamplerContext sampling, DensityBuffer output, DensityVolume volume) {
-                DensitySampler.sampleVolumeNaive(sampling, output, volume, this);
+                // Keep vanilla noise sampling batched instead of recomputing a cached volume for every voxel.
+                base.sampleVolume(sampling, output, volume);
+                int index = 0;
+                for (int z = 0; z < volume.sizeZ(); z++) {
+                    for (int x = 0; x < volume.sizeX(); x++) {
+                        for (int y = 0; y < volume.sizeY(); y++) {
+                            output.set(index, shape(sampling, volume.blockX(x), volume.blockY(y), volume.blockZ(z), output.get(index)));
+                            index++;
+                        }
+                    }
+                }
             }
         };
     }

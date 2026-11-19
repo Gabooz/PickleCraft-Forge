@@ -94,6 +94,9 @@ public final class GroundContent {
     public static final RegistryObject<BlockEntityType<OpenBarrel>> BARREL_ENTITY = ENTITIES.register("open_barrel",
         () -> new BlockEntityType<>(OpenBarrel::new, Set.of(OPEN_BARREL.get())));
 
+    public static final RegistryObject<Item> ZONE_MAP = ITEMS.register("zone_map", () ->
+        new io.github.gabooz.picklecraft.map.ZoneMapItem(new Item.Properties().setId(ITEMS.key("zone_map")).stacksTo(1)));
+
     public static final RegistryObject<Item> IRON_TONGS = ITEMS.register("iron_tongs", () ->
         new IronTongs(new Item.Properties().setId(ITEMS.key("iron_tongs")).durability(250)));
 
@@ -103,6 +106,7 @@ public final class GroundContent {
             .icon(() -> BLOSSOMS.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(WORKBENCH_ITEM.get());
+                output.accept(ZONE_MAP.get());
                 output.accept(OPEN_BARREL_ITEM.get());
                 output.accept(ANVIL_ITEM.get());
                 output.accept(Items.IRON_PICKAXE);

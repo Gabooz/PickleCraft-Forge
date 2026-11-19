@@ -85,13 +85,14 @@ public final class ZoneMapScreen extends Screen {
         graphics.text(font, "Grasslands", 12, footer, GRASS);
         graphics.text(font, "Oak forest", 81, footer, 0xff88ba88);
         graphics.text(font, "Mountains", 151, footer, MOUNTAIN);
-        graphics.text(font, "Fe iron   Au gold   Z zombies", 224, footer, 0xffe4d7ae);
-        graphics.text(font, "Drag to pan   Wheel zoom   R center   F follow", 12, height - 19, 0xffb7c0b3);
+        graphics.text(font, "Fe iron   Au gold   Z zombies   C cows", 224, footer, 0xffe4d7ae);
+        graphics.text(font, "Drag pan   Wheel zoom   Right-click teleport   R center   F follow", 12, height - 19, 0xffb7c0b3);
         graphics.text(font, String.format(java.util.Locale.ROOT, "X %.0f  Z %.0f", centerX, centerZ), 180, 12, 0xffb7c0b3);
         if (inside(mouseX, mouseY)) {
             var region = HexRegions.at(worldX(mouseX), worldZ(mouseY), seed);
             String label = name(region.kind()) + "  |  " + mine(region) + "  |  "
-                + (ZombieZones.assigned(region) ? "Zombie challenge" : "No challenge");
+                + (ZombieZones.assigned(region) ? "Zombie challenge" : "No challenge")
+                + (io.github.gabooz.picklecraft.cattle.CattleHerds.assigned(region) ? "  |  Cow herd" : "");
             graphics.text(font, label, 12, top() - 12, 0xffe9e4cf);
         }
     }
@@ -144,6 +145,7 @@ public final class ZoneMapScreen extends Screen {
                     case GOLD -> "Au";
                 };
                 if (ZombieZones.assigned(region)) marker += marker.isEmpty() ? "Z" : "  Z";
+                if (io.github.gabooz.picklecraft.cattle.CattleHerds.assigned(region)) marker += marker.isEmpty() ? "C" : "  C";
                 if (!marker.isEmpty()) {
                     int textWidth = font.width(marker);
                     graphics.fill((int) cx - textWidth / 2 - 3, (int) cy - 6,
@@ -200,6 +202,12 @@ public final class ZoneMapScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT && inside(event.x(), event.y())) {
+            io.github.gabooz.picklecraft.map.ZoneMapNetwork.requestTeleport(
+                (int) Math.floor(worldX(event.x())), (int) Math.floor(worldZ(event.y())));
+            onClose();
+            return true;
+        }
         if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && inside(event.x(), event.y())) {
             dragging = true;
             return true;

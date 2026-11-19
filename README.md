@@ -103,10 +103,14 @@ incarnations cannot duplicate roster members. Death from any cause permanently
 removes the individual. The roster is saved in the Overworld's saved data.
 
 Uncleared zones have fifteen-block fog by day. At night visibility is seven blocks,
-or twelve blocks near emitted light. Night Vision removes zone fog. They also have extra
-night darkness. Killing the entire roster clears those effects. Sparse bones
-decorate newly generated challenge zones. Zombies reject paths through emitted
-block light and seek darker ground when caught in light.
+or twelve blocks near emitted light and twenty-one blocks within ten blocks of a
+lit campfire. Daytime visibility stays fifteen blocks. Night Vision removes zone
+fog. They also have extra night darkness. Killing the entire roster clears those effects. Sparse bones
+decorate newly generated challenge zones. Zombies reject paths through
+bright block light and seek darker ground when caught in it. Dim light (level
+seven or less) is approachable, while lit campfires repel zombies within ten
+blocks. Explored zombie-zone chunks also receive a one-time sparse bone scatter;
+collected bones do not regenerate.
 
 
 ## Creative zone map
@@ -116,8 +120,10 @@ Creative mode. Drag to pan, scroll to zoom around the cursor, press R to center
 on the player, and press F to toggle following. The white arrow tracks the
 player's position and facing. Colors show the actual warped biome zones, while
 the grid shows their underlying hex cells. Fe and Au mark planned iron and gold
-mines, and Z marks a zombie challenge. Hover for zone details. The map previews
-generation without loading chunks.
+mines, Z marks a zombie challenge, and C marks a zone eligible for its founding
+cow herd. Right-click a location to teleport there in creative mode; the server
+places you above its surface. Hover for zone details. Previewing the map does
+not load chunks; teleporting generates the destination as needed.
 
 Newly generated terrain has lowlands around sea level and lower mountain
 ranges. Existing generated terrain keeps its saved shape.

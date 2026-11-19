@@ -1,7 +1,6 @@
 package io.github.gabooz.picklecraft.zombies;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -26,6 +25,7 @@ public final class ZoneZombie extends Zombie {
     private int attackCooldown;
     private double blindOffset;
     private boolean escapingLight;
+    private java.util.List<BlockPos> campfires = java.util.List.of();
 
     public ZoneZombie(EntityType<? extends Zombie> type, Level level) {
         super(type, level);
@@ -68,7 +68,8 @@ public final class ZoneZombie extends Zombie {
         var traits = net.minecraft.util.RandomSource.create(seed ^ slot * 0x9E3779B97F4A7C15L);
         getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(36 + traits.nextInt(21));
         blindOffset = Math.toRadians(traits.nextDouble() * 120 - 60);
-        setCustomName(Component.translatable("entity.picklecraft.zone_zombie." + variant));
+        setCustomName(null);
+        setCustomNameVisible(false);
     }
 
     @Override
@@ -92,7 +93,7 @@ public final class ZoneZombie extends Zombie {
 
     @Override
     public float getWalkTargetValue(BlockPos pos, net.minecraft.world.level.LevelReader level) {
-        return level.getBrightness(LightLayer.BLOCK, pos) > 0 ? -1000 : 10;
+        return level.getBrightness(LightLayer.BLOCK, pos) > ZoneLights.LIGHT_LIMIT ? -1000 : 10;
     }
 
     @Override
@@ -123,8 +124,8 @@ public final class ZoneZombie extends Zombie {
         var nearest = level.players().stream().filter(player -> !player.isSpectator()
                 && (retreating || !player.isCreative()) && distanceToSqr(player) <= range * range)
             .min(java.util.Comparator.comparingDouble(player -> distanceToSqr(player))).orElse(null);
-        int light = Math.max(level.getBrightness(LightLayer.BLOCK, blockPosition()),
-            level.getBrightness(LightLayer.BLOCK, blockPosition().above()));
+        if (tickCount % 10 == 0) campfires = ZoneLights.campfires(level, blockPosition(), 18);
+        int light = ZoneLights.pressure(level, blockPosition(), campfires);
         if (light > 0) {
             if (!escapingLight) getNavigation().stop();
             if (!escapingLight || getNavigation().isDone() || tickCount % 10 == 0) escapeLight(level, light);
@@ -134,7 +135,7 @@ public final class ZoneZombie extends Zombie {
         escapingLight = false;
         var walking = getNavigation().getPath();
         if (walking != null && !walking.isDone()
-                && level.getBrightness(LightLayer.BLOCK, walking.getNodePos(walking.getNextNodeIndex())) > 0) {
+                && ZoneLights.pressure(level, walking.getNodePos(walking.getNextNodeIndex()), campfires) > 0) {
             getNavigation().stop();
         }
         if (nearest == null || nearest.isSpectator()) {
@@ -149,13 +150,6 @@ public final class ZoneZombie extends Zombie {
             }
             return;
         }
-        if (level.getBrightness(LightLayer.BLOCK, nearest.blockPosition()) > 0) {
-            if (tickCount % 10 == 0) {
-                var away = position().subtract(nearest.position()).multiply(1, 0, 1).normalize();
-                safeMove(level, position().add(away.scale(12)), 0, true);
-            }
-            return;
-        }
         if (distanceToSqr(nearest) < 4.0 && getSensing().hasLineOfSight(nearest) && attackCooldown == 0) {
             doHurtTarget(level, nearest);
             attackCooldown = 20;
@@ -167,7 +161,14 @@ public final class ZoneZombie extends Zombie {
                 var direction = target.subtract(position()).multiply(1, 0, 1).normalize().yRot((float) blindOffset);
                 target = position().add(direction.scale(Math.min(12, distanceTo(nearest))));
             }
-            safeMove(level, target, 0, false);
+            // Stop at the closest reachable safe edge instead of refusing an entire route
+            // just because the player is standing in a protected patch.
+            if (!safeMove(level, target, 0, false)) {
+                var toward = target.subtract(position()).multiply(1, 0, 1).normalize();
+                for (int step = Math.min(12, (int) distanceTo(nearest)); step >= 1; step--) {
+                    if (safeMove(level, position().add(toward.scale(step)), 0, false)) break;
+                }
+            }
         }
     }
 
@@ -178,8 +179,7 @@ public final class ZoneZombie extends Zombie {
             var candidate = blockPosition().offset(random.nextInt(33) - 16, 0, random.nextInt(33) - 16);
             if (!level.hasChunkAt(candidate)) continue;
             candidate = level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, candidate);
-            int light = Math.max(level.getBrightness(LightLayer.BLOCK, candidate),
-                level.getBrightness(LightLayer.BLOCK, candidate.above()));
+            int light = ZoneLights.pressure(level, candidate, campfires);
             if (light < currentLight) {
                 candidates.add(new Escape(candidate, (currentLight - light) * 100 - candidate.distSqr(blockPosition())));
             }
@@ -197,8 +197,7 @@ public final class ZoneZombie extends Zombie {
         if (path == null) return false;
         for (int i = 0; i < path.getNodeCount(); i++) {
             var node = path.getNodePos(i);
-            int light = Math.max(level.getBrightness(LightLayer.BLOCK, node),
-                level.getBrightness(LightLayer.BLOCK, node.above()));
+            int light = ZoneLights.pressure(level, node, campfires);
             if (light > maxLight) return false;
         }
         return getNavigation().moveTo(path, escaping ? 1.35 : 1.0);
@@ -270,5 +269,7 @@ public final class ZoneZombie extends Zombie {
         retreating = input.getBooleanOr("retreating", false);
         blindOffset = input.getDoubleOr("blind_offset", 0);
         lastDawn = input.getLongOr("last_dawn", Long.MIN_VALUE);
+        setCustomName(null);
+        setCustomNameVisible(false);
     }
 }

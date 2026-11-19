@@ -21,7 +21,7 @@ abstract class ZombieFogMixin {
         boolean nearLight = Math.max(game.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK,
             game.player.blockPosition().above()), game.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK,
                 game.player.blockPosition())) > 0;
-        float distance = nighttime ? nearLight ? 12 : 7 : 15;
+        float distance = nighttime ? ZombieZoneClient.nearCampfire() ? 21 : nearLight ? 12 : 7 : 15;
         var fog = callback.getReturnValue();
         fog.environmentalStart = Math.min(fog.environmentalStart, 1.5F);
         fog.environmentalEnd = Math.min(fog.environmentalEnd, distance);

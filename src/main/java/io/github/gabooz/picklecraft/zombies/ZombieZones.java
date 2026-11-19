@@ -75,6 +75,7 @@ public final class ZombieZones {
     private static void tick(ServerLevel level) {
         long seed = seed(level);
         var ledger = ZombieLedger.get(level);
+        ZoneBones.nearby(level, seed);
         if (!night(level)) {
             for (var zone : ledger.zones()) ledger.dawn(zone, dawn(level));
         }

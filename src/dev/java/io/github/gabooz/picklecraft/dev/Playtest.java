@@ -29,6 +29,9 @@ public final class Playtest {
     private boolean awaitingMap;
     private int mapTicks;
     private boolean screenshotRequested;
+    private boolean awaitingTeleport;
+    private int teleportTicks;
+    private double beforeTeleportX;
 
     public static void register() {
         TickEvent.ClientTickEvent.Post.BUS.addListener(new Playtest()::tick);
@@ -86,6 +89,10 @@ public final class Playtest {
                 game.level.getChunkSource().getLightEngine().runLightUpdates();
                 var lit = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
                 require(lit.renderDistanceEnd == 12, "Nearby light extends nighttime fog to twelve blocks");
+                game.level.setBlock(lamp, Blocks.CAMPFIRE.defaultBlockState(), 3);
+                io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(true);
+                var campfireFog = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
+                require(campfireFog.renderDistanceEnd == 21, "Campfire extends nighttime vision to twenty-one blocks");
                 game.level.clockManager().handleUpdates(game.level.getGameTime(),
                     Map.of(clock, new net.minecraft.world.clock.ClockNetworkState(6000, 0, 0.25F)));
                 var litDay = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
@@ -146,12 +153,26 @@ public final class Playtest {
                 screenshotRequested = true;
                 net.minecraft.client.Screenshot.grab(game.gameDirectory, "zone-map.png", game.gameRenderer.mainRenderTarget(), 1,
                     message -> game.execute(() -> {
-                        com.mojang.logging.LogUtils.getLogger().info("PICKLECRAFT PLAYTEST PASSED");
-                        game.stop();
+                        beforeTeleportX = game.player.getX();
+                        var right = new net.minecraft.client.input.MouseButtonInfo(
+                            com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT, 0);
+                        require(map.mouseClicked(new net.minecraft.client.input.MouseButtonEvent(
+                            map.width / 2.0 + 35, (34 + map.height - 45) / 2.0, right), false),
+                            "Right-click requests map teleport");
+                        awaitingTeleport = true;
                     }));
             } else if (mapTicks > 200) {
                 throw new AssertionError("Creative map packet did not open its screen");
             }
+        }
+        if (awaitingTeleport) {
+            if (Math.abs(game.player.getX() - beforeTeleportX) > 500) {
+                require(!(game.gui.screen() instanceof io.github.gabooz.picklecraft.client.ZoneMapScreen),
+                    "Map closes after teleporting");
+                com.mojang.logging.LogUtils.getLogger().info("PICKLECRAFT PLAYTEST PASSED");
+                awaitingTeleport = false;
+                game.stop();
+            } else if (++teleportTicks > 400) throw new AssertionError("Map teleport packet did not move the player");
         }
     }
 
@@ -183,6 +204,9 @@ public final class Playtest {
         if (System.getenv("PICKLECRAFT_TEST_FOCUS") == null) verifyZoneMines(level);
         verifyZombieRosters(level, player);
         verifyCattle(level, player);
+        require(!io.github.gabooz.picklecraft.map.ZoneMapNetwork.teleport(player, 0, 0),
+            "Survival players cannot use map teleport packets");
+        verifyBones(level, player);
         var pos = player.blockPosition().below();
         for (var entry : Map.<Block, Integer>of(Blocks.OAK_LOG, 120, Blocks.DIRT, 30, Blocks.STONE, 300,
                 Blocks.SAND, 15, Blocks.COBBLESTONE, 60).entrySet()) {
@@ -369,6 +393,7 @@ public final class Playtest {
                 net.minecraft.world.entity.EntitySpawnReason.NATURAL);
             actor.assign(zone, type, 1);
             actor.setPos(player.getX() + 3 + type, player.getY() + 1, player.getZ());
+            require(!actor.hasCustomName(), "Zone zombies have no name tags");
             require(actor.getMaxHealth() == (type == 0 ? 90 : type == 1 ? 60 : 70),
                 "Roster variant has the specified maximum health");
             require(actor.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)
@@ -393,6 +418,15 @@ public final class Playtest {
         level.getServer().managedBlock(pendingLight::isDone);
         require(first.getWalkTargetValue(first.blockPosition(), level) < 0,
             "Zombie navigation treats light as forbidden");
+        require(io.github.gabooz.picklecraft.zombies.ZoneLights.pressure(level, arena.offset(8, 0, 0), java.util.List.of()) == 0,
+            "Zombies may approach the dim edge of ordinary light");
+        var firePos = arena.offset(6, 0, 0);
+        level.setBlockAndUpdate(firePos, Blocks.CAMPFIRE.defaultBlockState());
+        var fires = io.github.gabooz.picklecraft.zombies.ZoneLights.campfires(level, arena, 18);
+        require(io.github.gabooz.picklecraft.zombies.ZoneLights.pressure(level, arena, fires)
+                > io.github.gabooz.picklecraft.zombies.ZoneLights.pressure(level, arena, java.util.List.of()),
+            "Campfires repel zombies more strongly than ordinary light at this distance");
+        level.setBlockAndUpdate(firePos, Blocks.AIR.defaultBlockState());
         first.setOnGround(true);
         first.tickCount = 20;
         first.tick();
@@ -432,6 +466,25 @@ public final class Playtest {
         worldData.setGameTime(startTime);
         com.mojang.logging.LogUtils.getLogger().info("ZOMBIE ZONES grasslands={}, challenged={}, roster={}",
             grasslands, assigned, zone.souls.size());
+    }
+
+    private static void verifyBones(net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player) {
+        var chunk = player.chunkPosition();
+        boolean placed = false;
+        for (long seed = 0; seed < 2000 && !placed; seed++) {
+            placed = io.github.gabooz.picklecraft.zombies.ZoneBones.decorate(level, seed * 0x9E3779B97F4A7C15L, chunk);
+        }
+        require(placed, "Zombie-zone surface decoration places a real bone stack");
+        boolean visibleBone = false;
+        for (int x = 0; x < 16; x++) for (int z = 0; z < 16; z++) {
+            var top = level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                chunk.getBlockAt(x, 0, z));
+            for (var pos : java.util.List.of(top, top.below())) {
+                if (level.getBlockEntity(pos) instanceof io.github.gabooz.picklecraft.ground.GroundStack stack
+                        && stack.items().stream().anyMatch(item -> item.is(net.minecraft.world.item.Items.BONE))) visibleBone = true;
+            }
+        }
+        require(visibleBone, "Generated bones retain item data on the visible surface");
     }
 
     private static void verifyCattle(net.minecraft.server.level.ServerLevel level,

@@ -23,7 +23,7 @@ public record HexTerrain(DensityFunction input, DensityFunction temperature, Den
         var mountain = mountainInput.compileSampler(context);
         return new DensitySampler() {
             private volatile Long seed;
-            private record Column(int x, int z, double height, double mountains) {}
+            private record Column(int x, int z, double height, double mountains, double sea) {}
             private final ThreadLocal<Column> columnCache = new ThreadLocal<>();
 
             @Override
@@ -33,7 +33,7 @@ public record HexTerrain(DensityFunction input, DensityFunction temperature, Den
 
             private float shape(SamplerContext sampling, int x, int y, int z, float original) {
                 if (seed == null) seed = Double.doubleToLongBits(climate.sampleValue(sampling, 0, 0, 0));
-                if (y < 48) return original;
+                if (y < 32) return original;
                 var column = columnCache.get();
                 if (column == null || column.x() != x || column.z() != z) {
                     double mountains = HexRegions.mountainWeight(x, z, seed);
@@ -41,13 +41,16 @@ public record HexTerrain(DensityFunction input, DensityFunction temperature, Den
                     valley = valley * valley * (3 - 2 * valley);
                     double hills = HexRegions.noise(x / 790.0, z / 790.0, seed + 113) * 6;
                     double height = 61 + valley * (9 + hills);
-                    column = new Column(x, z, height, mountains * valley);
+                    var ocean = OceanTerrain.sample(x, z, seed);
+                    height += (ocean.height() - height) * ocean.seaWeight();
+                    column = new Column(x, z, height, mountains * valley * (1 - ocean.seaWeight()), ocean.seaWeight());
                     columnCache.set(column);
                 }
                 double surface = (column.height() - y) / 60 + Math.clamp(original, -1F, 1F) * 0.045;
-                surface = surface * (1 - column.mountains())
-                    + mountain.sampleValue(sampling, x, y, z) * column.mountains();
-                double blend = Math.clamp((y - 48) / 16.0, 0, 1);
+                if (column.mountains() > 0) {
+                    surface += (mountain.sampleValue(sampling, x, y, z) - surface) * column.mountains();
+                }
+                double blend = Math.clamp((y - 48 + column.sea() * 16) / 16.0, 0, 1);
                 return (float) (original * (1 - blend) + surface * blend);
             }
 

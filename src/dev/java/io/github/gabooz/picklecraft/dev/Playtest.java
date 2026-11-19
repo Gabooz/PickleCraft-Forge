@@ -189,9 +189,10 @@ public final class Playtest {
         for (int q = -6; q <= 6 && kinds.size() < 3; q++) {
             for (int r = -6; r <= 6 && kinds.size() < 3; r++) {
                 var cell = io.github.gabooz.picklecraft.world.HexRegions.cell(q, r, seed);
-                if (kinds.contains(cell.kind())) continue;
+                if (kinds.contains(cell.kind()) || cell.kind().ordinal() > 2) continue;
                 int x = (int) Math.round(io.github.gabooz.picklecraft.world.HexRegions.SIDE * Math.sqrt(3) * (q + r / 2.0));
                 int z = (int) Math.round(io.github.gabooz.picklecraft.world.HexRegions.SIDE * 1.5 * r);
+                if (io.github.gabooz.picklecraft.world.OceanTerrain.continent(x, z, seed) < 0.14) continue;
                 int height = level.getChunkSource().getGenerator().getBaseHeight(x, z,
                     net.minecraft.world.level.levelgen.Heightmap.Types.OCEAN_FLOOR_WG, level, level.getChunkSource().randomState());
                 require(height >= 55 && height <= (cell.kind() ==
@@ -248,7 +249,7 @@ public final class Playtest {
             net.minecraft.world.level.levelgen.densityfunction.SamplerContext.EMPTY_UNCACHED);
         long seed = io.github.gabooz.picklecraft.world.HexRegions.seed(sampler);
         var seen = java.util.EnumSet.noneOf(io.github.gabooz.picklecraft.world.HexRegions.Kind.class);
-        var counts = new int[3];
+        var counts = new int[io.github.gabooz.picklecraft.world.HexRegions.Kind.values().length];
         int mountainLinks = 0;
         for (int q = -18; q <= 18; q++) {
             for (int r = -18; r <= 18; r++) {
@@ -267,8 +268,9 @@ public final class Playtest {
                     "Zombie challenge selection follows grassland eligibility");
             }
         }
-        require(seen.size() == 3 && counts[0] > counts[2] && mountainLinks > 100,
+        require(seen.size() == counts.length && counts[0] > counts[2] && mountainLinks > 60,
             "Grasslands, mountain chains and slightly scarcer forests occur across hex regions");
+        verifyOcean(level, seed);
         var resolver = source.createResolver(sampler);
         var ops = net.minecraft.resources.RegistryOps.create(com.mojang.serialization.JsonOps.INSTANCE, level.registryAccess());
         var encoded = net.minecraft.world.level.biome.BiomeSource.CODEC.encodeStart(ops, source).getOrThrow();
@@ -284,8 +286,9 @@ public final class Playtest {
                 var actual = resolver.getNoiseBiome(x, 20, z);
                 boolean river = original.is(net.minecraft.world.level.biome.Biomes.RIVER)
                     || original.is(net.minecraft.world.level.biome.Biomes.FROZEN_RIVER);
-                if (river) riverSamples++;
-                require(actual.is(net.minecraft.world.level.biome.Biomes.RIVER) == river,
+                boolean inland = io.github.gabooz.picklecraft.world.OceanTerrain.continent(x * 4.0, z * 4.0, seed) > 0.14;
+                if (river && inland) riverSamples++;
+                require(!inland || actual.is(net.minecraft.world.level.biome.Biomes.RIVER) == river,
                     "River selection follows vanilla climate independently of hex borders");
                 require(decoded.getNoiseBiome(x, 20, z).equals(actual), "Saved biome source reproduces the same map");
             }
@@ -293,12 +296,30 @@ public final class Playtest {
         require(riverSamples > 0, "Winding river biomes occur across the world");
 
         var biomes = source.possibleBiomes();
-        require(biomes.size() == 4, "Only three land biomes and the river are possible");
+        require(biomes.size() == 7, "Ocean, beach and stony shore are declared alongside inland biomes");
         for (int x = -16000; x <= 16000; x += 1000) {
             require(biomes.contains(resolver.getNoiseBiome(x, 20, -x)), "Hex resolver returns a declared biome");
         }
         com.mojang.logging.LogUtils.getLogger().info("HEX REGION COUNTS grasslands={}, mountains={}, forests={}",
             counts[0], counts[1], counts[2]);
+    }
+
+    private static void verifyOcean(net.minecraft.server.level.ServerLevel level, long seed) {
+        for (int q = -6; q <= 6; q++) for (int r = -6; r <= 6; r++) {
+            var region = io.github.gabooz.picklecraft.world.HexRegions.cell(q, r, seed);
+            if (region.kind() != io.github.gabooz.picklecraft.world.HexRegions.Kind.OCEAN) continue;
+            double side = io.github.gabooz.picklecraft.world.HexRegions.SIDE;
+            int x = (int) Math.round(side * Math.sqrt(3) * (q + r / 2.0));
+            int z = (int) Math.round(side * 1.5 * r);
+            if (io.github.gabooz.picklecraft.world.OceanTerrain.continent(x, z, seed) > -0.2) continue;
+            level.getChunk(x >> 4, z >> 4);
+            require(level.getBlockState(new BlockPos(x, 62, z)).is(Blocks.WATER),
+                "Deep ocean columns contain water at sea level");
+            require(level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.OCEAN_FLOOR, x, z) < 58,
+                "Deep ocean has a submerged floor");
+            return;
+        }
+        throw new AssertionError("No deep ocean sample found");
     }
 
     private static void verifyZoneMines(net.minecraft.server.level.ServerLevel level) {

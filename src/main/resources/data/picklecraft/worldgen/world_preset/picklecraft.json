@@ -10,6 +10,9 @@
           "mountains": "picklecraft:mountains",
           "oak_forest": "picklecraft:oak_forest",
           "river": "minecraft:river",
+          "ocean": "minecraft:ocean",
+          "beach": "minecraft:beach",
+          "cliff": "minecraft:stony_shore",
           "rivers": {
             "type": "minecraft:multi_noise",
             "preset": "minecraft:overworld"

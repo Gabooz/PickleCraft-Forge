@@ -8,7 +8,7 @@ public final class HexRegions {
     public static final double SIDE = 2500 * SCALE;
     private static final double ROOT_THREE = Math.sqrt(3);
 
-    public enum Kind { GRASSLANDS, MOUNTAINS, OAK_FOREST }
+    public enum Kind { GRASSLANDS, MOUNTAINS, OAK_FOREST, OCEAN, ISLANDS, ARCHIPELAGO }
 
     public record Region(int q, int r, Kind kind, long seed) {}
 
@@ -46,7 +46,12 @@ public final class HexRegions {
         double woodland = noise(x / (10500 * SCALE), z / (10500 * SCALE), seed + 61)
             + noise(x / (4700 * SCALE), z / (4700 * SCALE), seed + 62) * 0.18;
         Kind kind = ridge < 0.15 ? Kind.MOUNTAINS : woodland > 0.08 ? Kind.OAK_FOREST : Kind.GRASSLANDS;
-        return new Region(q, r, kind, hash(q, r, seed));
+        long cellSeed = hash(q, r, seed);
+        if (OceanTerrain.continent(x, z, seed) < 0) {
+            int islandRoll = (int) Math.floorMod(cellSeed, 20);
+            kind = islandRoll == 0 ? Kind.ARCHIPELAGO : islandRoll <= 2 ? Kind.ISLANDS : Kind.OCEAN;
+        }
+        return new Region(q, r, kind, cellSeed);
     }
 
     /** A continuous mountain mask prevents terrain cliffs at biome borders. */

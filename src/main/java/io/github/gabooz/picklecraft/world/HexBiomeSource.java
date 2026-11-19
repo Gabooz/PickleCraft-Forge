@@ -14,7 +14,10 @@ public final class HexBiomeSource extends BiomeSource {
         Biome.CODEC.fieldOf("mountains").forGetter(source -> source.mountains),
         Biome.CODEC.fieldOf("oak_forest").forGetter(source -> source.forest),
         Biome.CODEC.fieldOf("river").forGetter(source -> source.river),
-        BiomeSource.CODEC.fieldOf("rivers").forGetter(source -> source.rivers)
+        BiomeSource.CODEC.fieldOf("rivers").forGetter(source -> source.rivers),
+        Biome.CODEC.optionalFieldOf("ocean").forGetter(source -> source.ocean),
+        Biome.CODEC.optionalFieldOf("beach").forGetter(source -> source.beach),
+        Biome.CODEC.optionalFieldOf("cliff").forGetter(source -> source.cliff)
     ).apply(instance, HexBiomeSource::new));
 
     private final Holder<Biome> grasslands;
@@ -22,14 +25,21 @@ public final class HexBiomeSource extends BiomeSource {
     private final Holder<Biome> forest;
     private final Holder<Biome> river;
     private final BiomeSource rivers;
+    private final java.util.Optional<Holder<Biome>> ocean;
+    private final java.util.Optional<Holder<Biome>> beach;
+    private final java.util.Optional<Holder<Biome>> cliff;
 
     public HexBiomeSource(Holder<Biome> grasslands, Holder<Biome> mountains, Holder<Biome> forest,
-            Holder<Biome> river, BiomeSource rivers) {
+            Holder<Biome> river, BiomeSource rivers, java.util.Optional<Holder<Biome>> ocean,
+            java.util.Optional<Holder<Biome>> beach, java.util.Optional<Holder<Biome>> cliff) {
         this.grasslands = grasslands;
         this.mountains = mountains;
         this.forest = forest;
         this.river = river;
         this.rivers = rivers;
+        this.ocean = ocean;
+        this.beach = beach;
+        this.cliff = cliff;
     }
 
     @Override
@@ -39,7 +49,8 @@ public final class HexBiomeSource extends BiomeSource {
 
     @Override
     protected Stream<Holder<Biome>> collectPossibleBiomes() {
-        return Stream.of(grasslands, mountains, forest, river);
+        return Stream.concat(Stream.of(grasslands, mountains, forest, river),
+            Stream.of(ocean, beach, cliff).flatMap(java.util.Optional::stream));
     }
 
     @Override
@@ -47,12 +58,27 @@ public final class HexBiomeSource extends BiomeSource {
         long seed = HexRegions.seed(sampler);
         var riverResolver = rivers.createResolver(sampler);
         return (x, y, z) -> {
+            double blockX = x * 4.0;
+            double blockZ = z * 4.0;
+            var region = HexRegions.at(blockX, blockZ, seed);
+            double coast = OceanTerrain.continent(blockX, blockZ, seed);
+            if (coast < 0) {
+                double island = OceanTerrain.sample(blockX, blockZ, seed).height();
+                if (island > 66) return grasslands;
+                if (island >= 61) return beach.orElse(grasslands);
+                return ocean.orElse(river);
+            }
+            boolean steep = OceanTerrain.steep(blockX, blockZ, seed);
+            if (coast < (steep ? 0.046 : 0.092)) {
+                return (steep ? cliff : beach).orElse(grasslands);
+            }
             var vanilla = riverResolver.getNoiseBiome(x, y, z);
             if (vanilla.is(Biomes.RIVER) || vanilla.is(Biomes.FROZEN_RIVER)) return river;
-            return switch (HexRegions.at(x * 4.0, z * 4.0, seed).kind()) {
+            return switch (region.kind()) {
                 case GRASSLANDS -> grasslands;
                 case MOUNTAINS -> mountains;
                 case OAK_FOREST -> forest;
+                case OCEAN, ISLANDS, ARCHIPELAGO -> ocean.orElse(river);
             };
         };
     }

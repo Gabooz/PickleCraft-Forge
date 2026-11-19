@@ -104,11 +104,12 @@ public final class ZoneMapScreen extends Screen {
         graphics.disableScissor();
         graphics.outline(left() - 1, top() - 1, right() - left() + 2, bottom() - top() + 2, 0xff697467);
         super.extractRenderState(graphics, mouseX, mouseY, delta);
-        int footer = height - 34;
+        int footer = height - 42;
         graphics.text(font, "Grasslands", 12, footer, GRASS);
         graphics.text(font, "Oak forest", 81, footer, 0xff88ba88);
         graphics.text(font, "Mountains", 151, footer, MOUNTAIN);
         graphics.text(font, "Fe iron   Au gold   Z zombies   C cows", 224, footer, 0xffe4d7ae);
+        graphics.text(font, "I islands   A archipelago", 12, height - 29, 0xff92c8ee);
         graphics.text(font, "Drag pan   Wheel zoom   Right-click teleport   R center   F follow", 12, height - 19, 0xffb7c0b3);
         graphics.text(font, String.format(java.util.Locale.ROOT, "X %.0f  Z %.0f", centerX, centerZ), 180, 12, 0xffb7c0b3);
         if (inside(mouseX, mouseY)) {
@@ -134,12 +135,20 @@ public final class ZoneMapScreen extends Screen {
         colors = new int[cols * rows];
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
-                var kind = HexRegions.at(worldX(left() + x * RASTER + 1.5), worldZ(top() + y * RASTER + 1.5), seed).kind();
-                colors[y * cols + x] = switch (kind) {
-                    case GRASSLANDS -> 0xff000000 | SeasonClient.tint(GRASS);
-                    case OAK_FOREST -> 0xff000000 | SeasonClient.tint(FOREST);
-                    case MOUNTAINS -> MOUNTAIN;
-                };
+                double blockX = worldX(left() + x * RASTER + 1.5);
+                double blockZ = worldZ(top() + y * RASTER + 1.5);
+                var kind = HexRegions.at(blockX, blockZ, seed).kind();
+                var coast = io.github.gabooz.picklecraft.world.OceanTerrain.sample(blockX, blockZ, seed);
+                if (io.github.gabooz.picklecraft.world.OceanTerrain.continent(blockX, blockZ, seed) < 0
+                        && coast.height() <= 63) {
+                    colors[y * cols + x] = 0xff315f88;
+                } else {
+                    colors[y * cols + x] = switch (kind) {
+                        case GRASSLANDS, OCEAN, ISLANDS, ARCHIPELAGO -> 0xff000000 | SeasonClient.tint(GRASS);
+                        case OAK_FOREST -> 0xff000000 | SeasonClient.tint(FOREST);
+                        case MOUNTAINS -> MOUNTAIN;
+                    };
+                }
             }
         }
     }
@@ -170,6 +179,8 @@ public final class ZoneMapScreen extends Screen {
                 };
                 if (ZombieZones.assigned(region)) marker += marker.isEmpty() ? "Z" : "  Z";
                 if (io.github.gabooz.picklecraft.cattle.CattleHerds.assigned(region)) marker += marker.isEmpty() ? "C" : "  C";
+                if (region.kind() == HexRegions.Kind.ISLANDS) marker = "I";
+                if (region.kind() == HexRegions.Kind.ARCHIPELAGO) marker = "A";
                 if (!marker.isEmpty()) {
                     int textWidth = font.width(marker);
                     graphics.fill((int) cx - textWidth / 2 - 3, (int) cy - 6,
@@ -213,6 +224,9 @@ public final class ZoneMapScreen extends Screen {
             case GRASSLANDS -> "Grasslands";
             case MOUNTAINS -> "Mountains";
             case OAK_FOREST -> "Oak forest";
+            case OCEAN -> "Ocean";
+            case ISLANDS -> "Islands";
+            case ARCHIPELAGO -> "Archipelago";
         };
     }
 

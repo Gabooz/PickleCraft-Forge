@@ -10,7 +10,8 @@
     "InventoryMenuMixin",
     "BareHandMiningMixin",
     "OverworldMaterialRulesMixin",
-    "MaterialSystemMixin"
+    "MaterialSystemMixin",
+    "MaterialRuleContextAccessor"
   ],
   "client": [
     "NightLightMixin",

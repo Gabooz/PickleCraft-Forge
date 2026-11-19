@@ -1,0 +1,27 @@
+{
+  "type": "forge:add_features",
+  "biomes": [
+    "picklecraft:grasslands",
+    "picklecraft:oak_forest",
+    "minecraft:river"
+  ],
+  "features": [
+    "picklecraft:mine_ore_coal_upper",
+    "picklecraft:mine_ore_coal_lower",
+    "picklecraft:mine_ore_iron_upper",
+    "picklecraft:mine_ore_iron_middle",
+    "picklecraft:mine_ore_iron_small",
+    "picklecraft:mine_ore_gold",
+    "picklecraft:mine_ore_gold_lower",
+    "picklecraft:mine_ore_redstone",
+    "picklecraft:mine_ore_redstone_lower",
+    "picklecraft:mine_ore_diamond",
+    "picklecraft:mine_ore_diamond_medium",
+    "picklecraft:mine_ore_diamond_large",
+    "picklecraft:mine_ore_diamond_buried",
+    "picklecraft:mine_ore_lapis",
+    "picklecraft:mine_ore_lapis_buried",
+    "picklecraft:mine_ore_copper"
+  ],
+  "step": "underground_ores"
+}

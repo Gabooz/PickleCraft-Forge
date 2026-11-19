@@ -82,6 +82,7 @@ public final class Playtest {
 
     private static void verifyServer(net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player) {
         verifyHexWorld(level);
+        verifyZoneMines(level);
         var pos = player.blockPosition().below();
         for (var entry : Map.<Block, Integer>of(Blocks.OAK_LOG, 120, Blocks.DIRT, 30, Blocks.STONE, 300,
                 Blocks.SAND, 15, Blocks.COBBLESTONE, 60).entrySet()) {
@@ -165,6 +166,71 @@ public final class Playtest {
             require(biomes.contains(resolver.getNoiseBiome(x, 20, -x)), "Hex resolver returns a declared biome");
         }
         com.mojang.logging.LogUtils.getLogger().info("HEX REGION COUNTS grasslands={}, mountains={}, forests={}",
+            counts[0], counts[1], counts[2]);
+    }
+
+    private static void verifyZoneMines(net.minecraft.server.level.ServerLevel level) {
+        var sampler = level.getChunkSource().randomState().createClimateSampler(
+            net.minecraft.world.level.levelgen.densityfunction.SamplerContext.EMPTY_UNCACHED);
+        long seed = io.github.gabooz.picklecraft.world.HexRegions.seed(sampler);
+        int[] counts = new int[3];
+        var examples = new java.util.EnumMap<io.github.gabooz.picklecraft.world.ZoneMines.Ore, BlockPos>(
+            io.github.gabooz.picklecraft.world.ZoneMines.Ore.class);
+        for (int q = -80; q <= 80; q++) {
+            for (int r = -80; r <= 80; r++) {
+                var zone = io.github.gabooz.picklecraft.world.HexRegions.cell(q, r, seed);
+                var mine = io.github.gabooz.picklecraft.world.ZoneMines.ore(zone);
+                counts[mine.ordinal()]++;
+                if (Math.abs(q) <= 3 && Math.abs(r) <= 3) {
+                    examples.putIfAbsent(mine, new BlockPos(
+                        (int) Math.round(2500 * Math.sqrt(3) * (q + r / 2.0)), -24, 3750 * r));
+                }
+            }
+        }
+        double frequency = (counts[1] + counts[2]) / (double) (161 * 161);
+        double ratio = counts[1] / (double) counts[2];
+        require(frequency > 0.32 && frequency < 0.35 && ratio > 4.7 && ratio < 5.3,
+            "One third of zones are mines, with five iron mines for each gold mine");
+        require(examples.size() == 3, "Test world contains both mine types and ore-free zones");
+        var deposit = level.registryAccess().lookupOrThrow(Registries.FEATURE).getOrThrow(
+            ResourceKey.create(Registries.FEATURE, Identifier.fromNamespaceAndPath("picklecraft", "mine_ore_iron"))).value();
+        for (var entry : examples.entrySet()) {
+            var origin = entry.getValue();
+            var mine = entry.getKey();
+            var chunk = level.getChunk(origin.getX() >> 4, origin.getZ() >> 4);
+            int ores = 0;
+            for (int y = -60; y < 128; y++) {
+                for (int x = 0; x < 16; x++) {
+                    for (int z = 0; z < 16; z++) {
+                        var pos = new BlockPos((origin.getX() & ~15) + x, y, (origin.getZ() & ~15) + z);
+                        var state = chunk.getBlockState(pos);
+                        String name = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath();
+                        if (!name.endsWith("_ore") && !name.equals("raw_iron_block") && !name.equals("raw_copper_block")) continue;
+                        ores++;
+                        require(mine != io.github.gabooz.picklecraft.world.ZoneMines.Ore.NONE
+                            && (mine == io.github.gabooz.picklecraft.world.ZoneMines.Ore.IRON
+                                ? state.is(Blocks.IRON_ORE) || state.is(Blocks.DEEPSLATE_IRON_ORE)
+                                : state.is(Blocks.GOLD_ORE) || state.is(Blocks.DEEPSLATE_GOLD_ORE)),
+                            "A generated zone contains only its selected ore");
+                    }
+                }
+            }
+            require((ores > 0) == (mine != io.github.gabooz.picklecraft.world.ZoneMines.Ore.NONE),
+                "Mine chunks contain ore and ore-free chunks stay clear");
+            // Exercise the reusable deposit directly in a controlled host block volume.
+            for (var pos : BlockPos.betweenClosed(origin.offset(-8, -5, -8), origin.offset(8, 5, 8))) {
+                level.setBlock(pos, Blocks.DEEPSLATE.defaultBlockState(), 2);
+            }
+            int placed = 0;
+            for (int attempt = 0; attempt < 12; attempt++) {
+                if (deposit.place(level, level.getChunkSource().getGenerator(),
+                        net.minecraft.util.RandomSource.create(1234 + attempt), origin)) placed++;
+            }
+            require((placed > 0) == (mine != io.github.gabooz.picklecraft.world.ZoneMines.Ore.NONE),
+                "Vanilla deposit wrapper respects zone eligibility");
+            com.mojang.logging.LogUtils.getLogger().info("MINE SAMPLE type={}, generated_ore_blocks={}", mine, ores);
+        }
+        com.mojang.logging.LogUtils.getLogger().info("MINE ZONE COUNTS none={}, iron={}, gold={}",
             counts[0], counts[1], counts[2]);
     }
 

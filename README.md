@@ -28,7 +28,7 @@ After the GitHub remote and branch tracking are configured, double-click **Sync 
 
 ## World generation prototype
 
-Create a new Default world to test the prototype. It uses vanilla Overworld terrain and biome distribution, with vanilla ore deposits and large veins, foliage, mob spawning, structure generation, and snow and ice generation disabled. Sparse oaks are the exception to the foliage removal. Each chunk has a 60% chance of one placement attempt, which can fail on water or unsuitable ground. Previously generated blocks remain in existing saves. The Overworld also rejects mobs that try to enter it, including mobs loaded from older saves.
+Create a new PickleCraft world to test the prototype. It uses the hex-zone generation described below, including mine zones for iron and gold. Vanilla foliage, mob spawning, structures, and snow and ice generation are disabled. Sparse oaks appear in grasslands, while oak forests have more trees. Previously generated blocks remain in existing saves. The Overworld rejects mobs unless a registered biome challenge explicitly allows them.
 
 Vanilla grid-crafting recipes are disabled in both inventories and crafting tables. The survival inventory has no crafting grid or recipe-book button. Furnace and other non-grid recipes are still available.
 
@@ -44,7 +44,7 @@ In new Overworld chunks, look on grass for loose stones, sticks, and occasional 
 
 The Overworld clock runs at quarter speed, giving an 80-minute cycle at 20 ticks per second. Night light varies with the moon. Full-moon sky and ambient light are 30 percent brighter than at new moon during the darkest part of the night.
 
-The PickleCraft creative tab contains the Workbench, loose stone, placeable Plumaria, blossoms, stick, string, and all four stone tools. For natural spawns, explore newly generated chunks or create a fresh Default world.
+The PickleCraft creative tab contains the Workbench, loose stone, placeable Plumaria, blossoms, stick, string, and all four stone tools. For natural spawns, explore newly generated chunks or create a fresh PickleCraft world.
 
 The Workbench accepts one input item at a time. Multi-item outputs stack on its surface. Take the output before adding another input.
 
@@ -75,3 +75,12 @@ The callback receives the selected hex and runs once per generated chunk, so
 hazards, resources, and structures can follow a stable region-wide choice.
 An optional mob predicate lets that challenge permit its creatures through the
 mod's usual mob suppression. The registry starts empty.
+
+
+Mine zones use a separate deterministic roll per hex. One third contain ore,
+with iron selected five times as often as gold. The selected ore replaces the
+normal Overworld coal, copper, iron, gold, redstone, diamond, and lapis deposits,
+plus emerald deposits in mountain zones. Their vanilla placement counts, height
+ranges, sizes, and air-exposure rules are preserved. Large iron/copper veins
+are also converted. Ore blocks are checked against the warped zone boundary.
+Newly generated chunks in PickleCraft worlds use these rules.

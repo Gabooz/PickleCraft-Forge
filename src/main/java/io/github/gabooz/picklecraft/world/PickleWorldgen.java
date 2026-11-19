@@ -24,6 +24,8 @@ public final class PickleWorldgen {
     public static void register(BusGroup bus) {
         SOURCES.register("hex_regions", () -> HexBiomeSource.CODEC);
         DENSITIES.register("hex_terrain", () -> HexTerrain.CODEC);
+        DENSITIES.register("legacy_highlands", () -> LegacyHighlandsTerrain.CODEC);
+        DENSITIES.register("mountain_shape", () -> MountainShape.CODEC);
         SOURCES.register(bus);
         DENSITIES.register(bus);
     }

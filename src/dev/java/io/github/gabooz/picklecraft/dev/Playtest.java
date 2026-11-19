@@ -67,7 +67,7 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 38, "PickleCraft creative tab contains all thirty-eight entries");
+            require(tab.getDisplayItems().size() == 50, "PickleCraft creative tab contains all fifty entries");
             try (var fogRenderer = new net.minecraft.client.renderer.fog.FogRenderer()) {
                 io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(true);
                 var fog = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
@@ -111,6 +111,11 @@ public final class Playtest {
                 var clear = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
                 require(clear.renderDistanceEnd > 7, "Cleared zone restores ordinary visibility");
             }
+            int springColor = net.minecraft.client.renderer.BiomeColors.getAverageFoliageColor(game.level, game.player.blockPosition());
+            io.github.gabooz.picklecraft.client.SeasonClient.receive(20);
+            int autumnColor = net.minecraft.client.renderer.BiomeColors.getAverageFoliageColor(game.level, game.player.blockPosition());
+            require(springColor != autumnColor, "Season calendar changes the actual foliage renderer tint");
+            io.github.gabooz.picklecraft.client.SeasonClient.receive(0);
             game.gui.setScreen(new InventoryScreen(game.player));
             require(game.gui.screen() instanceof SurvivalInventoryScreen, "Survival inventory screen");
             require(DefaultPlayerSkin.get(game.player.getUUID()).body().id().getPath().equals("entity/player/wide/steve"),
@@ -157,7 +162,7 @@ public final class Playtest {
                         var right = new net.minecraft.client.input.MouseButtonInfo(
                             com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT, 0);
                         require(map.mouseClicked(new net.minecraft.client.input.MouseButtonEvent(
-                            map.width / 2.0 + 35, (34 + map.height - 45) / 2.0, right), false),
+                            map.width / 2.0 + 35, (34 + map.height - 86) / 2.0, right), false),
                             "Right-click requests map teleport");
                         awaitingTeleport = true;
                     }));
@@ -190,7 +195,7 @@ public final class Playtest {
                 int height = level.getChunkSource().getGenerator().getBaseHeight(x, z,
                     net.minecraft.world.level.levelgen.Heightmap.Types.OCEAN_FLOOR_WG, level, level.getChunkSource().randomState());
                 require(height >= 55 && height <= (cell.kind() ==
-                    io.github.gabooz.picklecraft.world.HexRegions.Kind.MOUNTAINS ? 145 : 90),
+                    io.github.gabooz.picklecraft.world.HexRegions.Kind.MOUNTAINS ? 320 : 110),
                     "Biome surface height stays in the intended lowland or mountain range");
                 kinds.add(cell.kind());
                 com.mojang.logging.LogUtils.getLogger().info("ZONE HEIGHT biome={}, y={}", cell.kind(), height);
@@ -207,6 +212,7 @@ public final class Playtest {
         require(!io.github.gabooz.picklecraft.map.ZoneMapNetwork.teleport(player, 0, 0),
             "Survival players cannot use map teleport packets");
         verifyBones(level, player);
+        verifySeasonsAndFarming(level, player);
         var pos = player.blockPosition().below();
         for (var entry : Map.<Block, Integer>of(Blocks.OAK_LOG, 120, Blocks.DIRT, 30, Blocks.STONE, 300,
                 Blocks.SAND, 15, Blocks.COBBLESTONE, 60).entrySet()) {
@@ -466,6 +472,64 @@ public final class Playtest {
         worldData.setGameTime(startTime);
         com.mojang.logging.LogUtils.getLogger().info("ZOMBIE ZONES grasslands={}, challenged={}, roster={}",
             grasslands, assigned, zone.souls.size());
+    }
+
+    private static void verifySeasonsAndFarming(net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player) {
+        var clock = level.dimensionType().defaultClock().orElseThrow();
+        long original = level.getDefaultClockTime();
+        var calendar = io.github.gabooz.picklecraft.seasons.Seasons.get(level);
+        require(io.github.gabooz.picklecraft.seasons.Seasons.at(0, 0).season() == io.github.gabooz.picklecraft.seasons.Seasons.Season.SPRING,
+            "The calendar starts in spring");
+        require(io.github.gabooz.picklecraft.seasons.Seasons.at(10 * 24000L, 0).season() == io.github.gabooz.picklecraft.seasons.Seasons.Season.SUMMER,
+            "Each season lasts ten days");
+        require(!io.github.gabooz.picklecraft.map.ZoneMapNetwork.changeTime(player, 6000)
+            && !io.github.gabooz.picklecraft.map.ZoneMapNetwork.changeSeason(player, 3), "Calendar controls reject survival packets");
+        level.clockManager().setTotalTicks(clock, 6000);
+        calendar.select(level, io.github.gabooz.picklecraft.seasons.Seasons.Season.SPRING);
+        var pos = player.blockPosition().offset(0, 3, 4);
+        level.setBlockAndUpdate(pos.below(), Blocks.FARMLAND.defaultBlockState());
+        level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.WHEAT_SEEDS, 2));
+        var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos.below()), net.minecraft.core.Direction.UP, pos.below(), false);
+        require(io.github.gabooz.picklecraft.ground.GroundInteractions.use(new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(
+            player, net.minecraft.world.InteractionHand.MAIN_HAND, pos.below(), hit)), "Vanilla seeds plant the timed wheat crop");
+        require(player.getMainHandItem().getCount() == 1, "Planting consumes one seed");
+        var crop = (io.github.gabooz.picklecraft.farming.WheatGrowth) level.getBlockEntity(pos);
+        crop.update(level);
+        level.clockManager().setTotalTicks(clock, 6000 + 14 * 24000L);
+        crop.update(level);
+        require(level.getBlockState(pos).getValue(net.minecraft.world.level.block.CropBlock.AGE) < 7, "Wheat is immature before fifteen days");
+        level.clockManager().setTotalTicks(clock, 6000 + 15 * 24000L);
+        crop.update(level);
+        require(level.getBlockState(pos).getValue(net.minecraft.world.level.block.CropBlock.AGE) == 7, "Wheat matures after fifteen days in summer");
+        var drops = Block.getDrops(level.getBlockState(pos), level, pos, crop);
+        require(drops.stream().anyMatch(item -> item.is(net.minecraft.world.item.Items.WHEAT) && item.getCount() >= 17 && item.getCount() <= 25)
+            && drops.stream().anyMatch(item -> item.is(net.minecraft.world.item.Items.WHEAT_SEEDS) && item.getCount() >= 3 && item.getCount() <= 5), "Mature wheat yields requested grain and seeds");
+        calendar.select(level, io.github.gabooz.picklecraft.seasons.Seasons.Season.AUTUMN);
+        crop.update(level);
+        require(!level.getBlockState(pos).getValue(io.github.gabooz.picklecraft.farming.SeasonalWheatBlock.DEAD), "Early autumn does not kill wheat");
+        level.clockManager().setTotalTicks(clock, 6000 + 20 * 24000L);
+        crop.update(level);
+        require(level.getBlockState(pos).getValue(io.github.gabooz.picklecraft.farming.SeasonalWheatBlock.DEAD), "Autumn day six kills wheat");
+        require(Block.getDrops(level.getBlockState(pos), level, pos, crop).isEmpty(), "Dead wheat yields no harvest");
+        level.removeBlock(pos, false);
+        var woodenHoe = net.minecraft.world.item.Items.WOODEN_HOE.getDefaultInstance();
+        woodenHoe.setDamageValue(30);
+        var stoneHoe = io.github.gabooz.picklecraft.ground.ToolConversions.convert(woodenHoe, net.minecraft.world.item.Items.COBBLESTONE.getDefaultInstance());
+        require(stoneHoe.is(net.minecraft.world.item.Items.STONE_HOE) && stoneHoe.getDamageValue() > 60, "Hoe conversion preserves type and proportional wear");
+        var ironHoe = io.github.gabooz.picklecraft.ground.ToolConversions.convert(stoneHoe, net.minecraft.world.item.Items.IRON_INGOT.getDefaultInstance());
+        require(ironHoe.is(net.minecraft.world.item.Items.IRON_HOE), "An iron ingot upgrades a hoe to iron");
+        player.setGameMode(GameType.CREATIVE);
+        require(io.github.gabooz.picklecraft.map.ZoneMapNetwork.changeSeason(player, 3), "Creative map can select winter");
+        require(io.github.gabooz.picklecraft.seasons.Seasons.date(level).season() == io.github.gabooz.picklecraft.seasons.Seasons.Season.WINTER, "Selected season reaches the server calendar");
+        long day = Math.floorDiv(level.getDefaultClockTime(), 24000);
+        require(io.github.gabooz.picklecraft.map.ZoneMapNetwork.changeTime(player, 18000)
+            && Math.floorMod(level.getDefaultClockTime(), 24000) == 18000
+            && Math.floorDiv(level.getDefaultClockTime(), 24000) == day, "Time control preserves the day number");
+        player.setGameMode(GameType.SURVIVAL);
+        level.clockManager().setTotalTicks(clock, original);
+        calendar.select(level, io.github.gabooz.picklecraft.seasons.Seasons.Season.SPRING);
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.ItemStack.EMPTY);
     }
 
     private static void verifyBones(net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player) {
@@ -779,6 +843,33 @@ public final class Playtest {
         var groundPos = pos.offset(1, 0, 0);
         level.setBlockAndUpdate(groundPos.below(), Blocks.GRASS_BLOCK.defaultBlockState());
         level.setBlockAndUpdate(groundPos, Blocks.AIR.defaultBlockState());
+        require(io.github.gabooz.picklecraft.ground.GroundStackBlock.place(level, groundPos,
+            net.minecraft.world.item.Items.OAK_PLANKS.getDefaultInstance()), "Start the wooden hoe recipe with planks");
+        var hoeHit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(groundPos),
+            net.minecraft.core.Direction.UP, groundPos, false);
+        var hoeClick = new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, groundPos, hoeHit);
+        for (var ingredient : java.util.List.of(net.minecraft.world.item.Items.STRING, net.minecraft.world.item.Items.STICK)) {
+            player.setItemInHand(hand, ingredient.getDefaultInstance());
+            io.github.gabooz.picklecraft.ground.GroundInteractions.use(hoeClick);
+        }
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(hoeClick);
+        var hoeStack = (io.github.gabooz.picklecraft.ground.GroundStack) level.getBlockEntity(groundPos);
+        require(hoeStack.items().size() == 1 && hoeStack.items().getFirst().is(net.minecraft.world.item.Items.WOODEN_HOE),
+            "Planks, string and stick form a wooden hoe instead of the stone cycle");
+        level.removeBlock(groundPos, false);
+        player.setItemInHand(hand, net.minecraft.world.item.Items.WOODEN_HOE.getDefaultInstance());
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.COBBLESTONE, 2));
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(anvil.items().getFirst().is(net.minecraft.world.item.Items.STONE_HOE) && player.getMainHandItem().getCount() == 1,
+            "Anvil consumes one cobble to convert a placed hoe to stone");
+        player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_INGOT, 2));
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
+        require(anvil.items().getFirst().is(net.minecraft.world.item.Items.IRON_HOE) && player.getMainHandItem().getCount() == 1,
+            "Anvil consumes one ingot to convert a placed hoe to iron");
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        io.github.gabooz.picklecraft.ground.GroundInteractions.use(click);
         var ground = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(groundPos.below()),
             net.minecraft.core.Direction.UP, groundPos.below(), false);
         player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(blossoms));

@@ -29,6 +29,8 @@ public final class PickleCraft {
         var modBus = context.getModBusGroup();
         OverworldFeatures.SERIALIZERS.register(modBus);
         GroundContent.register(modBus);
+        io.github.gabooz.picklecraft.farming.FarmingContent.register(modBus);
+        io.github.gabooz.picklecraft.seasons.Seasons.register();
         io.github.gabooz.picklecraft.cattle.CattleContent.register(modBus);
         io.github.gabooz.picklecraft.map.ZoneMapNetwork.register();
         io.github.gabooz.picklecraft.zombies.ZombieContent.register(modBus);

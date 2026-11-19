@@ -57,6 +57,17 @@ public final class AnvilBlock extends BaseEntityBlock {
             return InteractionResult.PASS;
         }
         var items = anvil.items();
+        // Re-materializing one placed tool is distinct from hammering loose ingredients.
+        var converted = items.size() == 1 ? ToolConversions.convert(items.getFirst(), held) : ItemStack.EMPTY;
+        if (!converted.isEmpty() && !player.isShiftKeyDown() && level.isEmptyBlock(pos.above())) {
+            if (!level.isClientSide()) {
+                anvil.convertTool(converted);
+                held.consume(1, player);
+                level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ANVIL_USE,
+                    net.minecraft.sounds.SoundSource.BLOCKS, 0.55F, 1.2F);
+            }
+            return InteractionResult.SUCCESS;
+        }
         boolean shaping = anvil.isShaping();
         boolean ready = items.size() == 2 && items.stream().anyMatch(item -> item.is(Items.STICK))
             && items.stream().anyMatch(item -> item.is(Items.IRON_INGOT));

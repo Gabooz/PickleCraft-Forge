@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "age=0,dead=false": {
+      "model": "picklecraft:block/wheat_stage0"
+    },
+    "age=0,dead=true": {
+      "model": "picklecraft:block/withered_wheat"
+    },
+    "age=1,dead=false": {
+      "model": "picklecraft:block/wheat_stage1"
+    },
+    "age=1,dead=true": {
+      "model": "picklecraft:block/withered_wheat"
+    },
+    "age=2,dead=false": {
+      "model": "picklecraft:block/wheat_stage2"
+    },
+    "age=2,dead=true": {
+      "model": "picklecraft:block/withered_wheat"
+    },
+    "age=3,dead=false": {
+      "model": "picklecraft:block/wheat_stage3"
+    },
+    "age=3,dead=true": {
+      "model": "picklecraft:block/withered_wheat"
+    },
+    "age=4,dead=false": {
+      "model": "picklecraft:block/wheat_stage4"
+    },
+    "age=4,dead=true": {
+      "model": "picklecraft:block/withered_wheat"
+    },
+    "age=5,dead=false": {
+      "model": "picklecraft:block/wheat_stage5"
+    },
+    "age=5,dead=true": {
+      "model": "picklecraft:block/withered_wheat"
+    },
+    "age=6,dead=false": {
+      "model": "picklecraft:block/wheat_stage6"
+    },
+    "age=6,dead=true": {
+      "model": "picklecraft:block/withered_wheat"
+    },
+    "age=7,dead=false": {
+      "model": "picklecraft:block/wheat_stage7"
+    },
+    "age=7,dead=true": {
+      "model": "picklecraft:block/withered_wheat"
+    }
+  }
+}

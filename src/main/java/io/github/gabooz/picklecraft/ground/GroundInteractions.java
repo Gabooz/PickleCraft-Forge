@@ -11,6 +11,7 @@ public final class GroundInteractions {
         if (!event.getEntity().mayBuild()) {
             return false;
         }
+        if (io.github.gabooz.picklecraft.farming.FarmingContent.plant(event)) return true;
         var level = event.getLevel();
         var pos = event.getPos();
         var held = event.getItemStack();

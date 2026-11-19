@@ -122,7 +122,11 @@
       "type": "picklecraft:hex_terrain",
       "input": "minecraft:overworld/final_density",
       "temperature": "minecraft:overworld/temperature",
-      "ridges": "minecraft:overworld/ridges"
+      "ridges": "minecraft:overworld/ridges",
+      "mountain_input": {
+        "type": "picklecraft:mountain_shape",
+        "input": "minecraft:overworld/final_density"
+      }
     },
     "ridges": "minecraft:overworld/ridges",
     "temperature": "minecraft:overworld/temperature",

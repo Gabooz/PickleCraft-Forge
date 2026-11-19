@@ -40,6 +40,8 @@ public final class GroundContent {
     public static final RegistryObject<BlockItem> ANVIL_ITEM = ITEMS.register("anvil", () ->
         new BlockItem(ANVIL.get(), new Item.Properties().setId(ITEMS.key("anvil")).useBlockDescriptionPrefix()));
 
+    public static final RegistryObject<Item> WOODEN_HAMMER = ITEMS.register("wooden_hammer", () ->
+        new Item(new Item.Properties().setId(ITEMS.key("wooden_hammer")).durability(59)));
     public static final RegistryObject<Item> STONE_HAMMER = ITEMS.register("stone_hammer", () ->
         new Item(new Item.Properties().setId(ITEMS.key("stone_hammer")).durability(131)));
     public static final RegistryObject<Item> IRON_HAMMER = ITEMS.register("iron_hammer", () ->
@@ -105,6 +107,18 @@ public final class GroundContent {
             .title(Component.translatable("itemGroup.picklecraft"))
             .icon(() -> BLOSSOMS.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
+                output.accept(Items.WHEAT_SEEDS);
+                output.accept(Items.WHEAT);
+                output.accept(Items.FARMLAND);
+                output.accept(Items.WOODEN_HOE);
+                output.accept(Items.STONE_HOE);
+                output.accept(Items.IRON_HOE);
+                output.accept(Items.WOODEN_PICKAXE);
+                output.accept(Items.WOODEN_AXE);
+                output.accept(Items.WOODEN_SHOVEL);
+                output.accept(Items.WOODEN_SWORD);
+                output.accept(Items.OAK_PLANKS);
+                output.accept(WOODEN_HAMMER.get());
                 output.accept(WORKBENCH_ITEM.get());
                 output.accept(ZONE_MAP.get());
                 output.accept(io.github.gabooz.picklecraft.cattle.CattleContent.COW_EGG.get());
@@ -159,10 +173,10 @@ public final class GroundContent {
     }
 
     public static boolean isHammer(ItemStack stack) {
-        return stack.is(STONE_HAMMER.get()) || stack.is(IRON_HAMMER.get());
+        return stack.is(WOODEN_HAMMER.get()) || stack.is(STONE_HAMMER.get()) || stack.is(IRON_HAMMER.get());
     }
 
     public static boolean isMaterial(ItemStack stack) {
-        return stack.is(Items.BONE) || stack.is(Items.STICK) || stack.is(Items.STRING) || stack.is(STONE.get());
+        return stack.is(net.minecraft.tags.ItemTags.PLANKS) || stack.is(Items.BONE) || stack.is(Items.STICK) || stack.is(Items.STRING) || stack.is(STONE.get());
     }
 }

@@ -125,8 +125,8 @@ cow herd. Right-click a location to teleport there in creative mode; the server
 places you above its surface. Hover for zone details. Previewing the map does
 not load chunks; teleporting generates the destination as needed.
 
-Newly generated terrain has lowlands around sea level and lower mountain
-ranges. Existing generated terrain keeps its saved shape.
+Newly generated terrain has lowlands around sea level and vanilla-shaped
+mountain ranges. Existing generated terrain keeps its saved shape.
 
 
 ## Cattle
@@ -146,3 +146,44 @@ separated for a full day, take half a heart of damage per second until reunited
 or dead. Mothers cannot breed while any of their calves are still immature.
 Adult cows can be milked once per clock day. Adult cattle drop 25–35 raw beef and
 7–12 leather. Cow and bull spawn eggs are available in the PickleCraft creative tab.
+
+## Seasons and wheat
+
+Spring, Summer, Autumn and Winter each last ten 80-minute game days, making a
+forty-day year. Vegetation colors become vibrant green, slightly yellow, orange,
+and faded respectively. The Creative Zone Map shows the current season/day and
+has buttons for all four seasons and dawn/noon/dusk/midnight. Season selection
+starts the selected season at day one without aging cattle or crops. Time
+selection preserves the current day. Both controls require creative mode on
+the server. Seasonal map colors follow the vegetation palette.
+
+Plant ordinary wheat seeds on farmland. The PickleCraft wheat crop takes exactly
+fifteen clock days to mature, including time while its chunk is unloaded. A mature
+plant drops 17–25 wheat and 3–5 seeds. Immature wheat returns one seed; withered
+wheat gives no harvest. Wheat survives spring, summer and autumn days 1–5, then
+withers from autumn day 6 through winter. Crops unloaded across that lethal period
+also wither when loaded. Bonemeal does not shorten its growth timer. Planting in
+spring allows a summer harvest. Future crop windows and growth times belong in
+`farming/CropSchedule.java`.
+
+## Tool material changes and hoes
+
+Place one tool on the anvil, then right-click it with planks, cobblestone or an
+iron ingot to convert it to wood, stone or iron. One material is consumed. Tool
+type, custom components and proportion of used durability are preserved; this
+is not a free repair. Pickaxes, swords, axes, shovels, hoes and hammers support
+these three materials. A wooden hammer is included in the creative tab alongside
+all wooden tools, all three hoes, seeds, wheat, farmland and planks.
+
+Stack one plank, one string and one stick on the ground, then empty-hand
+right-click to make a wooden hoe. Stone and iron hoes are obtained by converting
+that hoe on the anvil; neither appears in the ordinary tool recipe cycles.
+
+## Mountain terrain and archived Highlands
+
+Mountain zones now blend into Minecraft's Overworld mountain terrain splines,
+using inland, low-erosion climate inputs with vanilla jaggedness and caves.
+Grasslands and oak forests keep their lowland heights. Existing generated chunks
+retain their terrain. The previous mountain terrain is preserved, inactive, in
+`world/LegacyHighlandsTerrain.java`, `worldgen/biome/highlands.json`, and
+`worldgen/density_function/legacy_highlands_surface.json` for future Highlands work.

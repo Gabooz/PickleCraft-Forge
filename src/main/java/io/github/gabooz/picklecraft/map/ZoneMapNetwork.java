@@ -13,12 +13,27 @@ import net.minecraftforge.network.SimpleChannel;
 public final class ZoneMapNetwork {
     private record OpenMap(long seed) {}
     private record Teleport(int x, int z) {}
+    private record Calendar(long offset) {}
+    private record ChangeTime(int phase) {}
+    private record ChangeSeason(int season) {}
     private static final SimpleChannel CHANNEL = ChannelBuilder.named("picklecraft:zone_map")
-        .networkProtocolVersion(2).simpleChannel();
+        .networkProtocolVersion(3).simpleChannel();
 
     private ZoneMapNetwork() {}
 
     public static void register() {
+        CHANNEL.messageBuilder(Calendar.class, NetworkDirection.PLAY_TO_CLIENT)
+            .encoder((message, buffer) -> buffer.writeLong(message.offset()))
+            .decoder(buffer -> new Calendar(buffer.readLong()))
+            .consumerMainThread((message, context) -> io.github.gabooz.picklecraft.client.SeasonClient.receive(message.offset())).add();
+        CHANNEL.messageBuilder(ChangeTime.class, NetworkDirection.PLAY_TO_SERVER)
+            .encoder((message, buffer) -> buffer.writeInt(message.phase()))
+            .decoder(buffer -> new ChangeTime(buffer.readInt()))
+            .consumerMainThread((message, context) -> changeTime(context.getSender(), message.phase())).add();
+        CHANNEL.messageBuilder(ChangeSeason.class, NetworkDirection.PLAY_TO_SERVER)
+            .encoder((message, buffer) -> buffer.writeInt(message.season()))
+            .decoder(buffer -> new ChangeSeason(buffer.readInt()))
+            .consumerMainThread((message, context) -> changeSeason(context.getSender(), message.season())).add();
         CHANNEL.messageBuilder(Teleport.class, NetworkDirection.PLAY_TO_SERVER)
             .encoder((message, buffer) -> { buffer.writeInt(message.x()); buffer.writeInt(message.z()); })
             .decoder(buffer -> new Teleport(buffer.readInt(), buffer.readInt()))
@@ -32,6 +47,27 @@ public final class ZoneMapNetwork {
                     game.gui.setScreen(new io.github.gabooz.picklecraft.client.ZoneMapScreen(message.seed()));
                 }
             }).add();
+    }
+
+    public static void calendar(ServerPlayer player, long offset) {
+        CHANNEL.send(new Calendar(offset), PacketDistributor.PLAYER.with(player));
+    }
+    public static void requestTime(int phase) { CHANNEL.send(new ChangeTime(phase), PacketDistributor.SERVER.noArg()); }
+    public static void requestSeason(int season) { CHANNEL.send(new ChangeSeason(season), PacketDistributor.SERVER.noArg()); }
+    public static boolean changeTime(ServerPlayer player, int phase) {
+        if (player == null || !player.isCreative() || phase < 0 || phase >= 24000) return false;
+        var level = player.level().getServer().overworld();
+        level.dimensionType().defaultClock().ifPresent(clock -> level.clockManager().setTotalTicks(clock,
+            Math.floorDiv(level.getDefaultClockTime(), 24000) * 24000 + phase));
+        return true;
+    }
+    public static boolean changeSeason(ServerPlayer player, int season) {
+        if (player == null || !player.isCreative() || season < 0 || season >= 4) return false;
+        var level = player.level().getServer().overworld();
+        var calendar = io.github.gabooz.picklecraft.seasons.Seasons.get(level);
+        calendar.select(level, io.github.gabooz.picklecraft.seasons.Seasons.Season.values()[season]);
+        for (var viewer : level.getServer().getPlayerList().getPlayers()) calendar(viewer, calendar.offset());
+        return true;
     }
 
     public static void requestTeleport(int x, int z) {

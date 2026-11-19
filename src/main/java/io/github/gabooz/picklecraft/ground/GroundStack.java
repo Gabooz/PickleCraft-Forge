@@ -44,6 +44,11 @@ public final class GroundStack extends BlockEntity {
         add(item);
     }
 
+    void convertTool(ItemStack result) {
+        shaping = false;
+        replaceWith(result);
+    }
+
     // Only freshly crafted tools can be cycled. Placing a finished tool cannot change it.
     boolean isShaping() {
         return shaping;

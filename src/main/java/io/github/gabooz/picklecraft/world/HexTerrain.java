@@ -5,22 +5,25 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Interval;
 import net.minecraft.world.level.levelgen.densityfunction.*;
 
-/** Adds broad mountain ranges while retaining vanilla caves, aquifers and river valleys. */
-public record HexTerrain(DensityFunction input, DensityFunction temperature, DensityFunction ridges) implements DensityFunction {
+/** Blends lowlands into vanilla mountain terrain, retaining caves, aquifers and river valleys. */
+public record HexTerrain(DensityFunction input, DensityFunction temperature, DensityFunction ridges, DensityFunction mountainInput) implements DensityFunction {
     public static final MapCodec<HexTerrain> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         DensityFunction.CODEC.fieldOf("input").forGetter(HexTerrain::input),
         DensityFunction.CODEC.fieldOf("temperature").forGetter(HexTerrain::temperature),
-        DensityFunction.CODEC.fieldOf("ridges").forGetter(HexTerrain::ridges)
-    ).apply(instance, HexTerrain::new));
+        DensityFunction.CODEC.fieldOf("ridges").forGetter(HexTerrain::ridges),
+        DensityFunction.CODEC.optionalFieldOf("mountain_input").forGetter(terrain -> java.util.Optional.of(terrain.mountainInput()))
+    ).apply(instance, (input, temperature, ridges, mountains) ->
+        new HexTerrain(input, temperature, ridges, mountains.orElseGet(() -> new MountainShape(input)))));
 
     @Override
     public DensitySampler compileSampler(CompileContext context) {
         var base = input.compileSampler(context);
         var climate = temperature.compileSampler(context);
         var ridge = ridges.compileSampler(context);
+        var mountain = mountainInput.compileSampler(context);
         return new DensitySampler() {
             private volatile Long seed;
-            private record Column(int x, int z, double height) {}
+            private record Column(int x, int z, double height, double mountains) {}
             private final ThreadLocal<Column> columnCache = new ThreadLocal<>();
 
             @Override
@@ -37,12 +40,13 @@ public record HexTerrain(DensityFunction input, DensityFunction temperature, Den
                     double valley = Math.clamp((Math.abs(ridge.sampleValue(sampling, x, 0, z)) - 0.025) / 0.10, 0, 1);
                     valley = valley * valley * (3 - 2 * valley);
                     double hills = HexRegions.noise(x / 790.0, z / 790.0, seed + 113) * 6;
-                    double peaks = 38 + HexRegions.noise(x / 490.0, z / 490.0, seed + 111) * 22;
-                    double height = 61 + valley * (9 + hills + mountains * peaks);
-                    column = new Column(x, z, height);
+                    double height = 61 + valley * (9 + hills);
+                    column = new Column(x, z, height, mountains * valley);
                     columnCache.set(column);
                 }
                 double surface = (column.height() - y) / 60 + Math.clamp(original, -1F, 1F) * 0.045;
+                surface = surface * (1 - column.mountains())
+                    + mountain.sampleValue(sampling, x, y, z) * column.mountains();
                 double blend = Math.clamp((y - 48) / 16.0, 0, 1);
                 return (float) (original * (1 - blend) + surface * blend);
             }
@@ -69,8 +73,9 @@ public record HexTerrain(DensityFunction input, DensityFunction temperature, Den
         var newInput = rule.rewrite(input);
         var newTemperature = rule.rewrite(temperature);
         var newRidges = rule.rewrite(ridges);
-        return newInput == input && newTemperature == temperature && newRidges == ridges
-            ? this : new HexTerrain(newInput, newTemperature, newRidges);
+        var newMountains = rule.rewrite(mountainInput);
+        return newInput == input && newTemperature == temperature && newRidges == ridges && newMountains == mountainInput
+            ? this : new HexTerrain(newInput, newTemperature, newRidges, newMountains);
     }
 
     @Override

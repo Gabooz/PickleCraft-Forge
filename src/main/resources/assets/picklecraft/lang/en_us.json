@@ -32,5 +32,8 @@
   "entity.picklecraft.herd_cow": "Cow",
   "entity.picklecraft.bull": "Bull",
   "item.picklecraft.herd_cow_spawn_egg": "Herd Cow Spawn Egg",
-  "item.picklecraft.bull_spawn_egg": "Bull Spawn Egg"
+  "item.picklecraft.bull_spawn_egg": "Bull Spawn Egg",
+  "block.picklecraft.wheat": "Wheat",
+  "biome.picklecraft.highlands": "Highlands",
+  "item.picklecraft.wooden_hammer": "Wooden Hammer"
 }

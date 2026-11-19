@@ -28,16 +28,37 @@ public final class ZoneMapScreen extends Screen {
     private double cachedX = Double.NaN;
     private double cachedZ;
     private double cachedZoom;
+    private io.github.gabooz.picklecraft.seasons.Seasons.Season cachedSeason;
 
     public ZoneMapScreen(long seed) {
         super(Component.translatable("item.picklecraft.zone_map"));
         this.seed = seed;
     }
 
+    @Override
+    protected void init() {
+        int buttonWidth = (width - 24) / 4;
+        String[] times = {"Dawn", "Noon", "Dusk", "Midnight"};
+        int[] phases = {0, 6000, 12000, 18000};
+        var seasons = io.github.gabooz.picklecraft.seasons.Seasons.Season.values();
+        for (int i = 0; i < 4; i++) {
+            final int index = i;
+            addRenderableWidget(net.minecraft.client.gui.components.Button.builder(Component.literal(times[i]),
+                button -> io.github.gabooz.picklecraft.map.ZoneMapNetwork.requestTime(phases[index]))
+                .bounds(12 + i * buttonWidth, height - 80, buttonWidth - 2, 17).build());
+            addRenderableWidget(net.minecraft.client.gui.components.Button.builder(Component.literal(
+                seasons[i].name().charAt(0) + seasons[i].name().substring(1).toLowerCase(java.util.Locale.ROOT)),
+                button -> io.github.gabooz.picklecraft.map.ZoneMapNetwork.requestSeason(index))
+                .bounds(12 + i * buttonWidth, height - 61, buttonWidth - 2, 17)
+                .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(
+                    "Wheat takes 15 days. Plant in spring; harvest in summer. It dies from Autumn 6 through winter."))).build());
+        }
+    }
+
     private int left() { return 12; }
     private int top() { return 34; }
     private int right() { return width - 12; }
-    private int bottom() { return height - 45; }
+    private int bottom() { return height - 86; }
     private double originX() { return (left() + right()) / 2.0; }
     private double originY() { return (top() + bottom()) / 2.0; }
     private double screenX(double x) { return originX() + (x - centerX) * pixelsPerBlock; }
@@ -63,6 +84,7 @@ public final class ZoneMapScreen extends Screen {
         }
         graphics.fill(0, 0, width, height, 0xff171d1b);
         graphics.text(font, title, 12, 12, 0xffe9e4cf);
+        graphics.text(font, SeasonClient.date().label(), width - 110, 12, 0xffe9e4cf);
         graphics.text(font, "N", width - 22, 12, 0xffe9e4cf);
         raster();
         graphics.enableScissor(left(), top(), right(), bottom());
@@ -81,6 +103,7 @@ public final class ZoneMapScreen extends Screen {
         player(graphics);
         graphics.disableScissor();
         graphics.outline(left() - 1, top() - 1, right() - left() + 2, bottom() - top() + 2, 0xff697467);
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
         int footer = height - 34;
         graphics.text(font, "Grasslands", 12, footer, GRASS);
         graphics.text(font, "Oak forest", 81, footer, 0xff88ba88);
@@ -101,19 +124,20 @@ public final class ZoneMapScreen extends Screen {
         int cols = Math.max(1, (right() - left() + RASTER - 1) / RASTER);
         int rows = Math.max(1, (bottom() - top() + RASTER - 1) / RASTER);
         if (cols == rasterWidth && rows == rasterHeight && cachedX == centerX && cachedZ == centerZ
-                && cachedZoom == pixelsPerBlock) return;
+                && cachedZoom == pixelsPerBlock && cachedSeason == SeasonClient.date().season()) return;
         rasterWidth = cols;
         rasterHeight = rows;
         cachedX = centerX;
         cachedZ = centerZ;
         cachedZoom = pixelsPerBlock;
+        cachedSeason = SeasonClient.date().season();
         colors = new int[cols * rows];
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
                 var kind = HexRegions.at(worldX(left() + x * RASTER + 1.5), worldZ(top() + y * RASTER + 1.5), seed).kind();
                 colors[y * cols + x] = switch (kind) {
-                    case GRASSLANDS -> GRASS;
-                    case OAK_FOREST -> FOREST;
+                    case GRASSLANDS -> 0xff000000 | SeasonClient.tint(GRASS);
+                    case OAK_FOREST -> 0xff000000 | SeasonClient.tint(FOREST);
                     case MOUNTAINS -> MOUNTAIN;
                 };
             }

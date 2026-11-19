@@ -35,5 +35,12 @@
   "item.picklecraft.bull_spawn_egg": "Bull Spawn Egg",
   "block.picklecraft.wheat": "Wheat",
   "biome.picklecraft.highlands": "Highlands",
-  "item.picklecraft.wooden_hammer": "Wooden Hammer"
+  "item.picklecraft.wooden_hammer": "Wooden Hammer",
+  "item.picklecraft.carpenter_table": "Carpenter\u2019s Table",
+  "block.picklecraft.carpenter_table": "Carpenter\u2019s Table",
+  "item.picklecraft.iron_saw": "Iron Saw",
+  "item.picklecraft.saw_handle": "Saw Handle",
+  "item.picklecraft.saw_blade": "Saw Blade",
+  "item.picklecraft.oar": "Oar",
+  "item.picklecraft.glue": "Glue"
 }

@@ -27,6 +27,7 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
     public static final class State extends BlockEntityRenderState {
         private boolean workbench;
         private boolean anvil;
+        private boolean carpenter;
         private boolean cube;
         private final List<ItemStackRenderState> layers = new ArrayList<>();
     }
@@ -42,6 +43,7 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
         BlockEntityRenderer.super.extractRenderState(stack, state, partialTicks, camera, breaking);
         state.workbench = stack.getBlockState().is(GroundContent.WORKBENCH.get());
         state.anvil = stack.getBlockState().is(GroundContent.ANVIL.get());
+        state.carpenter = stack.getBlockState().is(GroundContent.CARPENTER.get());
         state.layers.clear();
         var resolver = Minecraft.getInstance().getItemModelResolver();
         var items = stack.items();
@@ -67,7 +69,9 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
                 poses.popPose();
                 continue;
             }
-            if (state.workbench) {
+            if (state.carpenter) {
+                poses.translate(0.24 + (i % 3) * 0.24, 1.035, 0.23 + (i / 3) * 0.36);
+            } else if (state.workbench) {
                 poses.translate(0.5, 0.9 + i / 32.0, 0.5);
                 poses.rotateDegrees(Axis.YP, i * 13);
             } else {
@@ -75,7 +79,7 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
                 poses.rotateDegrees(Axis.YP, i * 37);
             }
             poses.rotateDegrees(Axis.XP, -90);
-            float scale = state.anvil ? 0.57F : state.workbench ? 0.55F : 0.92F;
+            float scale = state.carpenter ? 0.32F : state.anvil ? 0.57F : state.workbench ? 0.55F : 0.92F;
             poses.scale(scale, scale, state.workbench ? 0.16F : 0.9F);
             state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
             poses.popPose();

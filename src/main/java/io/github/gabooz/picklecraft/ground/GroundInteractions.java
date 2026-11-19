@@ -20,6 +20,11 @@ public final class GroundInteractions {
             event.setCancellationResult(result);
             return true;
         }
+        var carpentry = CarpenterTable.interact(event);
+        if (carpentry != InteractionResult.PASS) {
+            event.setCancellationResult(carpentry);
+            return true;
+        }
         var player = event.getEntity();
         var state = level.getBlockState(pos);
         var assembled = GoldFurnaceBlock.assemble(event);

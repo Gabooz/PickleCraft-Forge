@@ -1,0 +1,36 @@
+{
+  "variants": {
+    "end=true,facing=east": {
+      "model": "picklecraft:block/carpenter_true",
+      "y": 0
+    },
+    "end=true,facing=south": {
+      "model": "picklecraft:block/carpenter_true",
+      "y": 90
+    },
+    "end=true,facing=west": {
+      "model": "picklecraft:block/carpenter_true",
+      "y": 180
+    },
+    "end=true,facing=north": {
+      "model": "picklecraft:block/carpenter_true",
+      "y": 270
+    },
+    "end=false,facing=east": {
+      "model": "picklecraft:block/carpenter_false",
+      "y": 0
+    },
+    "end=false,facing=south": {
+      "model": "picklecraft:block/carpenter_false",
+      "y": 90
+    },
+    "end=false,facing=west": {
+      "model": "picklecraft:block/carpenter_false",
+      "y": 180
+    },
+    "end=false,facing=north": {
+      "model": "picklecraft:block/carpenter_false",
+      "y": 270
+    }
+  }
+}

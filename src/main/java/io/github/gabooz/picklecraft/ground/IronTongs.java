@@ -38,7 +38,7 @@ public final class IronTongs extends Item {
         return stack.is(GroundContent.IRON_TONGS.get()) && deadline(stack) >= 0;
     }
 
-    private static long deadline(ItemStack stack) {
+    static long deadline(ItemStack stack) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getLongOr(COOL_AT, -1);
     }
 
@@ -57,6 +57,11 @@ public final class IronTongs extends Item {
         });
         stack.set(DataComponents.ITEM_MODEL, gold
             ? Identifier.fromNamespaceAndPath("picklecraft", "iron_tongs_loaded_gold") : LOADED_MODEL);
+    }
+
+    static boolean holdsIron(ItemStack stack) {
+        return loaded(stack) && !stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+            .copyTag().getBooleanOr(HOLDING_GOLD, false);
     }
 
     static ItemStack release(ItemStack stack) {

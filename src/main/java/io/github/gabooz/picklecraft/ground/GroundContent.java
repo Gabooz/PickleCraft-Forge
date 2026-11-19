@@ -34,6 +34,26 @@ public final class GroundContent {
     public static final RegistryObject<BlockItem> WORKBENCH_ITEM = ITEMS.register("workbench", () ->
         new BlockItem(WORKBENCH.get(), new Item.Properties().setId(ITEMS.key("workbench")).useBlockDescriptionPrefix()));
 
+    public static final RegistryObject<CarpenterTable> CARPENTER = BLOCKS.register("carpenter_table", () ->
+        new CarpenterTable(BlockBehaviour.Properties.of().setId(BLOCKS.key("carpenter_table"))
+            .strength(2F).noOcclusion().sound(SoundType.WOOD)));
+    public static final RegistryObject<Item> CARPENTER_KIT = ITEMS.register("carpenter_table", () ->
+        new Item(new Item.Properties().setId(ITEMS.key("carpenter_table"))) {
+            @Override public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+                return CarpenterTable.placeKit(context);
+            }
+        });
+    public static final RegistryObject<Item> SAW = ITEMS.register("iron_saw", () ->
+        new Item(new Item.Properties().setId(ITEMS.key("iron_saw")).durability(250)));
+    public static final RegistryObject<Item> SAW_HANDLE = workshopItem("saw_handle");
+    public static final RegistryObject<Item> SAW_BLADE = workshopItem("saw_blade");
+    public static final RegistryObject<Item> OAR = workshopItem("oar");
+    public static final RegistryObject<Item> GLUE = workshopItem("glue");
+
+    private static RegistryObject<Item> workshopItem(String name) {
+        return ITEMS.register(name, () -> new Item(new Item.Properties().setId(ITEMS.key(name))));
+    }
+
     public static final RegistryObject<AnvilBlock> ANVIL = BLOCKS.register("anvil", () ->
         new AnvilBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("anvil"))
             .strength(5F).noOcclusion().sound(SoundType.ANVIL).pushReaction(PushReaction.IMMOVEABLE)));
@@ -50,7 +70,7 @@ public final class GroundContent {
     public static final RegistryObject<Item> STONE = ITEMS.register("loose_stone", () -> new Item(new Item.Properties().setId(ITEMS.key("loose_stone"))));
     public static final RegistryObject<Item> BLOSSOMS = ITEMS.register("plumaria_blossoms", () -> new Item(new Item.Properties().setId(ITEMS.key("plumaria_blossoms"))));
     public static final RegistryObject<BlockEntityType<GroundStack>> STACK_ENTITY = ENTITIES.register("ground_stack",
-        () -> new BlockEntityType<>(GroundStack::new, Set.of(STACK.get(), WORKBENCH.get(), ANVIL.get())));
+        () -> new BlockEntityType<>(GroundStack::new, Set.of(STACK.get(), WORKBENCH.get(), ANVIL.get(), CARPENTER.get())));
     public static final RegistryObject<BlockEntityType<PlumariaGrowth>> PLUMARIA_ENTITY = ENTITIES.register("plumaria",
         () -> new BlockEntityType<>(PlumariaGrowth::new, Set.of(PLUMARIA.get())));
 
@@ -107,6 +127,15 @@ public final class GroundContent {
             .title(Component.translatable("itemGroup.picklecraft"))
             .icon(() -> BLOSSOMS.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
+                output.accept(CARPENTER_KIT.get());
+                output.accept(SAW.get());
+                output.accept(SAW_HANDLE.get());
+                output.accept(SAW_BLADE.get());
+                output.accept(OAR.get());
+                output.accept(GLUE.get());
+                output.accept(Items.SLIME_BALL);
+                output.accept(Items.OAK_SLAB);
+                output.accept(Items.OAK_BOAT);
                 output.accept(Items.WHEAT_SEEDS);
                 output.accept(Items.WHEAT);
                 output.accept(Items.FARMLAND);

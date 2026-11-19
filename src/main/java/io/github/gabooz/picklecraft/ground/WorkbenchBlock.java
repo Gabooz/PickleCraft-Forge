@@ -131,11 +131,16 @@ public final class WorkbenchBlock extends BaseEntityBlock {
     }
 
     private static boolean isTool(ItemStack item) {
-        return GroundContent.isHammer(item) || item.has(DataComponents.TOOL) || item.is(ItemTags.SWORDS) || item.is(ItemTags.AXES)
+        return item.is(GroundContent.SAW.get()) || GroundContent.isHammer(item) || item.has(DataComponents.TOOL) || item.is(ItemTags.SWORDS) || item.is(ItemTags.AXES)
             || item.is(ItemTags.SHOVELS) || item.is(ItemTags.PICKAXES) || item.is(ItemTags.HOES) || item.is(Items.SHEARS);
     }
 
     private static ItemStack transform(ItemStack input, ItemStack tool) {
+        if (tool.is(GroundContent.SAW.get()) && input.is(ItemTags.PLANKS)) {
+            var plank = BuiltInRegistries.ITEM.getKey(input.getItem());
+            return BuiltInRegistries.ITEM.getOptional(plank.withPath(plank.getPath().replace("_planks", "_slab")))
+                .filter(item -> item != input.getItem()).map(item -> new ItemStack(item, 2)).orElse(ItemStack.EMPTY);
+        }
         if (tool.is(ItemTags.AXES) && input.getItem() instanceof BlockItem blockItem) {
             var state = blockItem.getBlock().defaultBlockState();
             if (state.is(BlockTags.PLANKS)) {

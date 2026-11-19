@@ -67,7 +67,7 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 50, "PickleCraft creative tab contains all fifty entries");
+            require(tab.getDisplayItems().size() == 59, "PickleCraft creative tab contains all fifty-nine entries");
             try (var fogRenderer = new net.minecraft.client.renderer.fog.FogRenderer()) {
                 io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(true);
                 var fog = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
@@ -233,6 +233,7 @@ public final class Playtest {
             "Sparse oak feature enabled in the Overworld");
         verifyGroundCraft(level, player);
         verifyWorkbench(level, player);
+        verifyCarpentry(level, player);
         verifyIronFurnace(level, player);
         verifyGoldFurnace(level, player);
         verifyOpenBarrel(level, player);
@@ -753,6 +754,72 @@ public final class Playtest {
         level.getBlockState(pos).tick(level, pos, level.getRandom());
         require(level.getBlockState(pos).getValue(blooming), "Plumaria blooms after one week");
     }
+    private static void verifyCarpentry(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        var pos = player.blockPosition().offset(5, 4, 0);
+        var other = pos.east();
+        var hand = net.minecraft.world.InteractionHand.MAIN_HAND;
+        java.util.function.BiConsumer<BlockPos,net.minecraft.world.item.ItemStack> click = (at, item) -> {
+            player.setItemInHand(hand, item);
+            var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(at),
+                net.minecraft.core.Direction.EAST, at, false);
+            require(io.github.gabooz.picklecraft.ground.GroundInteractions.use(
+                new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, at, hit)),
+                "Carpentry interaction is handled");
+        };
+        var anvilPos = pos.west();
+        level.setBlockAndUpdate(anvilPos, io.github.gabooz.picklecraft.ground.GroundContent.ANVIL.get().defaultBlockState());
+        var hammer = io.github.gabooz.picklecraft.ground.GroundContent.STONE_HAMMER.get().getDefaultInstance();
+        click.accept(anvilPos, net.minecraft.world.item.Items.OAK_PLANKS.getDefaultInstance());
+        click.accept(anvilPos, hammer);
+        var anvil = (io.github.gabooz.picklecraft.ground.GroundStack) level.getBlockEntity(anvilPos);
+        var handle = io.github.gabooz.picklecraft.ground.GroundContent.SAW_HANDLE.get();
+        require(anvil.items().getFirst().is(handle), "Hammer shapes a saw handle");
+        click.accept(anvilPos, net.minecraft.world.item.ItemStack.EMPTY);
+        var tongs = io.github.gabooz.picklecraft.ground.GroundContent.IRON_TONGS.get().getDefaultInstance();
+        net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+            tongs, tag -> tag.putLong("picklecraft_cool_at", level.getGameTime() + 600));
+        click.accept(anvilPos, tongs);
+        click.accept(anvilPos, net.minecraft.world.item.ItemStack.EMPTY);
+        var blade = io.github.gabooz.picklecraft.ground.GroundContent.SAW_BLADE.get();
+        require(anvil.items().getFirst().is(blade), "Hot iron is placed and formed into a saw blade");
+        click.accept(anvilPos, handle.getDefaultInstance());
+        click.accept(anvilPos, hammer);
+        var sawType = io.github.gabooz.picklecraft.ground.GroundContent.SAW.get();
+        require(anvil.items().getFirst().is(sawType), "Blade and handle assemble into a saw");
+        var saw = anvil.items().getFirst().copy();
+        click.accept(anvilPos, net.minecraft.world.item.ItemStack.EMPTY);
+        level.setBlockAndUpdate(anvilPos, io.github.gabooz.picklecraft.ground.GroundContent.WORKBENCH.get().defaultBlockState());
+        click.accept(anvilPos, net.minecraft.world.item.Items.OAK_PLANKS.getDefaultInstance());
+        click.accept(anvilPos, saw);
+        var bench = (io.github.gabooz.picklecraft.ground.GroundStack) level.getBlockEntity(anvilPos);
+        require(bench.items().size() == 2 && bench.items().getFirst().is(net.minecraft.world.item.Items.OAK_SLAB),
+            "Saw cuts a plank into two matching slabs");
+        for (var block : java.util.List.of(pos, other)) level.setBlockAndUpdate(block, Blocks.OAK_PLANKS.defaultBlockState());
+        player.setShiftKeyDown(true);
+        click.accept(pos, saw);
+        player.setShiftKeyDown(false);
+        var table = io.github.gabooz.picklecraft.ground.GroundContent.CARPENTER.get();
+        require(level.getBlockState(pos).is(table) && level.getBlockState(other).is(table),
+            "Two adjacent planks become a connected carpenter's table");
+        click.accept(other, net.minecraft.world.item.Items.OAK_SLAB.getDefaultInstance());
+        click.accept(pos, net.minecraft.world.item.Items.STICK.getDefaultInstance());
+        click.accept(other, saw);
+        var stack = (io.github.gabooz.picklecraft.ground.GroundStack) level.getBlockEntity(pos);
+        var oar = io.github.gabooz.picklecraft.ground.GroundContent.OAR.get();
+        require(stack.items().size() == 1 && stack.items().getFirst().is(oar), "Saw shapes a slab and stick into an oar");
+        click.accept(other, oar.getDefaultInstance());
+        click.accept(pos, net.minecraft.world.item.Items.OAK_SLAB.getDefaultInstance());
+        click.accept(other, net.minecraft.world.item.Items.OAK_SLAB.getDefaultInstance());
+        click.accept(pos, net.minecraft.world.item.Items.SLIME_BALL.getDefaultInstance());
+        require(stack.items().size() == 1 && stack.items().getFirst().is(net.minecraft.world.item.Items.OAK_BOAT),
+            "Two oars, two slabs and adhesive assemble a boat");
+        click.accept(other, net.minecraft.world.item.ItemStack.EMPTY);
+        require(stack.items().isEmpty(), "Either half retrieves the product");
+        level.destroyBlock(other, true);
+        require(level.isEmptyBlock(pos), "Breaking the far half removes the entire table");
+    }
+
     private static void verifyWorkbench(net.minecraft.server.level.ServerLevel level,
             net.minecraft.server.level.ServerPlayer player) {
         var pos = player.blockPosition().offset(2, 2, 0);

@@ -57,6 +57,60 @@ public final class AnvilBlock extends BaseEntityBlock {
             return InteractionResult.PASS;
         }
         var items = anvil.items();
+        if (!player.isShiftKeyDown() && level.isEmptyBlock(pos.above())) {
+            ItemStack result = ItemStack.EMPTY;
+            boolean hotIron = items.isEmpty() && IronTongs.holdsIron(held);
+            if (hotIron) {
+                if (level instanceof net.minecraft.server.level.ServerLevel server && IronTongs.cool(held, server)) {
+                    return InteractionResult.FAIL;
+                }
+                if (!level.isClientSide()) {
+                    long deadline = IronTongs.deadline(held);
+                    var ingot = IronTongs.release(held);
+                    net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                        ingot, data -> data.putLong("picklecraft_forge_until", deadline));
+                    ingot.set(net.minecraft.core.component.DataComponents.ITEM_MODEL,
+                        net.minecraft.resources.Identifier.fromNamespaceAndPath("picklecraft", "hot_ingot"));
+                    anvil.add(ingot);
+                    held.hurtAndBreak(1, player, event.getHand());
+                }
+                return InteractionResult.SUCCESS;
+            } else if (items.size() == 1 && (held.isEmpty() || GroundContent.isHammer(held))) {
+                var workpiece = items.getFirst();
+                long deadline = workpiece.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                    net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getLongOr("picklecraft_forge_until", -1);
+                if (deadline >= 0) {
+                    if (!level.isClientSide()) {
+                        if (level.getGameTime() >= deadline) {
+                            anvil.convertTool(Items.IRON_INGOT.getDefaultInstance());
+                        } else {
+                            anvil.convertTool(GroundContent.SAW_BLADE.get().getDefaultInstance());
+                            if (!held.isEmpty()) held.hurtAndBreak(1, player, event.getHand());
+                            level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ANVIL_USE,
+                                net.minecraft.sounds.SoundSource.BLOCKS, 0.55F, 1.2F);
+                        }
+                    }
+                    return InteractionResult.SUCCESS;
+                }
+                if (GroundContent.isHammer(held) && workpiece.is(net.minecraft.tags.ItemTags.PLANKS)) {
+                    result = GroundContent.SAW_HANDLE.get().getDefaultInstance();
+                }
+            } else if (GroundContent.isHammer(held)) {
+                if (items.size() == 2 && items.stream().anyMatch(item -> item.is(GroundContent.SAW_HANDLE.get()))
+                        && items.stream().anyMatch(item -> item.is(GroundContent.SAW_BLADE.get()))) {
+                    result = GroundContent.SAW.get().getDefaultInstance();
+                }
+            }
+            if (!result.isEmpty()) {
+                if (!level.isClientSide()) {
+                    anvil.convertTool(result);
+                    held.hurtAndBreak(1, player, event.getHand());
+                    level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ANVIL_USE,
+                        net.minecraft.sounds.SoundSource.BLOCKS, 0.55F, 1.2F);
+                }
+                return InteractionResult.SUCCESS;
+            }
+        }
         // Re-materializing one placed tool is distinct from hammering loose ingredients.
         var converted = items.size() == 1 ? ToolConversions.convert(items.getFirst(), held) : ItemStack.EMPTY;
         if (!converted.isEmpty() && !player.isShiftKeyDown() && level.isEmptyBlock(pos.above())) {

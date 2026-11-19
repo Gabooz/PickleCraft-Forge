@@ -55,3 +55,23 @@ Keep the block above a Workbench clear to use it.
 Stack two cobblestone blocks vertically. Shift-right-click the lower block with a pickaxe to carve the furnace. Use one coal or charcoal on the lower opening and drop one raw iron, iron ore, or deepslate iron ore through the top. Shift-right-click the lower half with an empty hand to reclaim fuel before smelting begins.
 
 The ingot appears after 55 seconds. The fire goes out after one minute, and cooling takes another five minutes. Right-click the lower half with an empty hand to retrieve the ingot. Handling it while hot deals severe fire damage.
+
+
+## PickleCraft world generation
+
+New worlds default to the **PickleCraft** world type. Its pointy hex regions have
+2,500-block sides, with roughly 250 blocks of broad boundary variation and finer
+edge detail. Grasslands and oak forests cluster, mountain cells follow broad
+ridges, and river biomes still follow the vanilla climate sampler. Use a new
+PickleCraft world to try this generation.
+
+The layout and terrain live in `world/HexRegions.java`, `HexBiomeSource.java`,
+and `HexTerrain.java`. World-preset and biome data are under
+`data/picklecraft/worldgen`.
+
+For future challenges, register a `BiomeChallenges.Definition` during mod setup.
+It specifies eligible region kinds, selection weight, and a generation callback.
+The callback receives the selected hex and runs once per generated chunk, so
+hazards, resources, and structures can follow a stable region-wide choice.
+An optional mob predicate lets that challenge permit its creatures through the
+mod's usual mob suppression. The registry starts empty.

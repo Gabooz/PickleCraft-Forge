@@ -141,6 +141,7 @@ public final class GroundContent {
     private GroundContent() {}
 
     public static void register(BusGroup bus) {
+        FEATURES.register("biome_challenge", () -> io.github.gabooz.picklecraft.world.BiomeChallengeFeature.CODEC);
         FEATURES.register("forage", () -> ForageFeature.CODEC);
         BLOCKS.register(bus);
         ITEMS.register(bus);

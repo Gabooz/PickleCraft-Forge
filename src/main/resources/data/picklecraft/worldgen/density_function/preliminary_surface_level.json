@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:find_top_surface",
+  "cell_height": 8,
+  "density": {
+    "type": "picklecraft:hex_terrain",
+    "input": "minecraft:overworld/final_density",
+    "temperature": "minecraft:overworld/temperature",
+    "ridges": "minecraft:overworld/ridges"
+  },
+  "lower_bound": -64,
+  "upper_bound": 320
+}

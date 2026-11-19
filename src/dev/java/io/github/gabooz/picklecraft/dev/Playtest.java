@@ -39,9 +39,25 @@ public final class Playtest {
             game.createWorldOpenFlows().createFreshLevel(name,
                 new LevelSettings(name, GameType.SURVIVAL, LevelSettings.DifficultySettings.DEFAULT,
                     true, WorldDataConfiguration.DEFAULT),
-                new WorldOptions(12345L, true, false), WorldPresets::createNormalWorldDimensions, game.gui.screen());
+                new WorldOptions(12345L, true, false), registries -> registries.lookupOrThrow(Registries.WORLD_PRESET)
+                    .getOrThrow(io.github.gabooz.picklecraft.world.PickleWorldgen.PRESET).value().createWorldDimensions(), game.gui.screen());
         } else if (!checked && game.player != null && game.getSingleplayerServer() != null && ++joinedTicks >= 80) {
             checked = true;
+            var server = game.getSingleplayerServer();
+            var preset = server.registryAccess().lookupOrThrow(Registries.WORLD_PRESET)
+                .getOrThrow(io.github.gabooz.picklecraft.world.PickleWorldgen.PRESET);
+            var context = new net.minecraft.client.gui.screens.worldselection.WorldCreationContext(
+                new net.minecraft.world.level.levelgen.WorldGenSettings(new WorldOptions(12345L, true, false),
+                    preset.value().createWorldDimensions()),
+                server.registries(), server.getServerResources().managers(), WorldDataConfiguration.DEFAULT);
+            var creation = new net.minecraft.client.gui.screens.worldselection.WorldCreationUiState(
+                java.nio.file.Path.of("saves"), context, java.util.Optional.of(WorldPresets.NORMAL),
+                java.util.OptionalLong.empty());
+            require(creation.getWorldType().preset().is(io.github.gabooz.picklecraft.world.PickleWorldgen.PRESET),
+                "World creation defaults to PickleCraft");
+            require(creation.getNormalPresetList().stream().anyMatch(entry -> entry.preset() != null
+                && entry.preset().is(io.github.gabooz.picklecraft.world.PickleWorldgen.PRESET)),
+                "PickleCraft appears in the world type selector");
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
@@ -65,6 +81,7 @@ public final class Playtest {
     }
 
     private static void verifyServer(net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player) {
+        verifyHexWorld(level);
         var pos = player.blockPosition().below();
         for (var entry : Map.<Block, Integer>of(Blocks.OAK_LOG, 120, Blocks.DIRT, 30, Blocks.STONE, 300,
                 Blocks.SAND, 15, Blocks.COBBLESTONE, 60).entrySet()) {
@@ -91,6 +108,64 @@ public final class Playtest {
         require(level.dimensionType().defaultClock().map(clock -> level.clockManager().getInstance(clock).rate() == 0.25F).orElse(false),
             "Overworld clock runs at quarter speed");
         require(!biome.shouldSnow(level, new BlockPos(pos.getX(), 250, pos.getZ())), "No snow at high altitude");
+    }
+
+    private static void verifyHexWorld(net.minecraft.server.level.ServerLevel level) {
+        var source = level.getChunkSource().getGenerator().getBiomeSource();
+        require(source instanceof io.github.gabooz.picklecraft.world.HexBiomeSource, "PickleCraft world preset uses hex regions");
+        var sampler = level.getChunkSource().randomState().createClimateSampler(
+            net.minecraft.world.level.levelgen.densityfunction.SamplerContext.EMPTY_UNCACHED);
+        long seed = io.github.gabooz.picklecraft.world.HexRegions.seed(sampler);
+        var seen = java.util.EnumSet.noneOf(io.github.gabooz.picklecraft.world.HexRegions.Kind.class);
+        var counts = new int[3];
+        int mountainLinks = 0;
+        for (int q = -18; q <= 18; q++) {
+            for (int r = -18; r <= 18; r++) {
+                var cell = io.github.gabooz.picklecraft.world.HexRegions.cell(q, r, seed);
+                seen.add(cell.kind());
+                counts[cell.kind().ordinal()]++;
+                if (cell.kind() == io.github.gabooz.picklecraft.world.HexRegions.Kind.MOUNTAINS) {
+                    for (int[] delta : new int[][]{{1,0},{0,1},{1,-1}}) {
+                        if (io.github.gabooz.picklecraft.world.HexRegions.cell(q+delta[0],r+delta[1],seed).kind() == cell.kind()) {
+                            mountainLinks++;
+                        }
+                    }
+                }
+                require(io.github.gabooz.picklecraft.world.BiomeChallenges.select(cell).isEmpty(), "Challenges start disabled");
+            }
+        }
+        require(seen.size() == 3 && counts[0] > counts[2] && mountainLinks > 100,
+            "Grasslands, mountain chains and slightly scarcer forests occur across hex regions");
+        var resolver = source.createResolver(sampler);
+        var ops = net.minecraft.resources.RegistryOps.create(com.mojang.serialization.JsonOps.INSTANCE, level.registryAccess());
+        var encoded = net.minecraft.world.level.biome.BiomeSource.CODEC.encodeStart(ops, source).getOrThrow();
+        var decoded = net.minecraft.world.level.biome.BiomeSource.CODEC.parse(ops, encoded).getOrThrow().createResolver(sampler);
+        var vanilla = net.minecraft.world.level.biome.MultiNoiseBiomeSource.createFromPreset(
+            level.registryAccess().lookupOrThrow(Registries.MULTI_NOISE_BIOME_SOURCE_PARAMETER_LIST).getOrThrow(
+                ResourceKey.create(Registries.MULTI_NOISE_BIOME_SOURCE_PARAMETER_LIST, Identifier.withDefaultNamespace("overworld"))))
+            .createResolver(sampler);
+        int riverSamples = 0;
+        for (int x = -4000; x <= 4000; x += 100) {
+            for (int z = -4000; z <= 4000; z += 100) {
+                var original = vanilla.getNoiseBiome(x, 20, z);
+                var actual = resolver.getNoiseBiome(x, 20, z);
+                boolean river = original.is(net.minecraft.world.level.biome.Biomes.RIVER)
+                    || original.is(net.minecraft.world.level.biome.Biomes.FROZEN_RIVER);
+                if (river) riverSamples++;
+                require(actual.is(net.minecraft.world.level.biome.Biomes.RIVER) == river,
+                    "River selection follows vanilla climate independently of hex borders");
+                require(decoded.getNoiseBiome(x, 20, z).equals(actual), "Saved biome source reproduces the same map");
+            }
+        }
+        require(riverSamples > 0, "Winding river biomes occur across the world");
+
+        var biomes = source.possibleBiomes();
+        require(biomes.size() == 4, "Only three land biomes and the river are possible");
+        for (int x = -16000; x <= 16000; x += 1000) {
+            require(biomes.contains(resolver.getNoiseBiome(x, 20, -x)), "Hex resolver returns a declared biome");
+        }
+        com.mojang.logging.LogUtils.getLogger().info("HEX REGION COUNTS grasslands={}, mountains={}, forests={}",
+            counts[0], counts[1], counts[2]);
     }
 
     private static void verifyGroundCraft(net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player) {

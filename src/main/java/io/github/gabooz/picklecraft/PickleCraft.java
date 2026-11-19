@@ -29,6 +29,7 @@ public final class PickleCraft {
         var modBus = context.getModBusGroup();
         OverworldFeatures.SERIALIZERS.register(modBus);
         GroundContent.register(modBus);
+        io.github.gabooz.picklecraft.world.PickleWorldgen.register(modBus);
         io.github.gabooz.picklecraft.ground.TongsContainers.register();
         PlayerInteractEvent.RightClickBlock.BUS.addListener(
             GroundInteractions::use);
@@ -54,6 +55,7 @@ public final class PickleCraft {
     private static boolean preventOverworldMobs(EntityJoinLevelEvent event) {
         return !event.getLevel().isClientSide()
             && event.getLevel().dimension().equals(Level.OVERWORLD)
-            && event.getEntity() instanceof Mob;
+            && event.getEntity() instanceof Mob mob
+            && !io.github.gabooz.picklecraft.world.BiomeChallenges.allowsMob(event.getLevel(), mob);
     }
 }

@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_features",
+  "biomes": [
+    "picklecraft:grasslands",
+    "picklecraft:mountains",
+    "picklecraft:oak_forest"
+  ],
+  "features": "picklecraft:biome_challenge",
+  "step": "top_layer_modification"
+}

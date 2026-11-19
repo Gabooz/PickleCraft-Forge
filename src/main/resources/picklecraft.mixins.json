@@ -1,8 +1,22 @@
 {
-    "required": true,
-    "minVersion": "0.8.7",
-    "package": "io.github.gabooz.picklecraft.mixin",
-    "mixins": ["ChunkGeneratorMixin", "NoiseBasedChunkGeneratorMixin", "OreVeinRuleMixin", "RecipeMapMixin", "InventoryMenuMixin", "BareHandMiningMixin", "OverworldMaterialRulesMixin", "MaterialSystemMixin"],
-    "client": ["NightLightMixin"],
-    "injectors": {"defaultRequire": 1}
+  "required": true,
+  "minVersion": "0.8.7",
+  "package": "io.github.gabooz.picklecraft.mixin",
+  "mixins": [
+    "ChunkGeneratorMixin",
+    "NoiseBasedChunkGeneratorMixin",
+    "OreVeinRuleMixin",
+    "RecipeMapMixin",
+    "InventoryMenuMixin",
+    "BareHandMiningMixin",
+    "OverworldMaterialRulesMixin",
+    "MaterialSystemMixin"
+  ],
+  "client": [
+    "NightLightMixin",
+    "WorldCreationUiStateMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

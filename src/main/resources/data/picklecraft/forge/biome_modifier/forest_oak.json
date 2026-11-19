@@ -1,0 +1,8 @@
+{
+  "type": "forge:add_features",
+  "biomes": [
+    "picklecraft:oak_forest"
+  ],
+  "features": "picklecraft:forest_oak",
+  "step": "vegetal_decoration"
+}

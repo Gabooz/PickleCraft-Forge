@@ -18,5 +18,9 @@
   "block.picklecraft.open_barrel": "Open Barrel",
   "block.picklecraft.gold_furnace_shell": "Gold Furnace Shell",
   "block.picklecraft.stockpile": "Stockpile",
-  "block.picklecraft.stockpile_trim": "Stockpile Trim"
+  "block.picklecraft.stockpile_trim": "Stockpile Trim",
+  "generator.picklecraft.picklecraft": "PickleCraft",
+  "biome.picklecraft.grasslands": "Grasslands",
+  "biome.picklecraft.mountains": "Mountains",
+  "biome.picklecraft.oak_forest": "Oak Forest"
 }

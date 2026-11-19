@@ -67,7 +67,7 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 59, "PickleCraft creative tab contains all fifty-nine entries");
+            require(tab.getDisplayItems().size() == 64, "PickleCraft creative tab contains all sixty-four entries");
             try (var fogRenderer = new net.minecraft.client.renderer.fog.FogRenderer()) {
                 io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(true);
                 var fog = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
@@ -114,6 +114,9 @@ public final class Playtest {
             int springColor = net.minecraft.client.renderer.BiomeColors.getAverageFoliageColor(game.level, game.player.blockPosition());
             io.github.gabooz.picklecraft.client.SeasonClient.receive(20);
             int autumnColor = net.minecraft.client.renderer.BiomeColors.getAverageFoliageColor(game.level, game.player.blockPosition());
+            require((springColor >>> 24) == (autumnColor >>> 24)
+                    && (io.github.gabooz.picklecraft.client.SeasonClient.tint(0xff123456) >>> 24) == 255,
+                "Season tint preserves foliage opacity");
             require(springColor != autumnColor, "Season calendar changes the actual foliage renderer tint");
             io.github.gabooz.picklecraft.client.SeasonClient.receive(0);
             game.gui.setScreen(new InventoryScreen(game.player));
@@ -234,6 +237,7 @@ public final class Playtest {
         verifyGroundCraft(level, player);
         verifyWorkbench(level, player);
         verifyCarpentry(level, player);
+        verifyWorkshopFire(level, player);
         verifyIronFurnace(level, player);
         verifyGoldFurnace(level, player);
         verifyOpenBarrel(level, player);
@@ -754,6 +758,66 @@ public final class Playtest {
         level.getBlockState(pos).tick(level, pos, level.getRandom());
         require(level.getBlockState(pos).getValue(blooming), "Plumaria blooms after one week");
     }
+    private static void verifyWorkshopFire(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        var pos = player.blockPosition().offset(2, 5, 3);
+        var state = Blocks.CAMPFIRE.defaultBlockState();
+        level.setBlockAndUpdate(pos, state);
+        var fire = (net.minecraft.world.level.block.entity.CampfireBlockEntity) level.getBlockEntity(pos);
+        var raw = net.minecraft.world.item.Items.BEEF;
+        for (int i = 0; i < 4; i++) require(fire.placeFood(level, player, raw.getDefaultInstance()),
+            "Campfire has four cooking slots");
+        require(!fire.placeFood(level, player, raw.getDefaultInstance()), "Campfire refuses a fifth food item");
+        var cache = net.minecraft.world.item.crafting.RecipeManager.createCheck(net.minecraft.world.item.crafting.RecipeType.CAMPFIRE_COOKING);
+        for (int i = 0; i < 5999; i++) net.minecraft.world.level.block.entity.CampfireBlockEntity.cookTick(level, pos, state, fire, cache);
+        require(fire.getItems().stream().allMatch(stack -> stack.is(raw)), "Food stays raw before five minutes");
+        for (int i = 0; i < 20; i++) net.minecraft.world.level.block.entity.CampfireBlockEntity.cookTick(level, pos, state, fire, cache);
+        require(fire.getItems().stream().allMatch(stack -> stack.is(net.minecraft.world.item.Items.COOKED_BEEF)),
+            "Food finishes and remains on the campfire");
+        var hand = net.minecraft.world.InteractionHand.MAIN_HAND;
+        var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos),
+            net.minecraft.core.Direction.UP, pos, false);
+        var click = new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, pos, hit);
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        require(io.github.gabooz.picklecraft.ground.GroundInteractions.use(click)
+                && fire.getItems().stream().filter(net.minecraft.world.item.ItemStack::isEmpty).count() == 1,
+            "Empty-hand click retrieves one cooked item");
+        player.setItemInHand(hand, net.minecraft.world.item.Items.STICK.getDefaultInstance());
+        var stickClick = new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, pos, hit);
+        require(io.github.gabooz.picklecraft.ground.GroundInteractions.use(stickClick) && player.getMainHandItem().isEmpty(),
+            "Campfire turns a stick into a torch");
+        var support = pos.east();
+        level.setBlockAndUpdate(support, Blocks.STONE.defaultBlockState());
+        level.setBlockAndUpdate(support.above(), Blocks.AIR.defaultBlockState());
+        var torch = net.minecraft.world.item.Items.TORCH.getDefaultInstance();
+        var torchHit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(support),
+            net.minecraft.core.Direction.UP, support, false);
+        var placement = new net.minecraft.world.item.context.BlockPlaceContext(player, hand, torch, torchHit);
+        require(((net.minecraft.world.item.BlockItem) torch.getItem()).place(placement).consumesAction(),
+            "Ordinary torch item places a tracked torch");
+        var torchPos = support.above();
+        var clock = (io.github.gabooz.picklecraft.ground.TorchClock) level.getBlockEntity(torchPos);
+        long time = level.getGameTime();
+        var data = (net.minecraft.world.level.storage.ServerLevelData) level.getLevelData();
+        data.setGameTime(time + io.github.gabooz.picklecraft.ground.TorchClock.BURN_TICKS);
+        clock.update(level);
+        data.setGameTime(time);
+        var lit = io.github.gabooz.picklecraft.ground.WorkshopTorch.LIT;
+        require(!level.getBlockState(torchPos).getValue(lit), "Torch burns out after forty game days");
+        player.setItemInHand(hand, net.minecraft.world.item.Items.FLINT_AND_STEEL.getDefaultInstance());
+        var relight = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(torchPos),
+            net.minecraft.core.Direction.UP, torchPos, false);
+        require(io.github.gabooz.picklecraft.ground.GroundInteractions.use(
+            new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, torchPos, relight))
+            && level.getBlockState(torchPos).getValue(lit), "Flint and steel relights a dry torch");
+        var torchBlock = io.github.gabooz.picklecraft.ground.GroundContent.TIMED_TORCH.get();
+        require(torchBlock.placeLiquid(level, torchPos, level.getBlockState(torchPos),
+            net.minecraft.world.level.material.Fluids.WATER.getSource(false))
+            && level.getBlockState(torchPos).is(torchBlock) && !level.getBlockState(torchPos).getValue(lit),
+            "Water extinguishes a torch while leaving the block in place");
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+    }
+
     private static void verifyCarpentry(net.minecraft.server.level.ServerLevel level,
             net.minecraft.server.level.ServerPlayer player) {
         var pos = player.blockPosition().offset(5, 4, 0);
@@ -768,6 +832,9 @@ public final class Playtest {
                 "Carpentry interaction is handled");
         };
         var anvilPos = pos.west();
+        for (var spot : java.util.List.of(anvilPos, pos, other)) {
+            level.setBlockAndUpdate(spot.above(), Blocks.AIR.defaultBlockState());
+        }
         level.setBlockAndUpdate(anvilPos, io.github.gabooz.picklecraft.ground.GroundContent.ANVIL.get().defaultBlockState());
         var hammer = io.github.gabooz.picklecraft.ground.GroundContent.STONE_HAMMER.get().getDefaultInstance();
         click.accept(anvilPos, net.minecraft.world.item.Items.OAK_PLANKS.getDefaultInstance());

@@ -41,17 +41,25 @@ public final class HexRegions {
         double z = SIDE * 1.5 * r;
         // Long coherent ridges group mountain cells into chains. A broader moisture
         // field groups forests, with grasslands a little more common than forest.
-        double ridge = Math.abs(noise(x / (17000 * SCALE), z / (17000 * SCALE), seed + 91)
-            + noise(x / (6500 * SCALE), z / (6500 * SCALE), seed + 92) * 0.22);
-        double woodland = noise(x / (10500 * SCALE), z / (10500 * SCALE), seed + 61)
-            + noise(x / (4700 * SCALE), z / (4700 * SCALE), seed + 62) * 0.18;
-        Kind kind = ridge < 0.15 ? Kind.MOUNTAINS : woodland > 0.08 ? Kind.OAK_FOREST : Kind.GRASSLANDS;
+        Kind kind = inlandKind(x, z, seed);
         long cellSeed = hash(q, r, seed);
         if (OceanTerrain.continent(x, z, seed) < 0) {
             int islandRoll = (int) Math.floorMod(cellSeed, 20);
             kind = islandRoll == 0 ? Kind.ARCHIPELAGO : islandRoll <= 2 ? Kind.ISLANDS : Kind.OCEAN;
         }
         return new Region(q, r, kind, cellSeed);
+    }
+
+    private static Kind landKind(double ridge, double woodland) {
+        return ridge < 0.15 ? Kind.MOUNTAINS : woodland > 0.08 ? Kind.OAK_FOREST : Kind.GRASSLANDS;
+    }
+
+    public static Kind inlandKind(double x, double z, long seed) {
+        double ridge = Math.abs(noise(x / (17000 * SCALE), z / (17000 * SCALE), seed + 91)
+            + noise(x / (6500 * SCALE), z / (6500 * SCALE), seed + 92) * 0.22);
+        double woodland = noise(x / (10500 * SCALE), z / (10500 * SCALE), seed + 61)
+            + noise(x / (4700 * SCALE), z / (4700 * SCALE), seed + 62) * 0.18;
+        return landKind(ridge, woodland);
     }
 
     /** A continuous mountain mask prevents terrain cliffs at biome borders. */

@@ -96,8 +96,9 @@ public final class GroundStackBlock extends BaseEntityBlock {
         }
         var tools = tools();
         int tool = items.size() == 1 ? tools.indexOf(items.getFirst().getItem()) : -1;
-        if (!player.isShiftKeyDown() && !held.isEmpty()) {
-            if (tool >= 0 || !GroundContent.isMaterial(held) || items.size() == GroundStack.CAPACITY) {
+        if (!held.isEmpty() && (!player.isShiftKeyDown() || GroundContent.isCraftingBlock(held))) {
+            if ((GroundContent.isCraftingBlock(held) && !player.isShiftKeyDown())
+                    || tool >= 0 || !GroundContent.isMaterial(held) || items.size() == GroundStack.CAPACITY) {
                 return InteractionResult.FAIL;
             }
             if (!level.isClientSide()) {

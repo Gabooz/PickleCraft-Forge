@@ -34,6 +34,18 @@ public final class GroundContent {
     public static final RegistryObject<BlockItem> WORKBENCH_ITEM = ITEMS.register("workbench", () ->
         new BlockItem(WORKBENCH.get(), new Item.Properties().setId(ITEMS.key("workbench")).useBlockDescriptionPrefix()));
 
+    public static final RegistryObject<WorkshopTorch> TIMED_TORCH = BLOCKS.register("workshop_torch", () ->
+        new WorkshopTorch(BlockBehaviour.Properties.of().setId(BLOCKS.key("workshop_torch")).noCollision().noOcclusion()
+            .instabreak().sound(SoundType.WOOD).lightLevel(state -> state.getValue(WorkshopTorch.LIT) ? 14 : 0)));
+    public static final RegistryObject<BlockEntityType<TorchClock>> TORCH_CLOCK = ENTITIES.register("torch_clock",
+        () -> new BlockEntityType<>(TorchClock::new, Set.of(TIMED_TORCH.get())));
+    public static final RegistryObject<BlockItem> UNLIT_TORCH = ITEMS.register("unlit_torch", () ->
+        new BlockItem(TIMED_TORCH.get(), new Item.Properties().setId(ITEMS.key("unlit_torch"))) {
+            @Override public void registerBlocks(java.util.Map<Block, Item> blocks, Item item) {}
+        });
+    public static final RegistryObject<BlockItem> TIMED_TORCH_ITEM = ITEMS.register("workshop_torch", () ->
+        new BlockItem(TIMED_TORCH.get(), new Item.Properties().setId(ITEMS.key("workshop_torch"))));
+
     public static final RegistryObject<CarpenterTable> CARPENTER = BLOCKS.register("carpenter_table", () ->
         new CarpenterTable(BlockBehaviour.Properties.of().setId(BLOCKS.key("carpenter_table"))
             .strength(2F).noOcclusion().sound(SoundType.WOOD)));
@@ -127,6 +139,11 @@ public final class GroundContent {
             .title(Component.translatable("itemGroup.picklecraft"))
             .icon(() -> BLOSSOMS.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
+                output.accept(Items.CAMPFIRE);
+                output.accept(Items.SOUL_CAMPFIRE);
+                output.accept(Items.TORCH);
+                output.accept(TIMED_TORCH_ITEM.get());
+                output.accept(UNLIT_TORCH.get());
                 output.accept(CARPENTER_KIT.get());
                 output.accept(SAW.get());
                 output.accept(SAW_HANDLE.get());
@@ -203,6 +220,11 @@ public final class GroundContent {
 
     public static boolean isHammer(ItemStack stack) {
         return stack.is(WOODEN_HAMMER.get()) || stack.is(STONE_HAMMER.get()) || stack.is(IRON_HAMMER.get());
+    }
+
+    public static boolean isCraftingBlock(ItemStack stack) {
+        // String places tripwire in vanilla but remains a flat crafting material here.
+        return stack.getItem() instanceof BlockItem && !stack.is(Items.STRING);
     }
 
     public static boolean isMaterial(ItemStack stack) {

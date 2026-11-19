@@ -42,5 +42,8 @@
   "item.picklecraft.saw_handle": "Saw Handle",
   "item.picklecraft.saw_blade": "Saw Blade",
   "item.picklecraft.oar": "Oar",
-  "item.picklecraft.glue": "Glue"
+  "item.picklecraft.glue": "Glue",
+  "item.picklecraft.workshop_torch": "Long-burning Torch",
+  "item.picklecraft.unlit_torch": "Unlit Torch",
+  "block.picklecraft.workshop_torch": "Torch"
 }

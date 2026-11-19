@@ -11,7 +11,9 @@
     "BareHandMiningMixin",
     "OverworldMaterialRulesMixin",
     "MaterialSystemMixin",
-    "MaterialRuleContextAccessor"
+    "MaterialRuleContextAccessor",
+    "CampfireCookingMixin",
+    "TorchItemMixin"
   ],
   "client": [
     "NightLightMixin",

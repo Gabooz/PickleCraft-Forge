@@ -20,6 +20,11 @@ public final class GroundInteractions {
             event.setCancellationResult(result);
             return true;
         }
+        var fire = WorkshopFire.interact(event);
+        if (fire != InteractionResult.PASS) {
+            event.setCancellationResult(fire);
+            return true;
+        }
         var carpentry = CarpenterTable.interact(event);
         if (carpentry != InteractionResult.PASS) {
             event.setCancellationResult(carpentry);
@@ -50,6 +55,7 @@ public final class GroundInteractions {
         } else if (state.is(GroundContent.STACK.get()) && level.mayInteract(player, pos)) {
             result = GroundStackBlock.interact(level, pos, event.getEntity(), held);
         } else if (event.getHitVec().getDirection() == Direction.UP && (GroundContent.isMaterial(held) || held.is(GroundContent.BLOSSOMS.get()))
+                && (!(GroundContent.isCraftingBlock(held)) || player.isShiftKeyDown())
                 && level.mayInteract(event.getEntity(), pos.above()) && level.isEmptyBlock(pos.above())
                 && GroundStackBlock.supported(level, pos.above())) {
             if (!level.isClientSide() && GroundStackBlock.place(level, pos.above(), held)) {

@@ -19,7 +19,7 @@ public final class OceanTerrain {
 
     public static Surface sample(double x, double z, long seed) {
         double coast = continent(x, z, seed);
-        double width = steep(x, z, seed) ? 0.035 : 0.13;
+        double width = steep(x, z, seed) ? 0.028 : 0.055;
         double sea = Math.clamp((width - coast) / (2 * width), 0, 1);
         sea = sea * sea * (3 - 2 * sea);
         double height = 46 + HexRegions.noise(x / 380, z / 380, seed + 431) * 5;

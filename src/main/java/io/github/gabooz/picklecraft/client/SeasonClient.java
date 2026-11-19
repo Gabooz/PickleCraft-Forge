@@ -7,7 +7,7 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 /** Server-synchronized calendar and subtle vanilla-palette vegetation colors. */
 public final class SeasonClient {
     private static ClientPacketListener connection;
-    private static long offset;
+    private static volatile long offset;
     private static Seasons.Season last;
     private SeasonClient() {}
     public static void receive(long days) {
@@ -15,7 +15,13 @@ public final class SeasonClient {
         connection = game.getConnection();
         offset = days;
         var current = date().season();
-        if (current != last) { last = current; if (game.level != null) game.levelRenderer.invalidateCompiledGeometry(game.level, game.options, game.gameRenderer.mainCamera(), game.getBlockColors()); }
+        if (current != last && game.level != null && game.player != null) {
+            last = current;
+            var chunk = game.player.chunkPosition();
+            int radius = game.options.renderDistance().get() + 2;
+            game.level.setSectionRangeDirty(chunk.x() - radius, game.level.getMinY() >> 4, chunk.z() - radius,
+                chunk.x() + radius, game.level.getMaxY() >> 4, chunk.z() + radius);
+        }
     }
     public static Seasons.Date date() {
         var game = Minecraft.getInstance();
@@ -32,7 +38,7 @@ public final class SeasonClient {
             case WINTER -> 0xadb39b;
         };
         float blend = switch (date().season()) { case SPRING -> 0.25F; case SUMMER -> 0.30F; case AUTUMN -> 0.78F; case WINTER -> 0.65F; };
-        int result = 0;
+        int result = original & 0xff000000;
         for (int shift : new int[] {16, 8, 0}) {
             int value = Math.round(((original >> shift) & 255) * (1 - blend) + ((target >> shift) & 255) * blend);
             result |= value << shift;

@@ -38,6 +38,11 @@ public final class ZoneMapScreen extends Screen {
     @Override
     protected void init() {
         int buttonWidth = (width - 24) / 4;
+        int helpWidth = 92;
+        addRenderableWidget(net.minecraft.client.gui.components.Button.builder(Component.literal("Workshop tips"), button -> {})
+            .bounds(width - helpWidth - 12, height - 34, helpWidth, 14)
+            .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(
+                "Sneak to stack planks for crafting. Light sticks at a campfire for torches. Food cooks in five minutes. Torches last 40 game days and can be relit when dry."))).build());
         String[] times = {"Dawn", "Noon", "Dusk", "Midnight"};
         int[] phases = {0, 6000, 12000, 18000};
         var seasons = io.github.gabooz.picklecraft.seasons.Seasons.Season.values();
@@ -109,7 +114,7 @@ public final class ZoneMapScreen extends Screen {
         graphics.text(font, "Oak forest", 81, footer, 0xff88ba88);
         graphics.text(font, "Mountains", 151, footer, MOUNTAIN);
         graphics.text(font, "Fe iron   Au gold   Z zombies   C cows", 224, footer, 0xffe4d7ae);
-        graphics.text(font, "I islands   A archipelago", 12, height - 29, 0xff92c8ee);
+        graphics.text(font, "I islands   A archipelago   Sand beaches", 12, height - 29, 0xff92c8ee);
         graphics.text(font, "Drag pan   Wheel zoom   Right-click teleport   R center   F follow", 12, height - 19, 0xffb7c0b3);
         graphics.text(font, String.format(java.util.Locale.ROOT, "X %.0f  Z %.0f", centerX, centerZ), 180, 12, 0xffb7c0b3);
         if (inside(mouseX, mouseY)) {
@@ -143,6 +148,15 @@ public final class ZoneMapScreen extends Screen {
                         && coast.height() <= 63) {
                     colors[y * cols + x] = 0xff315f88;
                 } else {
+                    double shoreline = io.github.gabooz.picklecraft.world.OceanTerrain.continent(blockX, blockZ, seed);
+                    if (shoreline >= 0 && shoreline < 0.018
+                            && !io.github.gabooz.picklecraft.world.OceanTerrain.steep(blockX, blockZ, seed)) {
+                        colors[y * cols + x] = 0xffd8c18c;
+                        continue;
+                    }
+                    if (kind == HexRegions.Kind.OCEAN || kind == HexRegions.Kind.ISLANDS || kind == HexRegions.Kind.ARCHIPELAGO) {
+                        kind = HexRegions.inlandKind(blockX, blockZ, seed);
+                    }
                     colors[y * cols + x] = switch (kind) {
                         case GRASSLANDS, OCEAN, ISLANDS, ARCHIPELAGO -> 0xff000000 | SeasonClient.tint(GRASS);
                         case OAK_FOREST -> 0xff000000 | SeasonClient.tint(FOREST);

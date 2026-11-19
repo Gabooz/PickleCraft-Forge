@@ -69,12 +69,16 @@ public final class HexBiomeSource extends BiomeSource {
                 return ocean.orElse(river);
             }
             boolean steep = OceanTerrain.steep(blockX, blockZ, seed);
-            if (coast < (steep ? 0.046 : 0.092)) {
+            if (coast < (steep ? 0.012 : 0.018)) {
                 return (steep ? cliff : beach).orElse(grasslands);
             }
             var vanilla = riverResolver.getNoiseBiome(x, y, z);
             if (vanilla.is(Biomes.RIVER) || vanilla.is(Biomes.FROZEN_RIVER)) return river;
-            return switch (region.kind()) {
+            var kind = switch (region.kind()) {
+                case OCEAN, ISLANDS, ARCHIPELAGO -> HexRegions.inlandKind(blockX, blockZ, seed);
+                default -> region.kind();
+            };
+            return switch (kind) {
                 case GRASSLANDS -> grasslands;
                 case MOUNTAINS -> mountains;
                 case OAK_FOREST -> forest;

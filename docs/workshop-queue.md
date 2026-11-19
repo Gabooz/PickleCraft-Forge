@@ -23,3 +23,15 @@ Status: Completed. The integrated Minecraft playtest verified hot iron and handl
 > Plank slabs are made by right clicking a saw on a wood plank on the workbench (the one made from a log) and it returns two slabs. An oar is made by a stick and a slab on the carpenters table and right clicking with the saw.
 
 > A saw is made from a saw blade and a saw handle. The saw handle is made by using a hammer on a plank on the anvil. The saw blade is made by taking a piece of hot iron from the iron furnace and while it’s still hot putting it on the anvil and right clicking. The two parts can be combine with a hammer on the anvil.
+
+## Coastlines, seasons, ground crafting, and campfires
+
+Status: Completed. The integrated playtest passed, including seasonal foliage opacity, ground crafting, five-minute campfire cooking and retrieval, torch placement, burnout, relighting, water extinguishing, and the creative tab and map.
+
+> Leaves are not rendering properly, I'm guessing because of the seasons. The beaches/land that is generated next to the ocean zones should be for the most part ordinary land that has its characteristics linked to the zones next to it. Beaches should be relatively thin and on the very edge of the ocean.
+
+> Torches are made by right clicking sticks on a campfire, the stick is consumed and a torch pops into the world. The campfire also cooks food, it takes 5 minutes generally. The campfire holds up to four items, and they are placed on the four corners of the campfire. Once done they don't overcook but you can rightclick the campfire to take them off. Torches burn out after 40 in game minecraft days (4 seasons/one year) they become unlit torches, and you can relight them with a flint and steel. Water also delights torches (instead of destroying them)
+
+> Once you switch seasons in the map, everything unrenders. Also make the wood block in the stack to make the wooden hoe smaller and look like it's stacked on top of the other items (or under them)
+
+> You have to shift slick to place planks or any future block on the ground for crafting

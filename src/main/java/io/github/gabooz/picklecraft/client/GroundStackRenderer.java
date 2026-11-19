@@ -28,6 +28,7 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
         private boolean workbench;
         private boolean anvil;
         private boolean carpenter;
+        private final List<Boolean> groundBlocks = new ArrayList<>();
         private boolean cube;
         private final List<ItemStackRenderState> layers = new ArrayList<>();
     }
@@ -45,11 +46,14 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
         state.anvil = stack.getBlockState().is(GroundContent.ANVIL.get());
         state.carpenter = stack.getBlockState().is(GroundContent.CARPENTER.get());
         state.layers.clear();
+        state.groundBlocks.clear();
         var resolver = Minecraft.getInstance().getItemModelResolver();
         var items = stack.items();
         state.cube = state.workbench && !items.isEmpty()
             && items.getFirst().getItem() instanceof net.minecraft.world.item.BlockItem;
         for (var item : items) {
+            state.groundBlocks.add(!state.workbench && !state.anvil && !state.carpenter
+                && GroundContent.isCraftingBlock(item));
             var model = new ItemStackRenderState();
             resolver.updateForTopItem(model, item, ItemDisplayContext.NONE, stack.getLevel(), null, 0);
             state.layers.add(model);
@@ -65,6 +69,13 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
                 // The model origin is centered, so raise it by half its height minus the buried third.
                 poses.translate(0.5, WorkbenchBlock.SURFACE_HEIGHT + size / 6.0 + i * 0.04, 0.5);
                 poses.scale(size, size, size);
+                state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+                poses.popPose();
+                continue;
+            }
+            if (state.groundBlocks.get(i)) {
+                poses.translate(0.5, (i + 0.5) / 16.0, 0.5);
+                poses.scale(0.56F, 0.0625F, 0.38F);
                 state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
                 poses.popPose();
                 continue;

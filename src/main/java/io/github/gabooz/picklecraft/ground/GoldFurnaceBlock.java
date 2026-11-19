@@ -157,7 +157,7 @@ public final class GoldFurnaceBlock extends BaseEntityBlock {
                     player.sendOverlayMessage(net.minecraft.network.chat.Component.translatable(
                         "message.picklecraft.gold_furnace_fuel", furnace.fuelCount(), GoldFurnace.FUEL_REQUIRED));
                 }
-            } else if (held.is(Items.FLINT_AND_STEEL)) {
+            } else if (GroundContent.isIgniter(held)) {
                 if (furnace.ignite()) {
                     held.hurtAndBreak(1, player, event.getHand());
                     server.playSound(null, event.getPos(), SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 0.9F, 0.8F);

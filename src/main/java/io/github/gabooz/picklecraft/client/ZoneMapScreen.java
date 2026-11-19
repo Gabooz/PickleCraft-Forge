@@ -42,7 +42,7 @@ public final class ZoneMapScreen extends Screen {
         addRenderableWidget(net.minecraft.client.gui.components.Button.builder(Component.literal("Workshop tips"), button -> {})
             .bounds(width - helpWidth - 12, height - 34, helpWidth, 14)
             .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(
-                "Sneak to stack planks for crafting. Light sticks at a campfire for torches. Food cooks in five minutes. Torches last 40 game days and can be relit when dry."))).build());
+                "Sneak-stack four logs for a campfire. Stack two sticks and right-click for a fire starter. Hammer flint and an iron ingot on an anvil for flint and steel. Food cooks in five minutes. Torches last 40 game days and can be relit when dry."))).build());
         String[] times = {"Dawn", "Noon", "Dusk", "Midnight"};
         int[] phases = {0, 6000, 12000, 18000};
         var seasons = io.github.gabooz.picklecraft.seasons.Seasons.Season.values();
@@ -144,16 +144,14 @@ public final class ZoneMapScreen extends Screen {
                 double blockZ = worldZ(top() + y * RASTER + 1.5);
                 var kind = HexRegions.at(blockX, blockZ, seed).kind();
                 var coast = io.github.gabooz.picklecraft.world.OceanTerrain.sample(blockX, blockZ, seed);
+                if (io.github.gabooz.picklecraft.world.OceanTerrain.mainlandBeach(blockX, blockZ, seed)) {
+                    colors[y * cols + x] = 0xffd8c18c;
+                    continue;
+                }
                 if (io.github.gabooz.picklecraft.world.OceanTerrain.continent(blockX, blockZ, seed) < 0
                         && coast.height() <= 63) {
                     colors[y * cols + x] = 0xff315f88;
                 } else {
-                    double shoreline = io.github.gabooz.picklecraft.world.OceanTerrain.continent(blockX, blockZ, seed);
-                    if (shoreline >= 0 && shoreline < 0.018
-                            && !io.github.gabooz.picklecraft.world.OceanTerrain.steep(blockX, blockZ, seed)) {
-                        colors[y * cols + x] = 0xffd8c18c;
-                        continue;
-                    }
                     if (kind == HexRegions.Kind.OCEAN || kind == HexRegions.Kind.ISLANDS || kind == HexRegions.Kind.ARCHIPELAGO) {
                         kind = HexRegions.inlandKind(blockX, blockZ, seed);
                     }

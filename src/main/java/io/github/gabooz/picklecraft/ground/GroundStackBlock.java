@@ -102,7 +102,14 @@ public final class GroundStackBlock extends BaseEntityBlock {
                 return InteractionResult.FAIL;
             }
             if (!level.isClientSide()) {
-                stack.add(held);
+                boolean campfire = items.size() == 3 && isLog(held) && items.stream().allMatch(GroundStackBlock::isLog);
+                if (campfire) {
+                    var unlit = Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, false)
+                        .setValue(CampfireBlock.FACING, player.getDirection());
+                    if (!level.setBlockAndUpdate(pos, unlit)) return InteractionResult.FAIL;
+                } else {
+                    stack.add(held);
+                }
                 held.consume(1, player);
             }
             return InteractionResult.SUCCESS;
@@ -110,6 +117,9 @@ public final class GroundStackBlock extends BaseEntityBlock {
         if (!level.isClientSide()) {
             if (!player.isShiftKeyDown() && tool >= 0) {
                 stack.replaceWith(new ItemStack(tools.get((tool + 1) % tools.size())));
+            } else if (!player.isShiftKeyDown() && items.size() == 2
+                    && items.stream().allMatch(item -> item.is(Items.STICK))) {
+                stack.replaceWith(GroundContent.FIRE_STARTER.get().getDefaultInstance());
             } else if (!player.isShiftKeyDown() && formsHoe(items)) {
                 stack.replaceWith(new ItemStack(Items.WOODEN_HOE));
             } else if (!player.isShiftKeyDown() && formsTool(items)) {
@@ -125,6 +135,10 @@ public final class GroundStackBlock extends BaseEntityBlock {
             }
         }
         return InteractionResult.SUCCESS;
+    }
+
+    private static boolean isLog(ItemStack item) {
+        return item.is(net.minecraft.tags.ItemTags.LOGS);
     }
 
     private static boolean formsHoe(List<ItemStack> items) {

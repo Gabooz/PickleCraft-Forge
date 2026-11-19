@@ -35,3 +35,17 @@ Status: Completed. The integrated playtest passed, including seasonal foliage op
 > Once you switch seasons in the map, everything unrenders. Also make the wood block in the stack to make the wooden hoe smaller and look like it's stacked on top of the other items (or under them)
 
 > You have to shift slick to place planks or any future block on the ground for crafting
+
+## Beach grade, hammer upgrade, and ignition crafting
+
+Status: Completed. Build and integrated playtest passed, including campfire assembly and ignition, fire starter durability, stone hammer conversion, and the flint and steel recipe.
+
+> Right now the beach goes below sea level turns into a biome and creates a wall up to sea level. It should remain beach all the way to the sea, and stop at sea level.
+
+> Stone Hammers should be able to be upgraded to iron with an ingot on the anvil
+
+> A campfire is made by shift clicking 4 logs onto the ground. They are placed one by one as they are in the campfire model. Once all four are placed a flint and steel is used to light the fire.
+
+> Make a new fire starter tool that's made by placing two sticks and right clicking on the stack on the ground. It does everything a flint and steel does just it only has 30 uses
+
+> Speaking of flint and steel that's made by using a hammer on flint and steel on the anvil

@@ -28,6 +28,7 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
         private boolean workbench;
         private boolean anvil;
         private boolean carpenter;
+        private boolean campfireLogs;
         private final List<Boolean> groundBlocks = new ArrayList<>();
         private boolean cube;
         private final List<ItemStackRenderState> layers = new ArrayList<>();
@@ -49,6 +50,8 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
         state.groundBlocks.clear();
         var resolver = Minecraft.getInstance().getItemModelResolver();
         var items = stack.items();
+        state.campfireLogs = !state.workbench && !state.anvil && !state.carpenter && !items.isEmpty()
+            && items.stream().allMatch(item -> item.is(net.minecraft.tags.ItemTags.LOGS));
         state.cube = state.workbench && !items.isEmpty()
             && items.getFirst().getItem() instanceof net.minecraft.world.item.BlockItem;
         for (var item : items) {
@@ -69,6 +72,19 @@ public final class GroundStackRenderer implements BlockEntityRenderer<GroundStac
                 // The model origin is centered, so raise it by half its height minus the buried third.
                 poses.translate(0.5, WorkbenchBlock.SURFACE_HEIGHT + size / 6.0 + i * 0.04, 0.5);
                 poses.scale(size, size, size);
+                state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+                poses.popPose();
+                continue;
+            }
+            if (state.campfireLogs) {
+                float offset = i % 2 == 0 ? 0.25F : 0.75F;
+                if (i < 2) poses.translate(0.5, 0.125, offset);
+                else {
+                    poses.translate(offset, 0.375, 0.5);
+                    poses.rotateDegrees(Axis.YP, 90);
+                }
+                poses.scale(0.94F, 0.25F, 0.25F);
+                poses.rotateDegrees(Axis.ZP, 90);
                 state.layers.get(i).submit(poses, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
                 poses.popPose();
                 continue;

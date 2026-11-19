@@ -15,6 +15,17 @@ public final class OceanTerrain {
         return HexRegions.noise(x / 510, z / 510, seed + 430) > 0.20;
     }
 
+    public static final double BEACH_EDGE = 0.018;
+
+    public static boolean mainlandBeach(double x, double z, long seed) {
+        return Math.abs(continent(x, z, seed)) <= BEACH_EDGE && !steep(x, z, seed);
+    }
+
+    /** The beach grade crosses sea level at the same zero contour used by the biome source. */
+    public static double beachHeight(double coast) {
+        return 63 + 3 * coast / BEACH_EDGE;
+    }
+
     public record Surface(double seaWeight, double height) {}
 
     public static Surface sample(double x, double z, long seed) {

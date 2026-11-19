@@ -96,7 +96,10 @@ public final class AnvilBlock extends BaseEntityBlock {
                     result = GroundContent.SAW_HANDLE.get().getDefaultInstance();
                 }
             } else if (GroundContent.isHammer(held)) {
-                if (items.size() == 2 && items.stream().anyMatch(item -> item.is(GroundContent.SAW_HANDLE.get()))
+                if (items.size() == 2 && items.stream().anyMatch(item -> item.is(Items.FLINT))
+                        && items.stream().anyMatch(item -> item.is(Items.IRON_INGOT))) {
+                    result = Items.FLINT_AND_STEEL.getDefaultInstance();
+                } else if (items.size() == 2 && items.stream().anyMatch(item -> item.is(GroundContent.SAW_HANDLE.get()))
                         && items.stream().anyMatch(item -> item.is(GroundContent.SAW_BLADE.get()))) {
                     result = GroundContent.SAW.get().getDefaultInstance();
                 }
@@ -125,7 +128,8 @@ public final class AnvilBlock extends BaseEntityBlock {
         boolean shaping = anvil.isShaping();
         boolean ready = items.size() == 2 && items.stream().anyMatch(item -> item.is(Items.STICK))
             && items.stream().anyMatch(item -> item.is(Items.IRON_INGOT));
-        if (GroundContent.isHammer(held) && !player.isShiftKeyDown()) {
+        // An empty anvil accepts the hammer as the workpiece for a material upgrade.
+        if (GroundContent.isHammer(held) && !items.isEmpty() && !player.isShiftKeyDown()) {
             if ((!ready && !shaping) || !level.isEmptyBlock(pos.above())) {
                 return InteractionResult.FAIL;
             }

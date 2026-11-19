@@ -45,5 +45,6 @@
   "item.picklecraft.glue": "Glue",
   "item.picklecraft.workshop_torch": "Long-burning Torch",
   "item.picklecraft.unlit_torch": "Unlit Torch",
-  "block.picklecraft.workshop_torch": "Torch"
+  "block.picklecraft.workshop_torch": "Torch",
+  "item.picklecraft.fire_starter": "Fire Starter"
 }

@@ -23,7 +23,7 @@ public record HexTerrain(DensityFunction input, DensityFunction temperature, Den
         var mountain = mountainInput.compileSampler(context);
         return new DensitySampler() {
             private volatile Long seed;
-            private record Column(int x, int z, double height, double mountains, double sea) {}
+            private record Column(int x, int z, double height, double mountains, double sea, double beachBlend, double beachHeight) {}
             private final ThreadLocal<Column> columnCache = new ThreadLocal<>();
 
             @Override
@@ -43,12 +43,20 @@ public record HexTerrain(DensityFunction input, DensityFunction temperature, Den
                     double height = 61 + valley * (9 + hills);
                     var ocean = OceanTerrain.sample(x, z, seed);
                     height += (ocean.height() - height) * ocean.seaWeight();
-                    column = new Column(x, z, height, mountains * valley * (1 - ocean.seaWeight()), ocean.seaWeight());
+                    double coast = OceanTerrain.continent(x, z, seed);
+                    double beachBlend = Math.clamp(2 - Math.abs(coast) / OceanTerrain.BEACH_EDGE, 0, 1);
+                    if (OceanTerrain.steep(x, z, seed)) beachBlend = 0;
+                    column = new Column(x, z, height, mountains * valley * (1 - ocean.seaWeight()),
+                        ocean.seaWeight(), beachBlend, OceanTerrain.beachHeight(coast));
                     columnCache.set(column);
                 }
                 double surface = (column.height() - y) / 60 + Math.clamp(original, -1F, 1F) * 0.045;
                 if (column.mountains() > 0) {
                     surface += (mountain.sampleValue(sampling, x, y, z) - surface) * column.mountains();
+                }
+                if (column.beachBlend() > 0) {
+                    double beach = (column.beachHeight() - y) / 60;
+                    surface += (beach - surface) * column.beachBlend();
                 }
                 double blend = Math.clamp((y - 48 + column.sea() * 16) / 16.0, 0, 1);
                 return (float) (original * (1 - blend) + surface * blend);

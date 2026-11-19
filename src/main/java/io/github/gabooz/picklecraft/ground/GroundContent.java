@@ -34,6 +34,13 @@ public final class GroundContent {
     public static final RegistryObject<BlockItem> WORKBENCH_ITEM = ITEMS.register("workbench", () ->
         new BlockItem(WORKBENCH.get(), new Item.Properties().setId(ITEMS.key("workbench")).useBlockDescriptionPrefix()));
 
+    public static final RegistryObject<Item> FIRE_STARTER = ITEMS.register("fire_starter", () ->
+        new FlintAndSteelItem(new Item.Properties().setId(ITEMS.key("fire_starter")).durability(30)));
+
+    public static boolean isIgniter(ItemStack item) {
+        return item.is(Items.FLINT_AND_STEEL) || item.is(FIRE_STARTER.get());
+    }
+
     public static final RegistryObject<WorkshopTorch> TIMED_TORCH = BLOCKS.register("workshop_torch", () ->
         new WorkshopTorch(BlockBehaviour.Properties.of().setId(BLOCKS.key("workshop_torch")).noCollision().noOcclusion()
             .instabreak().sound(SoundType.WOOD).lightLevel(state -> state.getValue(WorkshopTorch.LIT) ? 14 : 0)));
@@ -179,6 +186,9 @@ public final class GroundContent {
                 output.accept(Items.RED_SANDSTONE);
                 output.accept(Items.IRON_BARS);
                 output.accept(Items.FLINT_AND_STEEL);
+                output.accept(FIRE_STARTER.get());
+                output.accept(Items.FLINT);
+                output.accept(Items.OAK_LOG);
                 output.accept(Items.RAW_GOLD);
                 output.accept(Items.GOLD_ORE);
                 output.accept(Items.DEEPSLATE_GOLD_ORE);
@@ -228,6 +238,6 @@ public final class GroundContent {
     }
 
     public static boolean isMaterial(ItemStack stack) {
-        return stack.is(net.minecraft.tags.ItemTags.PLANKS) || stack.is(Items.BONE) || stack.is(Items.STICK) || stack.is(Items.STRING) || stack.is(STONE.get());
+        return stack.is(net.minecraft.tags.ItemTags.LOGS) || stack.is(net.minecraft.tags.ItemTags.PLANKS) || stack.is(Items.BONE) || stack.is(Items.STICK) || stack.is(Items.STRING) || stack.is(STONE.get());
     }
 }

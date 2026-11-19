@@ -67,7 +67,7 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 64, "PickleCraft creative tab contains all sixty-four entries");
+            require(tab.getDisplayItems().size() == 67, "PickleCraft creative tab contains all sixty-seven entries");
             try (var fogRenderer = new net.minecraft.client.renderer.fog.FogRenderer()) {
                 io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(true);
                 var fog = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
@@ -238,6 +238,7 @@ public final class Playtest {
         verifyWorkbench(level, player);
         verifyCarpentry(level, player);
         verifyWorkshopFire(level, player);
+        verifyIgnitionCraft(level, player);
         verifyIronFurnace(level, player);
         verifyGoldFurnace(level, player);
         verifyOpenBarrel(level, player);
@@ -758,6 +759,62 @@ public final class Playtest {
         level.getBlockState(pos).tick(level, pos, level.getRandom());
         require(level.getBlockState(pos).getValue(blooming), "Plumaria blooms after one week");
     }
+    private static void verifyIgnitionCraft(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        var pos = player.blockPosition().offset(-4, 9, 0);
+        var hand = net.minecraft.world.InteractionHand.MAIN_HAND;
+        var air = Blocks.AIR.defaultBlockState();
+        level.setBlockAndUpdate(pos.below(), Blocks.STONE.defaultBlockState());
+        level.setBlockAndUpdate(pos, air);
+        level.setBlockAndUpdate(pos.above(), air);
+        java.util.function.Function<BlockPos, net.minecraft.world.phys.BlockHitResult> hit = at ->
+            new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(at),
+                net.minecraft.core.Direction.UP, at, false);
+        java.util.function.BiConsumer<BlockPos, net.minecraft.world.item.ItemStack> click = (at, item) -> {
+            player.setItemInHand(hand, item);
+            require(io.github.gabooz.picklecraft.ground.GroundInteractions.use(
+                new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, at, hit.apply(at))),
+                "Ignition crafting interaction is handled");
+        };
+        var items = net.minecraft.world.item.Items.STICK;
+        click.accept(pos.below(), items.getDefaultInstance());
+        click.accept(pos, items.getDefaultInstance());
+        click.accept(pos, net.minecraft.world.item.ItemStack.EMPTY);
+        var starter = ((io.github.gabooz.picklecraft.ground.GroundStack) level.getBlockEntity(pos)).items().getFirst().copy();
+        require(starter.is(io.github.gabooz.picklecraft.ground.GroundContent.FIRE_STARTER.get())
+            && starter.getMaxDamage() == 30, "Two sticks make a thirty-use starter");
+        click.accept(pos, net.minecraft.world.item.ItemStack.EMPTY);
+        player.setShiftKeyDown(true);
+        var log = net.minecraft.world.item.Items.OAK_LOG;
+        click.accept(pos.below(), log.getDefaultInstance());
+        for (int i = 0; i < 3; i++) click.accept(pos, log.getDefaultInstance());
+        player.setShiftKeyDown(false);
+        var lit = net.minecraft.world.level.block.CampfireBlock.LIT;
+        require(level.getBlockState(pos).is(Blocks.CAMPFIRE) && !level.getBlockState(pos).getValue(lit),
+            "Four stacked logs make an unlit campfire");
+        player.setItemInHand(hand, starter);
+        require(starter.useOn(new net.minecraft.world.item.context.UseOnContext(player, hand, hit.apply(pos))).consumesAction()
+            && level.getBlockState(pos).getValue(lit) && starter.getDamageValue() == 1,
+            "Starter lights the campfire and uses one durability");
+        level.setBlockAndUpdate(pos, io.github.gabooz.picklecraft.ground.GroundContent.ANVIL.get().defaultBlockState());
+        var stone = io.github.gabooz.picklecraft.ground.GroundContent.STONE_HAMMER.get();
+        var iron = net.minecraft.world.item.Items.IRON_INGOT;
+        click.accept(pos, stone.getDefaultInstance());
+        var ingot = iron.getDefaultInstance();
+        click.accept(pos, ingot);
+        var anvil = (io.github.gabooz.picklecraft.ground.GroundStack) level.getBlockEntity(pos);
+        require(ingot.isEmpty() && anvil.items().getFirst().is(io.github.gabooz.picklecraft.ground.GroundContent.IRON_HAMMER.get()),
+            "An iron ingot upgrades a placed stone hammer");
+        click.accept(pos, net.minecraft.world.item.ItemStack.EMPTY);
+        click.accept(pos, net.minecraft.world.item.Items.FLINT.getDefaultInstance());
+        click.accept(pos, iron.getDefaultInstance());
+        click.accept(pos, stone.getDefaultInstance());
+        require(anvil.items().size() == 1 && anvil.items().getFirst().is(net.minecraft.world.item.Items.FLINT_AND_STEEL),
+            "Hammering flint and iron produces flint and steel");
+        level.removeBlock(pos, false);
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+    }
+
     private static void verifyWorkshopFire(net.minecraft.server.level.ServerLevel level,
             net.minecraft.server.level.ServerPlayer player) {
         var pos = player.blockPosition().offset(2, 5, 3);

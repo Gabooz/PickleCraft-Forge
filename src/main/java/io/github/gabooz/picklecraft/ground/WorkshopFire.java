@@ -18,7 +18,7 @@ final class WorkshopFire {
         if (!level.mayInteract(player, pos)) return InteractionResult.PASS;
         var state = level.getBlockState(pos);
         var held = event.getItemStack();
-        if (state.is(GroundContent.TIMED_TORCH.get()) && held.is(Items.FLINT_AND_STEEL)) {
+        if (state.is(GroundContent.TIMED_TORCH.get()) && GroundContent.isIgniter(held)) {
             if (state.getValue(WorkshopTorch.LIT) || state.getValue(WorkshopTorch.WET)) return InteractionResult.FAIL;
             if (!level.isClientSide()) {
                 level.setBlockAndUpdate(pos, state.setValue(WorkshopTorch.LIT, true));

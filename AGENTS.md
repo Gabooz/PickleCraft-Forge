@@ -14,3 +14,6 @@ Require both the strict vanilla comparison and an independent audit of the
 finished art against the Layer 4 requirements and Layer 6 construction rules.
 Either failure returns the item to Layer 4 with concrete notes. Repeat both
 reviews on every revision and ship only when both pass on that revision.
+Finish the 2D or 3D decision by checking for a derived-texture flag. Only
+the saw handle and saw blade have this flag. Derive both from the approved
+assembled iron saw and use the four-step parent comparison for those two.

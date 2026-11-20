@@ -13,7 +13,12 @@ block model for a placeable object whose volume, open top, work surface, or
 other depth cue is part of its identity. Use a sprite when its silhouette is
 the principal cue or when the corresponding vanilla item uses one. An item can
 use a sprite while its placed block has a separate model. Keep an explicit
-reason for the choice for each item, including component and state items.
+reason for the choice for each item, including component and state items. As
+the final check in this step, ask whether the item is flagged as a direct
+clone of all or part of a parent texture. Only the saw handle and saw blade
+are flagged. Send those two through the derived texture process below.
+Make and approve their parent, the assembled iron saw, through all nine
+layers first.
 
 ## Layer 2. Match the object that players already recognize
 
@@ -205,7 +210,41 @@ either visual gate.
 
 ## Review items individually
 
-Give each texture or model its own record covering all nine layers. Do not
+Give each original texture or model its own record covering all nine layers.
+Use the four-step record below for each flagged derivative. Do not
 substitute one record for a family. If exact matching is required, share the
 source model or compare the finished masks directly, then review each linked
 item in its own context. Review an animation frame by frame and as a loop.
+
+
+## Derived textures
+
+Only these two textures carry the flag.
+
+| Derived texture | Approved parent | Copy from the finished parent |
+| --- | --- | --- |
+| `saw_handle.png` | `iron_saw.png` | The visible wooden closed grip, including its outline and transparent opening |
+| `saw_blade.png` | `iron_saw.png` | The visible steel plate, including its outline, teeth, and heel |
+
+1. **Copy the part.** Extract its finished pixels directly from the approved
+   parent and center them on the native canvas with a whole-pixel translation.
+   The visible material boundary in the finished parent decides ownership.
+2. **Touch it up only if necessary.** Limit any touch-up to a minor edge
+   issue from isolating the part, and record the affected pixels and reason.
+   Preserve its shape, orientation, shading, and recognizable features.
+   If it needs a new shape or a more substantial repair, revise and review
+   the assembled saw before deriving its parts again.
+3. **Compare with the parent.** Render the extracted item beside the
+   assembled saw at inventory size. Translate the part back over its
+   original position and compare its mask, RGBA pixels, and edges.
+   If it fails, record where and why, then return to step 1. If the fault
+   is in the parent, return the assembled saw to layer 4 first.
+4. **Done.** Save both approved outputs and their review. Rerun extraction
+   and the parent comparison every time the assembled saw changes.
+
+For the iron saw, run `java tools/DeriveSawTextures.java` from the project
+root with the development JDK. It extracts the two visible materials from
+the assembled PNG. Use `java tools/DeriveSawTextures.java --check` to check
+the committed component sprites against that source without writing files.
+Both components currently use exact copies, with translation as the only
+change. The in-game item-art sheet pairs each component with the iron saw.

@@ -280,3 +280,27 @@ hammer, tongs, and torch art stayed in the comparison as benchmarks.
 - The oar needs distinguishable blade, neck, and shaft. Check the enlarged
   blade spans and the transition on the finished sprite, then check that
   the unzoomed drawing reads as a broad paddle.
+
+## Assembled saw and derived parts
+
+The finished iron saw is the only source for the handle and blade. Its
+expressive brief is a firm wooden grip and a straight, sharp steel plate.
+The vanilla shears supplied the reference for narrow steel highlights,
+dark contours, and a readable grip. The saw keeps its distinct enclosed
+wooden bow and alternating cutting edge. At the heel, the grip's right rail
+must be entirely wood and remain closed when it is separated from the metal.
+
+The first extraction returned because a steel pixel split the visible
+wooden outline and left a second one-pixel hole in the isolated handle.
+The correction was made in the assembled saw. It was then reviewed for a
+connected blade and grip, a straight blade with alternating teeth, and one
+3 × 3 grip opening. Both component sprites were copied from that revision.
+
+| Component | Copied pixels | Touch-up | Parent comparison |
+| --- | --- | --- | --- |
+| Saw handle | All 28 visible wood pixels | Whole-pixel centering only | Translating the component five columns left and four rows down restores the exact grip, including the 3 × 3 opening. |
+| Saw blade | All 44 visible steel pixels | Whole-pixel centering only | Translating the component three columns right and one row up restores the exact tooth, plate, and heel pixels. |
+
+The two aligned masks are disjoint and reconstruct all 72 visible pixels
+of the assembled saw. Each derived part is paired with the assembled saw
+in the in-game review.

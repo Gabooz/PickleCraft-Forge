@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "picklecraft:item/hot_gold"
+    "layer0": "minecraft:item/gold_ingot"
   }
 }

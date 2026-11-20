@@ -1,6 +1,12 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "picklecraft:item/white_hot_ingot"
+    "model": "picklecraft:item/white_hot_ingot",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 16768915
+      }
+    ]
   }
 }

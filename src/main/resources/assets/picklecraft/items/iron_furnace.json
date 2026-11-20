@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "picklecraft:item/iron_furnace_icon"
+    "model": "picklecraft:item/iron_furnace"
   }
 }

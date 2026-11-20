@@ -8,7 +8,7 @@ Verify the creative tab, spawn eggs, and map before considering the work complet
 
 ## Item textures
 
-Follow [the three-layer item texture method](docs/item-texture-method.md) every
-time you create or revise a texture. Write visual requirements, inspect matching
-references, then define pixel rules. Check the outlined shape against all three
-layers and preview it at its intended in-game size before delivery.
+Follow [the five-layer item texture method](docs/item-texture-method.md) for
+each item you create or revise. Choose 2D or 3D, identify what it must visually
+match, write visual requirements, inspect references, then define construction
+rules. Review each item individually at in-game size.

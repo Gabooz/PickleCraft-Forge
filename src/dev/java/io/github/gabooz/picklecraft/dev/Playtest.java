@@ -31,6 +31,7 @@ public final class Playtest {
     private boolean screenshotRequested;
     private boolean awaitingTeleport;
     private int teleportTicks;
+    private int artReviewTicks;
     private double beforeTeleportX;
 
     public static void register() {
@@ -179,8 +180,18 @@ public final class Playtest {
                     "Map closes after teleporting");
                 com.mojang.logging.LogUtils.getLogger().info("PICKLECRAFT PLAYTEST PASSED");
                 awaitingTeleport = false;
-                game.stop();
+                if ("item-art".equals(System.getenv("PICKLECRAFT_TEST_FOCUS"))) {
+                    game.getTutorial().setStep(net.minecraft.client.tutorial.TutorialSteps.NONE);
+                    game.gui.toastManager().clear();
+                    game.gui.setScreen(new ItemArtReview());
+                } else {
+                    game.stop();
+                }
             } else if (++teleportTicks > 400) throw new AssertionError("Map teleport packet did not move the player");
+        }
+        if (game.gui.screen() instanceof ItemArtReview && ++artReviewTicks == 12) {
+            net.minecraft.client.Screenshot.grab(game.gameDirectory, "item-art.png", game.gameRenderer.mainRenderTarget(), 1,
+                message -> game.execute(game::stop));
         }
     }
 

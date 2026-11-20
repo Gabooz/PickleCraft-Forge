@@ -45,14 +45,53 @@ player should sense at inventory size. Keep this note separate and set it aside
 until layer 7. It does not drive the structural requirements, reference search,
 or first construction.
 
-## Layer 4. What the item must communicate
+## Layer 4. Write and replay a complete reconstruction recipe
 
-Before drawing, write what it is, what its key parts do, and how those parts
-physically meet. Identify the two or three cues that must survive at inventory
-size. For example, a hand saw needs a single straight toothed plate and a closed
-grip seated at the heel. A mallet needs two equal striking faces and a wooden
-handle seated flush in the center of the head. Record the desired orientation,
-proportions, material boundaries, and meaningful negative spaces.
+Start from an empty canvas or scene. Assume the reader has never seen the
+object and has no draft, model, or shared intuition to consult. Give the
+reader a complete, ordered set of instructions that produces the intended
+object from primitives. Explain what the object does and which physical cues
+make it recognizable. Then define the whole construction, including the
+parts a knowledgeable artist might otherwise supply from memory.
+
+1. Define the canvas or model coordinate system, units, viewing direction,
+   origin, and axes. Identify every part and the order in which it is built.
+2. Specify each part's complete shape, dimensions, placement, orientation,
+   material, inward and outward faces, and every joint. Define the empty
+   spaces and their boundaries as deliberately as the solid ones. For
+   repeated features, specify the starting phase, spacing, count, and end.
+   For a 3D model, define depths, hidden faces, overlaps, and which faces
+   the intended views must reveal. For a sprite, specify the visible
+   projection and how the parts remain distinct at native size.
+3. Describe the intended cues as construction decisions. For example, a
+   rigid saw needs an uninterrupted reinforcing spine, a continuous plate
+   of controlled depth beneath it, and small tooth tips along a parallel
+   edge. Translate words such as *straight*, *stiff*, and *centered* into
+   explicit geometry and checks a reader can reproduce.
+4. Close the recipe with expected results for each part and the assembled
+   object. Include measurable values and a recognition check at normal
+   size. Record what may vary during the expressive redraw and what must
+   survive it.
+
+### Replay the recipe before continuing
+
+Put the draft and reference views aside. Reconstruct the object, in order,
+from the recipe alone on a new canvas or in a new scene. After each
+instruction, check that the required inputs already exist, the next
+operation is unambiguous, and the result is usable by the next instruction.
+Check every part and their completed assembly against the intended object.
+A recipe fails if a step requires guessing, two different constructions
+satisfy the same instruction in a meaningful way, a part is missing, or the
+reconstructed object gives the wrong impression at its intended size.
+
+Record the first failing instruction, what the replay actually produced,
+and the missing definition. Rewrite the recipe and replay it again from
+the empty starting state. Repeat from the beginning after **every**
+revision, including a single correction. Continue only when the complete
+recipe independently reconstructs the intended item. If a later layer
+exposes a structural weakness, return here, revise the recipe, and rerun
+the full replay before moving forward. Keep the prose recipe and the
+successful reconstruction with the review record.
 
 ## Layer 5. Find references for the listed parts
 
@@ -164,11 +203,11 @@ at layer 4 using the notes below.
 ## Layer 9. Independently verify the finished structure
 
 Review the same baked render that passed layer 8. Pull up both structural
-records side by side: the plain-language requirements from layer 4 and the
+records side by side: the replayed reconstruction recipe from layer 4 and the
 exact construction rules from layer 6. Review them independently. A good
 vanilla match provides no evidence that either structural record passes.
 
-- For every layer 4 requirement, point to the cue in the finished art and
+- For every layer 4 reconstruction requirement, point to the cue in the finished art and
   identify the part, material, function, joint, opening, or state that it
   communicates at normal size. Fail a cue that relies on the description
   or a zoomed view to be recognizable.

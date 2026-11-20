@@ -344,3 +344,25 @@ in the in-game review.
 The new handle and blade were derived from the accepted assembled PNG and
 centered by whole pixels. Neither needed a retouch. Together the two aligned
 masks account for all 84 visible pixels, with identical colors and no overlap.
+
+## Rigid saw reconstruction review
+
+The iron saw follows the complete [reconstruction recipe](saw-structure.md).
+That record supersedes the structural instructions for the previous saw.
+The vanilla shears and historical Forge Multipart iron saw remained the
+references for steel planes, compact shading, and the grip-to-plate junction.
+
+- The first reconstruction exposed an unspecified tooth phase and spine
+  depth. The revised recipe fixes the tooth coordinates and builds a
+  continuous two-row spine along a single stepped line.
+- The first expressive render still let the spine merge into the broad
+  face. The recipe was revised and replayed with a lit lip, a shadow
+  directly below it, and a parallel cutting edge with one-pixel teeth.
+- The column-by-column and row-by-row replays produced the same 31 wood
+  pixels and 62 steel pixels. The heel has the specified three-row join
+  and the wooden bow retains its enclosed 3 × 3 opening. In inventory,
+  the spine, face, and small teeth remain individually readable.
+- The handle and blade were copied only after the assembled saw passed
+  the vanilla comparison and structural review. Repositioning the two
+  extracted sprites reproduces all 93 visible parent pixels. Neither
+  component required any touch-up.

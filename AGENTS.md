@@ -11,7 +11,10 @@ Verify the creative tab, spawn eggs, and map before considering the work complet
 Follow [the nine-layer item texture method](docs/item-texture-method.md).
 Record aesthetic intent separately, then make a fresh expressive design.
 Require both the strict vanilla comparison and an independent audit of the
-finished art against the Layer 4 requirements and Layer 6 construction rules.
+finished art against the Layer 4 reconstruction recipe and Layer 6
+construction rules. Write the Layer 4 recipe from the ground up and replay it
+from a blank canvas or scene after each revision until it reconstructs the
+intended item without guesses.
 Either failure returns the item to Layer 4 with concrete notes. Repeat both
 reviews on every revision and ship only when both pass on that revision.
 Finish the 2D or 3D decision by checking for a derived-texture flag. Only

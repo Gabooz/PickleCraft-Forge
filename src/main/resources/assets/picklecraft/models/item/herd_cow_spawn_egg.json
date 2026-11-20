@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "picklecraft:item/herd_cow_spawn_egg"
+  }
+}

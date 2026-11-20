@@ -1,12 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "picklecraft:item/hot_gold",
-    "tints": [
-      {
-        "type": "minecraft:constant",
-        "value": 16756035
-      }
-    ]
+    "model": "picklecraft:item/hot_gold"
   }
 }

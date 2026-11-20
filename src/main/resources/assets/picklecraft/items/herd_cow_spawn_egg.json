@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "minecraft:item/cow_spawn_egg"
+    "model": "picklecraft:item/herd_cow_spawn_egg"
   }
 }

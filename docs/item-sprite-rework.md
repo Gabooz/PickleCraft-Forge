@@ -127,3 +127,58 @@ pass made the tongs' working tips distinct from their enclosed butt, returned
 stone to neutral gray, and gave glue a curved shadow. The loaded tongs share
 exact frame pixels. Both Minecraft smoke runs passed. The other 22 items
 passed on entry and retained their existing art.
+
+## Eight-step expressive review
+
+The earlier construction and reference tables record the neutral baseline.
+This pass remade the art from those drafts. Each row keeps the aesthetic note
+separate from the treatment applied after construction and describes the cue
+checked at inventory size next to the earlier vanilla comparison.
+
+| Item | Step 3. Aesthetic intent | Step 7. Expressive remake | Step 8. Vanilla fit |
+| --- | --- | --- | --- |
+| Anvil | Dense and heavy | The existing side and waist already have the same solid silhouette as the placed anvil. | The vanilla twin is visually identical. |
+| Open barrel | Inviting, with room inside | The overhead view already puts the open cavity at the center of the icon. | The vanilla oak rim and bands still anchor the open shape. |
+| Workbench | Rough base, dressed work surface | The flat light top and bark sides already signal the contrast on the placed model. | The profile still reads as an oak log with a worked top. |
+| Carpenter’s table | Solid and spacious | A higher viewing angle and larger scale emphasize the length of the top and its supports. | The work surface reads beside the vanilla crafting table and fits the slot. |
+| Iron furnace | Tall, heavy, and hot inside | A larger, lower-angle front view emphasizes the chamber and chimney. | The chimney and dark opening distinguish it from the vanilla furnace. |
+| Plumaria | Airy and open | The view looks farther down onto the spreading leaves and blooms. | It reads as a plant beside the azure bluet. |
+| Hot iron ingot | Strong radiant heat | Deepened the orange cast on the exact iron facets. | The iron silhouette is identical to the cool bar. |
+| White-hot iron ingot | Incandescent | Moved the tint toward pale cream. | The iron silhouette matches and the hot tint is lighter. |
+| Hot gold ingot | Radiant and golden | Pushed the hue toward a bright amber-yellow. | The facets read as the vanilla gold bar. |
+| Heating iron ore | Dense mineral warming up | Kept the live heat ramp over the raw iron facets. | The underlying raw iron outline matches. |
+| Heating gold ore | Warm mineral with recognizable facets | Lightened the warm tint over the raw gold. | The lumpy outline distinguishes it from the gold bar. |
+| Hot coal | Brittle crust over intense embers | Put two hot accents inside the crust and subdued surrounding reds. | The body still reads as a lump beside charcoal. |
+| Firebox flame | Full and intensely hot at its base | Strengthened the pale roots and orange sides across all four frames. | The orange-to-pale color ordering reads as fire. Frame timing is shared with the baseline. |
+| Iron saw | Straight, sharp, and workmanlike | Brightened a few patches along the steel rail and darkened the lower edge. | The steel reads next to shears. The straight plate and grip join survive at inventory size. |
+| Saw blade | Sharp and rigid | Carried the stronger metal tones onto the separate blade. | The blade has the pale steel finish of an ingot and the saw’s narrow profile. |
+| Saw handle | Sturdy and easy to grip | Added a stronger warm outer bevel and a dark underside. | The material reads as wood beside a stick. The opening stays readable. |
+| Wooden hammer | Sturdy oak workmanship | Added a warmer face and a shaded edge. | Wood and handle tones sit in the same range as the wooden axe. |
+| Stone hammer | Hard and well-built | Kept one broad cool face and made the near edge darker. | Gray head and wooden grip separate at the same scale as the stone axe. |
+| Iron hammer | Firm and neatly finished | Sharpened the contrast between the steel face and lower edge. | Bright steel and wood read beside the iron axe. |
+| Iron tongs | Precise and firm at the grip | Put a short glint on the jaws and emphasized the hinge. | Their steel reads beside shears and the two rails remain distinct. |
+| Tongs holding iron | A secure grip on radiant iron | Used the same frame with a pale orange top and deeper red-orange side on the load. | The color and facets echo the heated iron bar at the scale of the jaws. |
+| Tongs holding gold | A secure grip on hot gold | Used the same frame and load silhouette with a yellower top and amber underside. | The hue matches the gold family. |
+| Oar | Long, smooth wood with a useful paddle | Added a broad warm highlight across the paddle and deepened its far edge. | The color reads as wood beside the oak boat. |
+| Fire starter | Rough wood and a concentrated spark | Brightened the small area where the spindle meets the wood. | The spark occupies a small area beside the high-contrast flint and steel icon. |
+| Stone | Smooth and hard | Broadened the face tone, sharpened one glint, and strengthened the bottom contour. | It reads as a small gray material beside the sharper vanilla flint. |
+| Glue | Soft, rounded, and elastic | Rebuilt the first expressive draft as a low dome with a compact upper-left reflection. | The dome and shine read as a soft material beside slimeball. See the return below. |
+| Plumaria blossoms | Delicate but colorful | Strengthened the pink and blue clusters and shaded the green stem. | Individual clusters still read next to vanilla flower items. |
+| Creative Zone Map | Worn but readable parchment | Warmed the lit paper edge and added weight to its lower rim. | The paper remains the dominant color beside the vanilla map. |
+| Lit torch | Dry wood, with a bright usable flame | Increased the separation between the pale wick and the wooden shaft. | The shaft and light remain vertical like the vanilla torch. |
+| Unlit torch | Cold and charred | Used the lit torch’s exact shaft treatment with a small, dark cap. | The silhouette reads as a cold torch beside the vanilla lit reference. |
+| Cow spawn egg | Mottled cream and dark coat marks | Brightened the cream face and anchored the largest dark patch. | The cow markings sit inside the shared egg profile. |
+| Bull spawn egg | Warm tan and distinct coat marks | Pushed the face toward tan and deepened the brown marks. | The shared egg profile reads as an egg and the warmer body distinguishes the bull. |
+
+### Structural return for glue
+
+The first expressive draft looked like a cone of paste. Its pointed crown and
+diagonal shoulders dominated the silhouette. Beside the vanilla slimeball,
+its highlights traced the slope instead of describing a soft, rounded surface.
+
+Step 4 now requires a broad dome with shoulders that reach full width in
+short steps, a slightly flattened bottom, and a compact glint away from the
+edge. The slimeball stays the shape and lighting reference. The revised
+draft uses a 12 × 11 pixel footprint inside the 16 × 16 tile. The warm hue
+identifies adhesive, and the concentrated glint and wider base carry the sense
+of elasticity in the expressive pass.

@@ -27,7 +27,16 @@ model in the inventory. A component must still read as the piece seen in the
 assembled item. When there is no exact match, record the nearest visual
 convention and the parts that are deliberately original.
 
-## Layer 3. What the item must communicate
+## Layer 3. Record the aesthetic intent and set it aside
+
+Decide what the object should feel like beyond being recognizable. Write one
+or two physical or emotional qualities, such as rounded elasticity for glue,
+solid workmanship for a mallet, or smooth hardness for a stone. Name what a
+player should sense at inventory size. Keep this note separate and set it aside
+until layer 7. It does not drive the structural requirements, reference search,
+or first construction.
+
+## Layer 4. What the item must communicate
 
 Before drawing, write what it is, what its key parts do, and how those parts
 physically meet. Identify the two or three cues that must survive at inventory
@@ -36,9 +45,9 @@ grip seated at the heel. A mallet needs two equal striking faces and a wooden
 handle seated flush in the center of the head. Record the desired orientation,
 proportions, material boundaries, and meaningful negative spaces.
 
-## Layer 4. Find references for the listed parts
+## Layer 5. Find references for the listed parts
 
-For each visual requirement from layer 3, look for an equivalent item or part
+For each visual requirement from layer 4, look for an equivalent item or part
 in the installed Minecraft assets and in the historical FTB Infinity Evolved
 1.7 pack. Confirm mod membership from the pack listing and verify the reference
 against that era's source or assets before attributing it to the pack. Inspect
@@ -53,7 +62,7 @@ say so and use the closest relevant part, such as a shell's rib shading or a
 helmet's rim. Draw original pixels and use references for proportion, pose,
 material separation, and readability.
 
-## Layer 5. How the pixels must achieve it
+## Layer 6. Build the structural version
 
 Translate the visual match, requirements, and reference observations into checks
 for the finished model or sprite. For 3D, check openings, depth cues and the
@@ -81,7 +90,18 @@ sprite reads incorrectly, identify the missing requirement, add the
 corresponding check, and redraw before export. For experiments, keep the draft
 files separate from the mod assets until a version is selected.
 
-## Layer 6. Compare the finished item beside common vanilla items
+## Layer 7. Remake the item to emphasize its aesthetic intent
+
+Keep a copy of the structural version. Reopen the layer 3 notes and make a
+distinct expressive version based on that construction. Deliberately push the
+specific cues that make the object feel as intended: for example, round the
+form and concentrate the glint for elasticity, frame the head and joint for
+sturdy workmanship, or use a broad uninterrupted highlight for smooth stone.
+For 3D, use the inventory pose, materials, and depth cues. Preserve exact
+part or state matching and any critical layer 4 requirements. Pass this
+expressive version on to the vanilla comparison.
+
+## Layer 8. Compare the finished item beside common vanilla items
 
 Render the finished item beside familiar vanilla items at the same in-game
 size, lighting, background, and display angle. Use a counterpart where one
@@ -90,22 +110,24 @@ scale and pose, outline weight, light direction, contrast, palette, and the
 size of color clusters. This is a review of the finished render, after the
 earlier reference search and construction.
 
-Give each item a pass or return decision. If the style differs from vanilla
-in a way that weakens the item's intended look, record the mismatch, the vanilla
-comparison, and the Step 3 cues that must survive. Send those notes back to
-Step 4. Find a more useful reference or inspect the original one more closely,
-then rebuild the affected geometry, outline, or shading in Step 5. Render it
-again in Step 6. Repeat Steps 4–6 until the item passes. A packaging or model
-check cannot substitute for the visual pass.
+Give each item a pass or return decision. When it fails, write a direct,
+specific critique. Name what the current art looks like instead, which part
+of its structure causes that reading, what comparison supports the critique,
+and what the redesigned structure must accomplish. Challenge the silhouette,
+proportions, placement, or join when those are the cause. Avoid a vague
+request for better shading when the construction is the problem.
 
-Keep a short record of each return and what changed. A visible difference can
-pass when it is needed for the item's identity or a state cue from Step 3 and
-the rest of the rendering still fits. Recheck shared traits on each related
-item, including material variants, components, and animations.
+Send those notes back to layer 4, the structural requirements step that was
+formerly layer 3. Revise those requirements in light of the critique. Then
+repeat reference inspection, structural construction, expressive remaking,
+and the vanilla comparison. Repeat layers 4–8 as many times as needed.
+Retain the aesthetic intent unless the user changes it. Record the draft,
+the critique, the revised requirement, and the rerendered result. A packaging
+or model check cannot substitute for the visual pass.
 
 ## Review items individually
 
-Give each texture or model its own record covering all six layers. Do not
+Give each texture or model its own record covering all eight layers. Do not
 substitute one record for a family. If exact matching is required, share the
 source model or compare the finished masks directly, then review each linked
 item in its own context. Review an animation frame by frame and as a loop.

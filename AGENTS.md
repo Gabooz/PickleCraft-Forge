@@ -8,9 +8,8 @@ Verify the creative tab, spawn eggs, and map before considering the work complet
 
 ## Item textures
 
-Follow [the six-layer item texture method](docs/item-texture-method.md) for
-each item you create or revise. Choose 2D or 3D, identify what it must visually
-match, write visual requirements, inspect references, then define construction
-rules. Finish by comparing each rendered item beside common vanilla items.
-For any style mismatch, take notes and repeat Steps 4–6 until the item passes.
-Keep the original Step 3 requirements throughout.
+Follow [the eight-layer item texture method](docs/item-texture-method.md).
+Record aesthetic intent separately from structural requirements, and use the
+intent only after the structural draft is built. Compare the expressive
+version beside vanilla. If it fails, write a concrete critique and return
+to the structural requirements. Repeat through the comparison until it passes.

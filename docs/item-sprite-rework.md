@@ -304,3 +304,43 @@ connected blade and grip, a straight blade with alternating teeth, and one
 The two aligned masks are disjoint and reconstruct all 72 visible pixels
 of the assembled saw. Each derived part is paired with the assembled saw
 in the in-game review.
+
+## Blank-canvas saw redesign
+
+1. **Medium.** A flat 16 × 16 handheld sprite fits the thin plate and the
+   main viewing angle. The finished sprite is the parent of both parts.
+2. **Visual match.** Use the finish of a vanilla iron tool and the clear
+   steel-to-grip separation of shears. The plate and wooden bow give this
+   saw its own silhouette.
+3. **Aesthetic intent.** Sharp and sturdy, like a well-built workshop tool.
+   This note was reserved for the expressive drawing.
+4. **Requirements.** A straight-backed, broad steel plate tapers toward a
+   blunt nose. Four cutting teeth should read at inventory size. A closed
+   wooden grip meets the plate at the heel and owns the entire aperture.
+5. **References.** Inspected vanilla shears and the saved Forge Multipart
+   iron saw sprite from the historical Infinity Evolved reference set.
+   Shears show a tight light steel ramp and a dark junction. The legacy saw
+   shows a broad backed plate and a distinct wood frame.
+6. **Structural draft.** A separate neutral drawing established the closed
+   grip and high-backed plate. Final construction requires a single connected
+   component for each material, an exact 3 × 3 enclosed grip opening, a
+   straight spine aligned within one pixel of the line from (6, 7) to
+   (15, 1), and a continuous three-row point of contact between wood and steel.
+7. **Expressive redraw.** Drew a second sprite on a blank canvas with a
+   steel spine highlight, a tapered metal face, a separate tooth edge, and
+   a warm wooden bow. The revision after the vanilla return widened the
+   blade and replaced the needle point with a blunt five-pixel nose.
+8. **Vanilla review.** Returned the first expressive draft. Its shine
+   converged on a sharp point, making the narrow steel read like a sword.
+   The redesign presents a broader continuous face with a short cap and
+   four visible teeth while keeping the inventory scale, diagonal pose,
+   and material separation of the shears reference.
+9. **Structure review.** Verified a connected 27-pixel wood mask and a
+   connected 57-pixel steel mask, with the 3 × 3 opening at x = 2–4,
+   y = 9–11. The spine follows the specified line, four tooth positions
+   project at (8, 12), (10, 11), (12, 9), and (14, 8), and the two
+   materials meet across three consecutive rows at the heel.
+
+The new handle and blade were derived from the accepted assembled PNG and
+centered by whole pixels. Neither needed a retouch. Together the two aligned
+masks account for all 84 visible pixels, with identical colors and no overlap.

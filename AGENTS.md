@@ -8,7 +8,9 @@ Verify the creative tab, spawn eggs, and map before considering the work complet
 
 ## Item textures
 
-Follow [the eleven-layer texture method](docs/item-texture-method.md).
+Use the approved [eleven-layer texture method](docs/item-texture-method.md)
+for every new or revised PickleCraft item texture. Use the documented
+derived-texture procedure for the two flagged saw parts.
 Record aesthetic intent separately, then make a fresh expressive design.
 Use cleanup as the second half of the expressive redesign. Explore boldly,
 then redraw shapes, joins, and shading wherever needed for a readable

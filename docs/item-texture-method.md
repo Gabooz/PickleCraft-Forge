@@ -1,5 +1,11 @@
 # PickleCraft item texture method
 
+Use this procedure for every new or revised PickleCraft item texture.
+The [approved saw redraw](item-sprite-rework.md#expressive-exploration-and-resolved-saw)
+shows the full approach, including bold exploration, cleanup as the second
+half of the redraw, and the final reviews. The two flagged saw parts follow
+the derived-texture procedure below.
+
 Draw item sprites directly on the target pixel grid. Use 16 × 16 transparent
 PNG for ordinary Minecraft items unless the asset calls for a different size.
 Enlarge previews with nearest-neighbor scaling. Never make a large illustration

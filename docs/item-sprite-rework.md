@@ -226,3 +226,57 @@ the native pixel geometry at 2×.
 | Unlit torch | The same torch, cold at the tip | Return. The old shaft and cap had their own widths and colors. | Uses the same two-column silhouette at x = 7–8, with the unchanged vanilla shaft at y = 8–15 and a new charred cap at y = 6–7. The item and placed block share this texture. |
 | Cow spawn egg | Immediately recognizable cattle markings | Return twice. Generic egg and pinched egg shapes both failed beside the cattle icon. | References the actual vanilla cow spawn egg model. |
 | Bull spawn egg | A fuller tan head with pointed horns | Return twice. A generic icon then a short oval missed vanilla’s animal-specific shape. | Redrew a full-height cattle silhouette with a separate pair of horns, warm coat and light face planes. The warm hues and horns identify the bull beside the vanilla cow egg. |
+
+## Recursive vanilla and structure review
+
+The prior approval of the bull icon is superseded. Each finish in this round
+was evaluated against a vanilla reference and then against the structural
+requirements and construction rules for that same revision. The approved
+hammer, tongs, and torch art stayed in the comparison as benchmarks.
+
+| Item | Layer 8. Vanilla fit | Layer 9. Required reading and finished construction |
+| --- | --- | --- |
+| Anvil | Same vanilla material and outline. | Horn, waist, and foot are visible in the shared placed model. |
+| Open barrel | Oak barrel bands and wall scale agree. | Rim and cavity are visible together. The opening is the functional change from the ordinary barrel. |
+| Workbench | Oak grain and log scale agree. | The flat work top and rounded log support are both visible with the placed model projected in the slot. |
+| Carpenter’s table | The crafting table provides the reference for surface and wood values. | Worktop and legs read separately. The two placed halves project into one inventory slot. |
+| Iron furnace | Masonry tones and chamber contrast read beside the furnace. | Both the top chute and front chamber are visible in the retained projection. |
+| Plumaria | Custom petals and stems fit the vanilla flower material and scale. | Three bloom colors, stems, and spreading leaves remain visible on the 3D plant. |
+| Hot iron ingot | Exact iron ingot resource. | Angled ends and both planes remain registered. Orange indicates heat. |
+| White-hot iron ingot | Exact iron ingot resource. | Same ends and planes. The pale high-temperature state is distinguishable from orange. |
+| Hot gold ingot | Exact gold ingot resource. | Same gold silhouette and facets. Warmth is confined to the tint. |
+| Heating iron ore | Exact raw iron resource. | The raw outline remains registered while the live heat tint changes. |
+| Heating gold ore | Exact raw gold resource. | The uneven facets remain readable during warming. Its shape separates it from the gold bar. |
+| Hot coal | Dark charcoal-family lump with an ember seam. | The burn color occupies a bent interior seam inside a connected 11 × 9 lump. |
+| Firebox flame | Shared warm ramp with a pale core. | The bright base spans six columns inside a ten-column foot. The four tip profiles change above the shared footprint. |
+| Iron saw | Long steel plate reads in the same value range as shears. | The first redraw returned for a grip opening that shrank in the slot. The second returned because the tooth tips merged into the contour. The final plate and grip leave all nine pixels of a 3 × 3 opening unobstructed. Alternating steel tips stand away from the plate edge. |
+| Saw blade | Steel planes match the complete saw and the metal reference. | The blade is the unchanged plate and tooth mask translated by two columns left and one row down. |
+| Saw handle | Wood reads as an enclosed grip in the same ramp as the assembled saw. | First redraw returned with the saw. The final separate component encloses the same nine-pixel hole. Its translated shape matches the attached grip. |
+| Wooden hammer | Approved diagonal tool grip and oak tones. | The grip centerline intersects the middle of the two striking faces. The finished mask is shared across all three materials. |
+| Stone hammer | Approved diagonal pose and stone tool values. | Two opposite faces and the central wooden joint are visible. The grip and outline match the wooden and iron variants. |
+| Iron hammer | Approved diagonal pose and iron tool values. | The stronger head contrast leaves both faces and the joint visible. Grip and outline match the other mallets. |
+| Iron tongs | Approved steel finish beside shears. | The two jaws, open gap, and connected pivot remain readable. |
+| Tongs holding iron | Approved frame and iron heat cue. | Frame pixels register exactly with the empty tongs. The orange load occupies the same shape as the gold load. |
+| Tongs holding gold | Approved frame and amber heat cue. | Frame pixels register exactly with the empty tongs. The shared load silhouette carries the warmer gold cue. |
+| Oar | Oak color and diagonal hand-tool alignment. | First redraw returned because the thin end read as a spoon. The finished blade stays five to six pixels wide for three successive rows and tapers through the neck into a three-pixel shaft. |
+| Fire starter | Dark wood outline and concentrated warm accent. | The horizontal board is eleven pixels wide at its widest row. The ember sits where the diagonal spindle meets it. |
+| Stone | Stone face and darker flint-family edge. | The rounded shoulder has an uninterrupted upper face and a dark lower plane. Occupied mask spans 12 × 9 pixels. |
+| Glue | Rounded dome and integrated glint beside slimeball. | A single connected 11 × 10 body with a stepped shoulder and flattened base reads as a soft blob. |
+| Plumaria blossoms | Small clusters and green stem read beside vanilla flower sprites. | Three differently colored heads remain readable, with their stems coming together below. |
+| Creative Zone Map | Exact vanilla parchment. | The ink stays inside the inherited paper mask and contains distinct land and water clusters. |
+| Lit torch | Approved actual vanilla item model. | The two-column silhouette and wick are exactly registered to the vanilla placed torch. |
+| Unlit torch | Approved vanilla shaft and dark wick. | The 16 shaft pixels match vanilla exactly. Only the four wick pixels are replaced. |
+| Cow spawn egg | Exact vanilla cow model. | The cattle silhouette and markings stay registered to the vanilla icon. |
+| Bull spawn egg | Two earlier designs returned. The final shares the cow icon’s footprint, broad lower face and single-pixel outline, with warm coat markings and swept horn tips. | The previous release shifted the silhouette left and left the last two rows empty. The first redraw still had a 12-pixel lower face and a four-pixel chin. The final spans x = 1–14 and y = 0–15, with a 14-pixel lower face on rows 7–12 and an eight-pixel base. Distinct tips above the crown now sweep inward into the head. A further vanilla return required darker, larger coat patches, which now separate the lighter planes at inventory size. |
+
+### Return rules tested on the final assets
+
+- The bull needs the cow family’s full footprint and a connected lower face.
+  The two tips must stay distinct from the crown on the top row and widen
+  inward at the root. Large coherent coat markings must remain visible.
+- Both saw grips need the same completely enclosed 3 × 3 opening. Check
+  that the blade is connected to the grip and that placing it leaves all
+  nine background pixels untouched.
+- The oar needs distinguishable blade, neck, and shaft. Check the enlarged
+  blade spans and the transition on the finished sprite, then check that
+  the unzoomed drawing reads as a broad paddle.

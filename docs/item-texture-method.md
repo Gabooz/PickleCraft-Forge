@@ -153,17 +153,59 @@ to the two wick rows.” If a trait belongs to the design, record the functional
 reason and compare the rest at the same standard. A pass requires a reviewed
 render and a decision for each trait.
 
-Send those notes back to layer 4, the structural requirements step that was
-formerly layer 3. Revise those requirements in light of the critique. Then
-repeat reference inspection, structural construction, expressive remaking,
-and the vanilla comparison. Repeat layers 4–8 as many times as needed.
-Retain the aesthetic intent unless the user changes it. Record the draft,
-the critique, the revised requirement, and the rerendered result. A packaging
-or model check cannot substitute for the visual pass.
+A pass advances the candidate to layer 9. A return restarts the review cycle
+at layer 4 using the notes below.
+
+## Layer 9. Independently verify the finished structure
+
+Review the same baked render that passed layer 8. Pull up both structural
+records side by side: the plain-language requirements from layer 4 and the
+exact construction rules from layer 6. Review them independently. A good
+vanilla match provides no evidence that either structural record passes.
+
+- For every layer 4 requirement, point to the cue in the finished art and
+  identify the part, material, function, joint, opening, or state that it
+  communicates at normal size. Fail a cue that relies on the description
+  or a zoomed view to be recognizable.
+- For every layer 6 rule, check the delivered asset after outline, overlap,
+  lighting, transforms, and scaling. Use the appropriate measurement:
+  occupied pixel bounds and spans, centerlines, contour reflection, part
+  masks and joins, connected openings, component spacing, or projection
+  of a 3D feature. Look at the rendered result as well as the source.
+- Compare linked components and alternate states together. A protected
+  shaft, outline, or grip stays registered across variants. Inspect each
+  animation frame and the loop for the promised continuity.
+- Record expected and observed values, and the pass or return for each
+  requirement. Qualitative requirements still need visible evidence.
+  A sprite can meet a mask measurement and fail because the part reads
+  incorrectly at normal size. A 3D item can fail when the angle hides
+  a feature that exists in the geometry.
+
+For a failure, write the rule it breaks, the evidence in the final render,
+and the exact correction that the new construction must meet. A rule that
+allowed a wrong reading must be tightened with an observable criterion.
+For example, a bull egg should have visible horn tips and a full cattle
+head in the same footprint and value range as the cow icon. A narrowed head
+with decorative spikes fails even if the spikes look symmetrical.
+
+## Repeat the full review until both gates pass
+
+Either gate can return the candidate to layer 4. Log each returned revision,
+the failed rule, the observed problem, and the replacement requirement.
+Then repeat layers 4–9 in order. Both gates must pass on the **same final
+revision**. A structural return invalidates the prior vanilla approval.
+Any edit after a pass also requires both gates to be rerun. Continue until
+the asset passes both or report the specific unresolved failure.
+
+Keep the aesthetic notes through the cycle. Preserve approved reference
+parts while the feature and structural requirements support them. Never
+relax a requirement solely to pass a draft. Packaging, a successful game
+load, an attractive rendering, and a numerical check alone cannot replace
+either visual gate.
 
 ## Review items individually
 
-Give each texture or model its own record covering all eight layers. Do not
+Give each texture or model its own record covering all nine layers. Do not
 substitute one record for a family. If exact matching is required, share the
 source model or compare the finished masks directly, then review each linked
 item in its own context. Review an animation frame by frame and as a loop.

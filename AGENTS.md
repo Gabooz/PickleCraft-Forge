@@ -8,9 +8,9 @@ Verify the creative tab, spawn eggs, and map before considering the work complet
 
 ## Item textures
 
-Follow [the eight-layer item texture method](docs/item-texture-method.md).
-Record aesthetic intent separately from structural requirements. After the
-neutral draft, redesign the expressive item from a blank canvas or scene.
-Review every finished item against vanilla at inventory size. Reject any
-unexplained departure and send concrete notes to the structural requirements
-step. Repeat through the comparison until the item passes.
+Follow [the nine-layer item texture method](docs/item-texture-method.md).
+Record aesthetic intent separately, then make a fresh expressive design.
+Require both the strict vanilla comparison and an independent audit of the
+finished art against the Layer 4 requirements and Layer 6 construction rules.
+Either failure returns the item to Layer 4 with concrete notes. Repeat both
+reviews on every revision and ship only when both pass on that revision.

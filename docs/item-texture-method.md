@@ -81,6 +81,12 @@ parts a knowledgeable artist might otherwise supply from memory.
 
 ### Replay the recipe before continuing
 
+Save the written recipe as a distinct input before making the structural or
+expressive draft. Keep that version with the review. The replay takes only
+that recipe and a blank canvas or scene as its inputs. A grid exported from
+a finished sprite, or a model file read back into its own generator, can
+verify an export but does not count as a reconstruction replay.
+
 Put the draft and reference views aside. Reconstruct the object, in order,
 from the recipe alone on a new canvas or in a new scene. After each
 instruction, check that the required inputs already exist, the next
@@ -189,6 +195,15 @@ overall class. For example, inspect a mallet alongside the axe for the wooden
 grip and alongside the mace for the head's weight and readable planes. Compare
 at a whole-number enlargement as well. Use overlays where items share a pose,
 material, or component.
+
+Name the exact reference and write the matching criteria before judging the
+candidate. Fix the frame or state for animated and conditional items when
+comparing any moving part. Check features that are fixed across the
+animation against their shared mask. For a visual counterpart, record what
+the comparison shows for projection, silhouette, and placement. An aligned
+mask overlay or a measured profile is required where a shared shape is part
+of the design. A screenshot or a successful game load by itself leaves the
+comparison pending.
 
 Evaluate each trait independently. Any unexplained difference returns the
 item for a rebuild. A readable object can still fail because it looks unlike
@@ -302,6 +317,13 @@ Use the four-step record below for each flagged derivative. Do not
 substitute one record for a family. If exact matching is required, share the
 source model or compare the finished masks directly, then review each linked
 item in its own context. Review an animation frame by frame and as a loop.
+
+Before calling a texture complete, check the record for the authored recipe,
+the blank-canvas replay, the neutral draft, the expressive exploration, the
+resolved redraw, and separate decisions for the vanilla, structural, and
+final pixel reviews. Record the exact reference and include the relevant
+native-size comparison. Missing evidence leaves the item pending. Reopen
+and redo the missing step and its successors before reporting a pass.
 
 
 ## Derived textures

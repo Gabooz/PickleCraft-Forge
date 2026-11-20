@@ -21,6 +21,11 @@ finished art against the Layer 4 reconstruction recipe and Layer 6
 construction rules. Write the Layer 4 recipe from the ground up and replay it
 from a blank canvas or scene after each revision until it reconstructs the
 intended item without guesses.
+Save that recipe before the drafts. A replay needs a fresh reconstruction
+from the written recipe. Exporting and rereading the finished art does not
+count. Record exact vanilla references and match criteria. A screenshot
+alone cannot pass the vanilla review. Missing review evidence leaves the
+item pending until the missing layer and its successors are done.
 Either failure returns the item to Layer 4 with concrete notes. Repeat both
 reviews on every revision and ship only when both pass on that revision.
 Finish the 2D or 3D decision by checking for a derived-texture flag. Only

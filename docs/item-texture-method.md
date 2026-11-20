@@ -17,7 +17,7 @@ reason for the choice for each item, including component and state items. As
 the final check in this step, ask whether the item is flagged as a direct
 clone of all or part of a parent texture. Only the saw handle and saw blade
 are flagged. Send those two through the derived texture process below.
-Make and approve their parent, the assembled iron saw, through all nine
+Make and approve their parent, the assembled iron saw, through all eleven
 layers first.
 
 ## Layer 2. Match the object that players already recognize
@@ -157,7 +157,23 @@ actual placed object, redesign how its volume is presented while keeping the
 placed geometry. Exact counterparts and protected state silhouettes make the
 vanilla geometry the starting constraint.
 
-## Layer 8. Require a strict vanilla match
+## Layer 8. Clean up the expressive redraw
+
+Save the expressive draft. Treat it like ink over a sketch. At native size
+and at an integer zoom, follow the intended contours, material boundaries,
+joins, highlights, and shadows. Remove stray pixels and false points, close
+accidental breaks, and consolidate marks that repeat a contour or catch the
+eye in the wrong place. Check transparent edges on both light and dark
+backgrounds. On models, inspect the texture against its mapped faces and
+look for stray marks at seams and overlaps.
+
+Preserve the new design, its silhouette and intentional openings, and the
+structural recipe. Keep the cues that make the object expressive. If a
+cleanup requires moving a part or changing its structure, restart from
+layer 4. Save the cleaned art and record what changed before entering
+the reviews.
+
+## Layer 9. Require a strict vanilla match
 
 Use the finished item at inventory size, rendered beside the exact vanilla
 counterpart on the same background and with the same lighting. For an original
@@ -197,12 +213,12 @@ to the two wick rows.” If a trait belongs to the design, record the functional
 reason and compare the rest at the same standard. A pass requires a reviewed
 render and a decision for each trait.
 
-A pass advances the candidate to layer 9. A return restarts the review cycle
+A pass advances the candidate to layer 10. A return restarts the review cycle
 at layer 4 using the notes below.
 
-## Layer 9. Independently verify the finished structure
+## Layer 10. Independently verify the finished structure
 
-Review the same baked render that passed layer 8. Pull up both structural
+Review the same baked render that passed layer 9. Pull up both structural
 records side by side: the replayed reconstruction recipe from layer 4 and the
 exact construction rules from layer 6. Review them independently. A good
 vanilla match provides no evidence that either structural record passes.
@@ -232,24 +248,49 @@ For example, a bull egg should have visible horn tips and a full cattle
 head in the same footprint and value range as the cow icon. A narrowed head
 with decorative spikes fails even if the spikes look symmetrical.
 
-## Repeat the full review until both gates pass
+## Layer 11. Make a final vanilla comparison and pixel pass
 
-Either gate can return the candidate to layer 4. Log each returned revision,
-the failed rule, the observed problem, and the replacement requirement.
-Then repeat layers 4–9 in order. Both gates must pass on the **same final
-revision**. A structural return invalidates the prior vanilla approval.
-Any edit after a pass also requires both gates to be rerun. Continue until
-the asset passes both or report the specific unresolved failure.
+After the style and structure reviews pass, set aside the draft and compare
+the finished asset once more beside the closest actual vanilla item or
+material. Use the same scale, lighting, and background, then zoom to a
+whole-number enlargement. Go over the pixels in order, checking the
+silhouette, material junctions, transitions in the light, transparent
+edges, and stray specks. Inspect repeating tiles over their seams and
+animated textures over every frame and the full loop. Look at the baked
+item or mapped surface too.
+
+Make small, local fixes only where the comparison exposes an artifact.
+Log the changed pixels and the reason. A texture with no artifact passes
+as it is. Preserve exact vanilla parts, state registration, and approved
+geometry. If a texture needs a redesign or structural change, return to
+layer 4 with the failure and repeat. After any pixel fix, recheck the
+vanilla match and structural rules on the edited version, then repeat
+this final comparison. Finish when the same saved revision passes all
+three reviews.
+
+For an audit, inventory every shipped texture and its vanilla reference,
+including texture sheets used in world models or effects. Record a decision
+for each texture. For a flagged derivative, use the final comparison to
+catch seams or odd pixels, then check the parent. Fix shared art in the
+parent and re-extract both parts if needed.
+
+## Repeat the full review until the final version passes
+
+Either style or structure review can return the candidate to layer 4. Log
+the failing revision and rule, what the render showed, and the replacement
+requirement. Replay the reconstruction and repeat layers 4–11 in order.
+A late edit invalidates the approval for the earlier revision. Continue
+until the final version passes or report the specific unresolved failure.
 
 Keep the aesthetic notes through the cycle. Preserve approved reference
 parts while the feature and structural requirements support them. Never
-relax a requirement solely to pass a draft. Packaging, a successful game
-load, an attractive rendering, and a numerical check alone cannot replace
-either visual gate.
+relax a requirement solely to pass a draft. A successful build and
+numerical check are evidence for the recorded checks. The visual reviews
+still need the rendered item or surface.
 
 ## Review items individually
 
-Give each original texture or model its own record covering all nine layers.
+Give each original texture or model its own record covering all eleven layers.
 Use the four-step record below for each flagged derivative. Do not
 substitute one record for a family. If exact matching is required, share the
 source model or compare the finished masks directly, then review each linked
@@ -279,7 +320,9 @@ Only these two textures carry the flag.
    If it fails, record where and why, then return to step 1. If the fault
    is in the parent, return the assembled saw to layer 4 first.
 4. **Done.** Save both approved outputs and their review. Rerun extraction
-   and the parent comparison every time the assembled saw changes.
+   and the parent comparison every time the assembled saw changes. The
+   final pixel pass applies to the shipped derivatives as well. Route an
+   issue with a copied pixel to the parent or repeat the extraction.
 
 For the iron saw, run `java tools/DeriveSawTextures.java` from the project
 root with the development JDK. It extracts the two visible materials from

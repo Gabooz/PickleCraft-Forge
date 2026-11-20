@@ -12,4 +12,5 @@ Follow [the six-layer item texture method](docs/item-texture-method.md) for
 each item you create or revise. Choose 2D or 3D, identify what it must visually
 match, write visual requirements, inspect references, then define construction
 rules. Finish by comparing each rendered item beside common vanilla items.
-Record and apply adjustments while preserving the original visual requirements.
+For any style mismatch, take notes and repeat Steps 4–6 until the item passes.
+Keep the original Step 3 requirements throughout.

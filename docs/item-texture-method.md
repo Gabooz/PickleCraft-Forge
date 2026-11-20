@@ -90,11 +90,18 @@ scale and pose, outline weight, light direction, contrast, palette, and the
 size of color clusters. This is a review of the finished render, after the
 earlier reference search and construction.
 
-Record the main mismatch for each item and the adjustment it calls for.
-Apply the adjustment while preserving the visual requirements from layer 3.
-For linked items, recheck the shared cues after the adjustment. Record what
-you retained when a difference communicates a required variant or function.
-Render again beside vanilla to verify the result.
+Give each item a pass or return decision. If the style differs from vanilla
+in a way that weakens the item's intended look, record the mismatch, the vanilla
+comparison, and the Step 3 cues that must survive. Send those notes back to
+Step 4. Find a more useful reference or inspect the original one more closely,
+then rebuild the affected geometry, outline, or shading in Step 5. Render it
+again in Step 6. Repeat Steps 4–6 until the item passes. A packaging or model
+check cannot substitute for the visual pass.
+
+Keep a short record of each return and what changed. A visible difference can
+pass when it is needed for the item's identity or a state cue from Step 3 and
+the rest of the rendering still fits. Recheck shared traits on each related
+item, including material variants, components, and animations.
 
 ## Review items individually
 

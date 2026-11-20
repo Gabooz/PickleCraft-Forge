@@ -79,3 +79,51 @@ These notes record what the first comparison showed and how it was resolved.
 | Unlit torch | Torch | The dark cap must read as extinguished. Use the same adjusted shaft as the lit version and deepen the charred cap. |
 | Cow spawn egg | Cow spawn egg | The mod egg read like a pale pebble beside the vanilla egg. Enlarge the dark coat mark and deepen the perimeter while keeping the egg mask. |
 | Bull spawn egg | Cow spawn egg | It also needed a stronger species cue. Use broader warm brown markings and a warm upper highlight, distinct from the cow egg. |
+
+## Step 6 return log
+
+This review starts from the previous vanilla-fit gallery. A pass means the
+item fits the comparison at inventory size while meeting its Step 3 cues.
+A return records which reference was revisited before the shape or shading
+was rebuilt. The final gallery uses the same paired inventory renderer.
+
+| Item | Review and result |
+| --- | --- |
+| Anvil | Pass on entry. The exact vanilla-based 3D model agrees in pose and scale. |
+| Open barrel | Pass on entry. The oak hues match barrel materials, and the open rim is an intended functional difference. |
+| Workbench | Pass on entry. The oak palette agrees with the log and its top must read as a working surface. |
+| Carpenter’s table | Pass on entry. Its warm wood and lit faces fit beside the crafting table. The longer silhouette shows both halves. |
+| Iron furnace | Pass on entry. The stone shading agrees with the vanilla furnace. Keep the chimney and exposed chamber. |
+| Plumaria | Pass on entry. Its pale clusters agree with vanilla flower treatment, and its blue and pink petals distinguish the species. |
+| Hot iron ingot | Pass on entry. Identical iron facets, with its required orange heat cue. |
+| White-hot iron ingot | Pass on entry. Identical iron facets, with a distinct paler heat cue. |
+| Hot gold ingot | Pass on entry. Identical gold facets with its warm state tint. |
+| Heating iron ore | Pass on entry. The raw iron facets match. The warmer tint must report heat. |
+| Heating gold ore | Pass on entry. The raw gold facets and color family already fit. |
+| Hot coal | Pass on entry. Its dark mass and clustered embers serve the same fuel cue as charcoal while showing its active state. |
+| Firebox flame | Return to fire charge and vanilla fire. Reduce the flat bright lower stripe and use staggered pale and dark clusters. Pass after first rerender. |
+| Iron saw | Pass on entry. The narrow grip and silver plate read at the same scale as shears. |
+| Saw blade | Pass on entry. Its metal ramp aligns with iron, while the diagonal plate shape must match the assembled saw. |
+| Saw handle | Return to stick and the wooden tool grips. Retain the approved opening and brighten the top wood cluster. Pass after first rerender. |
+| Wooden hammer | Pass on entry. The warm handle and head separation read beside the wooden axe. |
+| Stone hammer | Pass on entry. The gray head matches the stone tool value range and keeps the protected symmetric geometry. |
+| Iron hammer | Pass on entry. The light iron and shaded side agree with iron tools. |
+| Iron tongs | Return to shears for more contrast at the pivot. First rerender still read like a hairpin. Return to the distinct working ends of shears, give the tongs blunt inward tips, and retain the open mouth. |
+| Tongs holding iron | Return with the empty tongs. Recheck the common frame and keep a small orange ingot tucked between its ends. |
+| Tongs holding gold | Return with the empty tongs. Recheck the common frame and keep a yellower ingot on the same load coordinates. |
+| Oar | Return to oak boat. Give the broad paddle a visible pale face and a darker side without altering the shaft. Pass after first rerender. |
+| Fire starter | Pass on entry. The restrained ember and two wood parts preserve the original fireboard design. |
+| Stone | Return to flint for stronger face separation. First rerender skewed purple. Return to the neutral upper facet and charcoal edge of flint. |
+| Glue | Return to slimeball for cohesion and a localized glint. First rerender was still flat. Return to slimeball's rounded shadow and shape a dark crescent and a tight highlight. |
+| Plumaria blossoms | Pass on entry. The separate small blossoms and muted stem fit the flower comparison. |
+| Creative Zone Map | Pass on entry. Its pale rolled parchment reads beside the map, with the colored print identifying the zone map. |
+| Lit torch | Pass on entry. Its upright wood and small warm flame fit beside torch. |
+| Unlit torch | Pass on entry. It matches the lit item shaft, with a necessary charred tip. |
+| Cow spawn egg | Return to the vanilla cow egg. Rebuild the spotted shell with substantial black markings and a pale background. Pass after first rerender. |
+| Bull spawn egg | Return to the vanilla cow egg. Use that contrast principle with a warmer horn-shaped pattern that remains distinct from the cow egg. Pass after first rerender. |
+
+Final rerender: all ten returned items passed this visual review. The second
+pass made the tongs' working tips distinct from their enclosed butt, returned
+stone to neutral gray, and gave glue a curved shadow. The loaded tongs share
+exact frame pixels. Both Minecraft smoke runs passed. The other 22 items
+passed on entry and retained their existing art.

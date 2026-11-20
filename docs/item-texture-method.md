@@ -81,9 +81,24 @@ sprite reads incorrectly, identify the missing requirement, add the
 corresponding check, and redraw before export. For experiments, keep the draft
 files separate from the mod assets until a version is selected.
 
+## Layer 6. Compare the finished item beside common vanilla items
+
+Render the finished item beside familiar vanilla items at the same in-game
+size, lighting, background, and display angle. Use a counterpart where one
+exists and a common item from the same category for new designs. Compare
+scale and pose, outline weight, light direction, contrast, palette, and the
+size of color clusters. This is a review of the finished render, after the
+earlier reference search and construction.
+
+Record the main mismatch for each item and the adjustment it calls for.
+Apply the adjustment while preserving the visual requirements from layer 3.
+For linked items, recheck the shared cues after the adjustment. Record what
+you retained when a difference communicates a required variant or function.
+Render again beside vanilla to verify the result.
+
 ## Review items individually
 
-Give each texture or model its own record covering all five layers. Do not
+Give each texture or model its own record covering all six layers. Do not
 substitute one record for a family. If exact matching is required, share the
 source model or compare the finished masks directly, then review each linked
 item in its own context. Review an animation frame by frame and as a loop.

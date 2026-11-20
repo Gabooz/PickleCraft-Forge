@@ -38,3 +38,44 @@ so there are no duplicate ingot or ore silhouettes to keep in sync.
 | Unlit torch | 2D item, 3D placed counterpart | Same lit torch shaft and alignment | Charred head, same height and width of wood | Vanilla torch and PickleCraft lit variant | Reuse the shaft mask, remove fire, and use a dark charred cap. |
 | Cow spawn egg | 2D, vanilla spawn egg convention | Shared PickleCraft cattle egg profile | Warm cream base with irregular dark marks | Vanilla spawn egg family and cow coat | Keep the egg boundary while preserving visible cow markings at inventory scale. |
 | Bull spawn egg | 2D, vanilla spawn egg convention | Same egg profile as the cow | Warmer coat tones and separate markings | Vanilla spawn egg family and PickleCraft bull coat | Reuse the egg profile. Keep a browner mark and a warm highlight distinguishable from the cow. |
+
+## Step 6. Compare with vanilla at inventory size
+
+The item-art playtest draws each PickleCraft model on the left and its vanilla
+comparison on the right using the same inventory renderer and background.
+These notes record what the first comparison showed and how it was resolved.
+
+| Item | Vanilla comparison | Observation and decision |
+| --- | --- | --- |
+| Anvil | Anvil | Shape, framing, and light already agree. Retain the exact placed model. |
+| Open barrel | Barrel | The open top is darker than the vanilla lid, which is necessary for the cavity to read. Retain the same volume model and barrel materials. |
+| Workbench | Oak log | The top reads as a work surface and the body still reads as a log. Retain the original model and visible end-grain family. |
+| Carpenter’s table | Crafting table | The two-block silhouette was a little small beside the crafting table. Enlarge it in the GUI while keeping both halves and the legs visible. |
+| Iron furnace | Furnace | The narrow chute and front mouth read, but the model was much smaller than the vanilla furnace. Increase GUI scale and leave the placed geometry alone. |
+| Plumaria | Azure bluet | Both read as flowers at inventory size. Retain the three bloom colors and the tilted plant model to keep it distinct from the harvested blossoms. |
+| Hot iron ingot | Iron ingot | The exact silhouette matches. Raise the orange tint's green channel to make the highlight warmer and less copper-like. |
+| White-hot iron ingot | Iron ingot | The shape matches, but the highlight needs to read as the lightest stage. Pale the tint without making it neutral gray. |
+| Hot gold ingot | Gold ingot | Exact silhouette, with a bit too much orange cast. Lighten the tint toward vanilla gold's yellow highlights. |
+| Heating iron ore | Raw iron | Shape and facet placement match. Its deeper orange is created by the live heat tint, needed to show progress. Retain the dynamic tint. |
+| Heating gold ore | Raw gold | Its warm cast was more saturated than the raw gold comparison. Soften the tint while keeping ore distinct from the finished ingot. |
+| Hot coal | Charcoal | The ember marks were too scattered for a tiny fuel icon. Darken the outside embers and retain the bright center. |
+| Firebox flame | Fire charge | The orange ramp is comparable. Break up the flat lower stripe and concentrate the lightest pixels in the fire's core, keeping four connected frames. |
+| Iron saw | Shears | The steel edge was softer. Darken the far contour and warm the grip accent while preserving the blade line and teeth. |
+| Saw blade | Iron ingot | The silver material reads, but the lower edge needed more definition. Harden the underside without widening the plate. |
+| Saw handle | Stick | Its inset shape is distinct but too dark in the item slot. Add a modest warm rim while leaving the opening intact. |
+| Wooden hammer | Wooden axe | The head is correctly wood but its underside blends into the handle. Introduce a darker wood plane beneath the head. |
+| Stone hammer | Stone axe | The stone face was paler than the axe. Add a muted underside and keep the two striking faces and centered shaft. |
+| Iron hammer | Iron axe | The pale face reads as iron. Cool the lower edge shadow so the head is distinct from the shaft. |
+| Iron tongs | Shears | Both show a hinged tool, but the tongs were too evenly bright. Add contrast at the pivot while keeping two open rails. |
+| Tongs holding iron | Iron ingot | The loaded tool should still read as tongs first. Apply the matching pivot treatment and deepen the underside of the orange load. |
+| Tongs holding gold | Gold ingot | The gold load is recognizable. Deepen its amber underside and preserve the matching grip position and frame. |
+| Oar | Oak boat | The brown ramp is compatible, but the paddle edge is soft. Darken the far edge and add a narrow face highlight. |
+| Fire starter | Flint and steel | It should read as wood with a small spark. Darken the fireboard bottom and concentrate the ember at the spindle contact. |
+| Stone | Flint | Similar scale and material category, but the loose stone was too evenly gray. Strengthen the lower rim and one angular upper face. |
+| Glue | Slimeball | Its soft silhouette works. Increase the cream highlight and deepen the underside to separate it from the gray stone. |
+| Plumaria blossoms | Peony | Pink is familiar, but the green competed with the blooms. Give the stems a darker base and keep three separate colored heads. |
+| Creative Zone Map | Empty map | The terrain ink is a required difference. Frame it with a brighter parchment top and a darker lower fold. |
+| Lit torch | Torch | Same upright pose, with a broader flame. Match the ordinary wood colors more closely and put the lightest pixel near the flame tip. |
+| Unlit torch | Torch | The dark cap must read as extinguished. Use the same adjusted shaft as the lit version and deepen the charred cap. |
+| Cow spawn egg | Cow spawn egg | The mod egg read like a pale pebble beside the vanilla egg. Enlarge the dark coat mark and deepen the perimeter while keeping the egg mask. |
+| Bull spawn egg | Cow spawn egg | It also needed a stronger species cue. Use broader warm brown markings and a warm upper highlight, distinct from the cow egg. |

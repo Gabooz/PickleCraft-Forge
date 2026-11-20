@@ -139,39 +139,40 @@ sprite reads incorrectly, identify the missing requirement, add the
 corresponding check, and redraw before export. For experiments, keep the draft
 files separate from the mod assets until a version is selected.
 
-## Layer 7. Remake the item to emphasize its aesthetic intent
+## Layer 7. Explore the expressive redesign
 
 Save the neutral construction from layer 6. Open a blank 16 × 16 canvas or an
 empty model scene and reopen the layer 3 notes. Design a second version from
-the ground up. Plan the shape, proportions, joint or depth, material regions,
-and lighting together around the aesthetic intent. Keep the structural
-requirements and protected vanilla parts available as guides. For an exact
-vanilla state, rebuild the state-specific art and reuse the protected base.
+the ground up. Push the qualities the item should communicate. Try visibly
+different silhouettes, proportions, gestures, material boundaries, and light
+patterns, even when a draft overshoots. Sketches may temporarily depart from
+the replayed construction. Keep exact vanilla counterparts and protected
+state features as fixed sources, and respect geometry shared with a placed
+block or another item.
 
-Write down the redesigned structural and lighting choices before drawing.
-For an original sprite, show where the alpha mask or the boundaries between
-parts have changed. Palette edits, selective highlights, or tracing the
-neutral outline with different colors do not complete this layer. For 3D art,
-recompose the model where permitted. When the inventory model represents an
-actual placed object, redesign how its volume is presented while keeping the
-placed geometry. Exact counterparts and protected state silhouettes make the
-vanilla geometry the starting constraint.
+Save the exploratory draft before judging its finish. Record which choices
+express the intent and which experiments are worth carrying forward. The
+exploration and cleanup together are the redraw.
 
-## Layer 8. Clean up the expressive redraw
+## Layer 8. Resolve the expressive redesign
 
-Save the expressive draft. Treat it like ink over a sketch. At native size
-and at an integer zoom, follow the intended contours, material boundaries,
-joins, highlights, and shadows. Remove stray pixels and false points, close
-accidental breaks, and consolidate marks that repeat a contour or catch the
-eye in the wrong place. Check transparent edges on both light and dark
-backgrounds. On models, inspect the texture against its mapped faces and
-look for stray marks at seams and overlaps.
+Use the exploratory draft as a sketch and the reconstruction recipe as the
+construction target. Make a decisive second design pass. Redraw any part
+that needs it. Adjust silhouette, proportions, joins, negative space,
+material boundaries, depth cues, and shading so the expressive idea becomes
+a clean and usable item. Combine strong ideas from the draft, simplify
+repeated shapes, and remove effects that obscure the form. Work at native
+size first. Check the result at integer zoom and on light and dark
+backgrounds. For 3D art, fit the design to the mapped faces and intended
+projection, and check its seams and overlaps.
 
-Preserve the new design, its silhouette and intentional openings, and the
-structural recipe. Keep the cues that make the object expressive. If a
-cleanup requires moving a part or changing its structure, restart from
-layer 4. Save the cleaned art and record what changed before entering
-the reviews.
+Preserve the object's function, exact shared parts, and the cues the draft
+was meant to express. Compare the cleanup with the layer 4 reconstruction.
+If a stronger finished design changes a structural requirement, rewrite
+and independently replay the recipe, then repeat layers 4–8 before the
+formal reviews. Exploratory shapes have room to change within this layer.
+Save the sketch and the resolved redraw with notes on what survived,
+what was changed, and the effect at normal size.
 
 ## Layer 9. Require a strict vanilla match
 

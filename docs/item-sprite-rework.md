@@ -366,3 +366,27 @@ references for steel planes, compact shading, and the grip-to-plate junction.
   the vanilla comparison and structural review. Repositioning the two
   extracted sprites reproduces all 93 visible parent pixels. Neither
   component required any touch-up.
+
+## Expressive exploration and resolved saw
+
+This revision used layers 7 and 8 as the two halves of the redraw. The
+expressive sketch pushed the mass of a forged spine and the warmth of a
+wooden bow. It used an oversized nose, irregular cutting teeth, bright
+blue streaks, and a bulky grip to test how far both materials could be
+pushed at 16 × 16.
+
+The second half rebuilt the contour and material layout. The thick spine
+survived, with one light lip and a continuous shadow beneath it. The broad
+plate became a few quiet steel planes. The irregular points became four
+one-pixel teeth and the bright nose became a short, blunt cap. The wooden
+bow kept a stout lower palm stop and its own 3 × 3 opening. An updated
+[reconstruction recipe](saw-structure.md) fixed the new working depth,
+contours, material ownership, and tooth positions before the final review.
+
+The resolved saw uses the compact cool-steel highlights and grip separation
+seen in vanilla shears. Its connected 38-pixel grip and 68-pixel steel plate
+passed the independent row reconstruction. The final comparison checked
+the nose, wood-to-steel join, transparent opening and one-pixel teeth at
+native size and at integer zoom. No further pixel edit was needed. Both
+component sprites were extracted from this approved parent and recentered.
+Their translations reconstruct the same 106 pixels exactly.

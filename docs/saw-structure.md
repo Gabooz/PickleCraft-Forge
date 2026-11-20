@@ -1,80 +1,70 @@
 # Iron saw reconstruction
 
 This is a reinforced hand saw. The user pushes and pulls a wooden bow to
-move a rigid steel plate through wood. A raised spine braces the plate.
-The teeth sit along the edge opposite the spine. The near side of the handle
-and the near face of the steel are visible. The projected view looks at the
-wide face of the blade with its nose angled up and to the right.
+move a steel plate through wood. A raised spine braces the plate. Teeth
+sit along the edge opposite the spine. The projection shows the near
+side of the grip and the wide face of the blade, nose up and right.
 
 ## Build the visible structure
 
-1. Start with a transparent 16 × 16 canvas. A coordinate specifies one
+1. Start with a transparent 16 × 16 canvas. Each coordinate specifies one
    whole pixel. Count x to the right and y down from (0, 0) at the upper
-   left. Use inclusive endpoints for every run below. Leave everything
-   outside the specified runs transparent.
-2. Build the wooden bow from these horizontal runs. They include the
-   visible material contour. Wood terminates at x = 6 on its right rail.
-   The hole at x = 2–4 and y = 10–12 belongs to the bow and stays empty in
-   every subsequent step.
+   left. All ranges include both endpoints. Unlisted pixels stay clear.
+2. Build the wooden bow from the horizontal runs below. The wider lower
+   rim forms a hand stop, tapering to the three-pixel base. The 3 × 3 hole
+   at x = 2–4 and y = 10–12 stays empty throughout assembly.
 
    | Row y | Wood columns x |
    | --- | --- |
    | 7 | 3–5 |
    | 8 | 2–5 |
    | 9 | 1–5 |
-   | 10–12 | 1 and 5–6 |
-   | 13 | 1–6 |
-   | 14 | 2–5 |
+   | 10 | 1 and 5–6 |
+   | 11–12 | 0–1 and 5–6 |
+   | 13 | 0–6 |
+   | 14 | 1–5 |
+   | 15 | 2–4 |
 
-3. Measure the spine axis at all ten steel columns. For each integer x
-   from 6 through 15, use `s = 6 - floor((x - 6) / 2)`. This axis rises
-   one row for every two columns. At x = 6, fill from y = s to s + 3,
-   giving the heel a short seated end above the wooden rail. At every
-   other column, fill from y = s to s + 5. This makes the plate and spine
-   one rigid silhouette and sets the parallel cutting edge. The upright
-   nose is all six pixels at x = 15, from y = 2 through y = 7.
-4. Subdivide the visible steel without changing its footprint. Use
-   y = s and s + 1 for the continuous reinforcing spine. Put the plate below
-   that, with its cutting-edge bevel at y = s + 5 for x = 7–15. The short
-   heel ends before reaching this bevel. The wood and steel masks share
-   no pixels. Their visible join is the neighboring wood at x = 5 and steel
-   at x = 6 on rows 7–9, with the steel at (6, 9) seated over the wood at
-   (6, 10). The face of the bow is warm brown and the spine, plate, and
-   cutting edge use distinct value bands of neutral or cool iron. Put a
-   lighter lip on the lower row of the spine and a darker strip on the
-   first row of the plate directly under it. Keep this separation along
-   the working span from x = 7 through x = 14 so the spine reads as a
-   brace at inventory size.
-5. Add one steel tooth pixel at y = s + 6 in each of columns 7, 9, 11,
-   and 13. The teeth fall at (7, 12), (9, 11), (11, 10), and (13, 9).
-   Leave the intervening four positions and the space below the nose
-   transparent. Each tooth is one pixel beyond its local bevel. No other
-   steel extends below the cutting edge.
-6. Check the result. The wood contains one enclosed 3 × 3 aperture even
-   with the steel removed. The wood and steel are each a single
-   edge-connected part. The steel has a two-row, ten-column reinforcing
-   spine with no breaks and a constant plate depth through the working
-   span. At 1×, follow the spine and the long cutting edge before looking
-   for the four small teeth. If the steel reads as a row of flexible
-   points or the heel looks unsupported, return the recipe. The final art
-   can vary the lighting and exact shade boundaries while preserving all
-   structural runs, the join, and the silhouette of both materials.
+3. Build the steel column by column. For x from 6 to 15 use
+   `s = 6 - floor((x - 6) / 2)` as the upper spine axis. Fill these
+   offsets below s. The heel steps out of the wood. The plate keeps its
+   full depth through the working span, then tapers by two pixels at the
+   blunt nose.
 
-## Replay and return record
+   | Column x | Steel offsets from s |
+   | --- | --- |
+   | 6 | 0–3 |
+   | 7 | 0–5 |
+   | 8–14 | 0–6 |
+   | 15 | 1–5 |
 
-The first instruction set asked for intermittent teeth and a rigid back.
-A replay could start the teeth in column 7 or column 8, and could give
-the reinforcing spine one row or two. Both satisfied the wording. The
-one-row reconstruction gave the steel the same thin, flexible reading
-as the prior release. I returned to the empty canvas, fixed the phase
-and depth, and defined every wood run, the seated heel, and the blunt cap.
+4. Give the spine a dark outer row at s and a lighter lip at s + 1
+   across x = 6–14. The darker shadow at s + 2 separates that lip from
+   the broad steel face. The plate light belongs in a few coherent
+   clusters. The cutting bevel is the last row of each working column.
+   The nose is a short cap with a dark top and bottom. The warm wood
+   rail at x = 5 neighbors steel at x = 6 on rows 7–9, and steel at (6, 9)
+   rests above wood at (6, 10). Each visible pixel is owned by one material.
+5. Add a single steel pixel below the bevel at (8, 12), (10, 11),
+   (12, 10), and (14, 9). The alternate positions remain clear. Keep
+   the tooth tips in the bevel's value range so they read as part of one
+   cutting edge rather than four bright marks.
+6. Verify a connected 38-pixel wood mask and connected 68-pixel steel
+   mask. The bow encloses exactly the specified 3 × 3 hole when isolated.
+   The warm grip, continuous bracing spine and broad steel face must
+   be distinguishable at 1×. Tone clusters can change while preserving
+   the accepted material runs and join.
 
-The first complete expressive draft still let the spine merge into the
-face at inventory size. I amended step 4 to require a relief edge and a
-shadow below it, then replayed the full recipe before shading all surfaces
-on a fresh canvas again.
+## Replay and redraw record
 
-For the final replay, rebuild the steel one column at a time and the wood
-one row at a time. Check this result against a separate row-by-row reading
-of the recipe before applying lighting. Perform the same replay after
-future changes to the recipe.
+The earlier saw recipe also specified a straight axis, relief edge, four
+shallow teeth, and a closed grip. This revision deepens the working plate
+and extends the lower palm stop. The rough expressive sketch temporarily
+took the spine above the grid's usual alignment and experimented with
+oversized teeth, a bright nose, and scattered blue light.
+
+The cleanup redrew the plate as a steady slab, reduced each tooth to one
+pixel, enclosed the handle with a thicker lower rim, and kept the spine
+highlight while grouping the rest of the steel into a few planes. The
+revised recipe was replayed from an empty grid, then independently
+checked by horizontal rows. Both constructions agreed on the masks.

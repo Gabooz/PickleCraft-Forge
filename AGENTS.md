@@ -10,8 +10,10 @@ Verify the creative tab, spawn eggs, and map before considering the work complet
 
 Follow [the eleven-layer texture method](docs/item-texture-method.md).
 Record aesthetic intent separately, then make a fresh expressive design.
-Clean the expressive draft before the formal reviews. Finish with a fresh
-vanilla comparison and local pixel cleanup, then recheck any edited art.
+Use cleanup as the second half of the expressive redesign. Explore boldly,
+then redraw shapes, joins, and shading wherever needed for a readable
+result. Finish with a fresh vanilla comparison and local pixel cleanup,
+then recheck any edited art.
 Require both the strict vanilla comparison and an independent audit of the
 finished art against the Layer 4 reconstruction recipe and Layer 6
 construction rules. Write the Layer 4 recipe from the ground up and replay it

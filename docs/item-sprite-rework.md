@@ -182,3 +182,47 @@ edge. The slimeball stays the shape and lighting reference. The revised
 draft uses a 12 × 11 pixel footprint inside the 16 × 16 tile. The warm hue
 identifies adhesive, and the concentrated glint and wider base carry the sense
 of elasticity in the expressive pass.
+
+## Strict vanilla redesign review
+
+The earlier tables are the record of the previous rounds. In this round the
+structural draft served as a brief for a fresh drawing. Common vanilla parts
+were registered on the native grid or linked to their game models. The
+comparison sheet shows the baked inventory render of each candidate beside
+its vanilla reference. The 2D contact sheet also shows the previous art and
+the native pixel geometry at 2×.
+
+| Item | Aesthetic intent | Prior draft verdict and requirement | New construction and final comparison |
+| --- | --- | --- | --- |
+| Anvil | Heavy, solid iron | Pass. It represents the same placed anvil. | Retained the exact placed volume and matching vanilla inventory pose. |
+| Open barrel | A clear, useful cavity | Pass. The ordinary barrel walls and bands already match. | Retained the placed barrel and its open top. The cavity accounts for the change in top shading. |
+| Workbench | Rough log with a functional top | Pass. The oak log material and scale read correctly. | Retained the work surface and log end grain. The top projection conveys the function. |
+| Carpenter’s table | A long, sturdy work surface | Return. The top-down view shortened the front edge. | Reframed the placed volume with a 30° pitch to expose the legs and front while keeping both halves in frame. |
+| Iron furnace | Tall masonry with a hot chamber | Return. The low angle reduced the chute opening to a thin rim. | Reset the inventory pose to show the mouth and chute together. Stone and masonry shading remain consistent with the placed model. |
+| Plumaria | An upward, airy bloom | Return. The earlier near-overhead view compressed the stems. | Reframed the planted volume at a shallower angle so the leaves, stems and bloom heads can be distinguished beside the azure bluet. |
+| Hot iron ingot | Radiant orange heat | Match the exact iron facets. | Shared vanilla model with a warm orange tint. |
+| White-hot iron ingot | A pale, intense peak | Match the exact iron facets. | Shared vanilla model with a brighter cream tint to keep it distinct from the orange state. |
+| Hot gold ingot | Golden radiant heat | Match the exact gold facets. | Shared vanilla model with an amber-yellow tint. |
+| Heating iron ore | Raw metal warming up | Pass. The game supplies the live heat ramp on the correct vanilla raw iron layer. | Kept that layer and the live ramp. |
+| Heating gold ore | Warm, irregular mineral | Match the exact raw gold facets. | Shared vanilla resource with a warm tint and distinct raw outline. |
+| Hot coal | Brittle crust with heat inside | Return. Exposed orange fragments gave it the shape of loose chips beside charcoal. | Drew a compact dark lump and enclosed the smaller ember fissures inside the crust. |
+| Firebox flame | A continuous bed of flame | Return. The old high tips separated into thin spikes. | Redrew four connected frames with changing tips and a bright common base. The warm palette and clustered light read beside fire charge. |
+| Iron saw | Straight, sharp, secure in the hand | Return. The first redraw narrowed the metal into a rapier. | Added width to the flat plate, gave it repeating dark teeth, and seated the closed grip inside the heel. The steel uses compact light clusters akin to shears. |
+| Saw blade | Rigid steel with a defined cutting edge | Return. The first redraw had too little face between spine and edge. | Derived the independent component from the broadened final saw plate, including the same tooth rhythm. |
+| Saw handle | A hand-sized, sturdy grip | Return. The outline and center hole from the long handle filled too much of the icon. | Drew a short closed wooden bow and used the same profile at the plate’s heel. The handle has a dark wood outline like a stick. |
+| Wooden hammer | A solid, well-built mallet | Return. The old orange grip was too light and bulky beside the wooden axe. | Redrew the grip on the vanilla 45° tool axis in dark wood and centered a mirrored, double-faced wood head across it. |
+| Stone hammer | Weight and hard stone | Return. The grip taper and head highlights looked like a separate stylized tool family. | Used the shared rebuilt grip and matched the stone axe’s gray plane and dark underside. Symmetric head ends mark the mallet. |
+| Iron hammer | Solid workmanship and clean steel | Return. The old head and shaft widths disagreed with the iron axe. | Used the rebuilt grip, with a two-sided hammer head in the vanilla iron tool value range. |
+| Iron tongs | Firm, precise grip | Return twice. The old tool read as a clip, and the first redraw’s narrow jaws almost closed in the slot. | Redrew the second jaw out from the first with a continuous visible interior gap. The silvery steel planes use shears as the reference. |
+| Tongs holding iron | A secure grip on hot iron | Return. The load shrank to a pinpoint in the first redraw. | Spanned the open tips with a small faceted orange bar and reused the empty tool’s frame. |
+| Tongs holding gold | A secure grip on hot gold | Return. The first redraw could barely be distinguished from the iron load. | Reused the same load silhouette and grip, with a yellower highlight and deeper amber side. |
+| Oar | Long, planed wood and a useful blade | Return. The old shaft elbow and bright paddle patch broke the long tool pose. | Drew a straight diagonal shaft with a wider flat paddle, shaded in oak browns. |
+| Fire starter | Rough wood and a concentrated spark | Return. The first redraw made the board too short to read separately. | Anchored the spindle to a near-horizontal board. Kept the bright contact area small, as in flint and steel’s localized contrast. |
+| Stone | Smooth and hard | Return. The first redraw was scarcely half the size of flint. | Enlarged a single smooth gray face to a near-flint span and kept a flat dark underside. |
+| Glue | Rounded elasticity | Return. The old profile was flattened and the glint read as a separate cream-colored patch. | Drew a slimeball-like dome with a compact glint integrated into a warm body and dark lower edge. |
+| Plumaria blossoms | Airy, distinct petals | Return. The first redraw lost the heads at inventory scale. | Enlarged the individual color clusters while keeping the stem sparse. Flower size and cluster spacing read beside vanilla flowers. |
+| Creative Zone Map | Familiar parchment with readable terrain | Return twice. First too triangular, then still too small beside the vanilla map. | Used the actual vanilla parchment layer and drew only the small land and water marks inside it. |
+| Lit torch | A conventional working torch | Return. It was too thick and the shaft was too orange. | References the actual Minecraft torch item model. The lit placed block already uses the matching Minecraft block model. |
+| Unlit torch | The same torch, cold at the tip | Return. The old shaft and cap had their own widths and colors. | Uses the same two-column silhouette at x = 7–8, with the unchanged vanilla shaft at y = 8–15 and a new charred cap at y = 6–7. The item and placed block share this texture. |
+| Cow spawn egg | Immediately recognizable cattle markings | Return twice. Generic egg and pinched egg shapes both failed beside the cattle icon. | References the actual vanilla cow spawn egg model. |
+| Bull spawn egg | A fuller tan head with pointed horns | Return twice. A generic icon then a short oval missed vanilla’s animal-specific shape. | Redrew a full-height cattle silhouette with a separate pair of horns, warm coat and light face planes. The warm hues and horns identify the bull beside the vanilla cow egg. |

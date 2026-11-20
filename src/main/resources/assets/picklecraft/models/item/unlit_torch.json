@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "picklecraft:item/unlit_torch"
+    "layer0": "picklecraft:block/unlit_torch"
   }
 }

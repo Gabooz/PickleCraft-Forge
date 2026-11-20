@@ -25,7 +25,11 @@ should use the iron ingot's silhouette and facet layout, including its angled
 ends, and change its color. An open barrel should retain its actual hollow
 model in the inventory. A component must still read as the piece seen in the
 assembled item. When there is no exact match, record the nearest visual
-convention and the parts that are deliberately original.
+convention and the parts that are deliberately original. For a direct vanilla
+counterpart, use its resource ID when possible. When a state requires custom
+art, register it over that counterpart on the native grid and protect all
+unaffected pixels. A regular torch must look like a regular torch. A dormant
+torch changes at the wick and keeps the shaft's width, position, and shading.
 
 ## Layer 3. Record the aesthetic intent and set it aside
 
@@ -59,8 +63,9 @@ the new sprite. For example, Minecraft's compass shows how a strong bezel
 frames a readable needle, and Tinkers' Construct's wooden hammer handle shows
 how few tones can define a diagonal shaft. If there is no exact equivalent,
 say so and use the closest relevant part, such as a shell's rib shading or a
-helmet's rim. Draw original pixels and use references for proportion, pose,
-material separation, and readability.
+helmet's rim. Use references for proportions, pose,
+material separation, and readability. Keep vanilla parts linked to their game
+resources when available. Draw original parts at native size.
 
 ## Layer 6. Build the structural version
 
@@ -92,30 +97,61 @@ files separate from the mod assets until a version is selected.
 
 ## Layer 7. Remake the item to emphasize its aesthetic intent
 
-Keep a copy of the structural version. Reopen the layer 3 notes and make a
-distinct expressive version based on that construction. Deliberately push the
-specific cues that make the object feel as intended: for example, round the
-form and concentrate the glint for elasticity, frame the head and joint for
-sturdy workmanship, or use a broad uninterrupted highlight for smooth stone.
-For 3D, use the inventory pose, materials, and depth cues. Preserve exact
-part or state matching and any critical layer 4 requirements. Pass this
-expressive version on to the vanilla comparison.
+Save the neutral construction from layer 6. Open a blank 16 × 16 canvas or an
+empty model scene and reopen the layer 3 notes. Design a second version from
+the ground up. Plan the shape, proportions, joint or depth, material regions,
+and lighting together around the aesthetic intent. Keep the structural
+requirements and protected vanilla parts available as guides. For an exact
+vanilla state, rebuild the state-specific art and reuse the protected base.
 
-## Layer 8. Compare the finished item beside common vanilla items
+Write down the redesigned structural and lighting choices before drawing.
+For an original sprite, show where the alpha mask or the boundaries between
+parts have changed. Palette edits, selective highlights, or tracing the
+neutral outline with different colors do not complete this layer. For 3D art,
+recompose the model where permitted. When the inventory model represents an
+actual placed object, redesign how its volume is presented while keeping the
+placed geometry. Exact counterparts and protected state silhouettes make the
+vanilla geometry the starting constraint.
 
-Render the finished item beside familiar vanilla items at the same in-game
-size, lighting, background, and display angle. Use a counterpart where one
-exists and a common item from the same category for new designs. Compare
-scale and pose, outline weight, light direction, contrast, palette, and the
-size of color clusters. This is a review of the finished render, after the
-earlier reference search and construction.
+## Layer 8. Require a strict vanilla match
 
-Give each item a pass or return decision. When it fails, write a direct,
-specific critique. Name what the current art looks like instead, which part
-of its structure causes that reading, what comparison supports the critique,
-and what the redesigned structure must accomplish. Challenge the silhouette,
-proportions, placement, or join when those are the cause. Avoid a vague
-request for better shading when the construction is the problem.
+Use the finished item at inventory size, rendered beside the exact vanilla
+counterpart on the same background and with the same lighting. For an original
+item, use the closest vanilla items for each recognizable part and for its
+overall class. For example, inspect a mallet alongside the axe for the wooden
+grip and alongside the mace for the head's weight and readable planes. Compare
+at a whole-number enlargement as well. Use overlays where items share a pose,
+material, or component.
+
+Evaluate each trait independently. Any unexplained difference returns the
+item for a rebuild. A readable object can still fail because it looks unlike
+a vanilla item of its class. The desire to emphasize a quality provides no
+exception. At minimum, ask the following questions.
+
+- **Direct counterpart.** Do inventory placement, span, pose, outline, visible
+  parts, and lighting agree? An actual torch shares the vanilla item art. An
+  unlit torch keeps the shaft registered to the lit counterpart and changes
+  only the flame and wick.
+- **New item in a familiar family.** Do common parts agree in axis, length,
+  thickness, join, outline weight, and finish? A wooden-grip mallet should
+  belong with the vanilla axe and pickaxe when viewed at inventory size. The
+  striking head is a function-specific difference.
+- **Materials and lighting.** Compare outlines and interior contrast
+  separately. Check local color ramps, light direction, flat planes, highlight
+  size, edge pixels, and visual noise against the reference of the same
+  material. Reject differences introduced only for decoration.
+- **State and scale.** Check held, inventory, and placed views when a model
+  has all three. Confirm common pixels of matched states, hand and inventory
+  scale, legibility, cropping, and the animation loop when applicable.
+
+Mark a failed item as **Return**. Identify the specific offending pixels or
+dimensions, name the reference and what it does, explain the wrong reading,
+and set a replacement requirement with a check. For example, “The unlit
+torch is a thick brown dowel. Its vanilla reference is two pixels wide and
+centered at x = 7–8. Rebuild around the original shaft and confine the char
+to the two wick rows.” If a trait belongs to the design, record the functional
+reason and compare the rest at the same standard. A pass requires a reviewed
+render and a decision for each trait.
 
 Send those notes back to layer 4, the structural requirements step that was
 formerly layer 3. Revise those requirements in light of the critique. Then

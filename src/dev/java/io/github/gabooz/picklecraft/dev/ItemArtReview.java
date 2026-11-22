@@ -24,6 +24,7 @@ final class ItemArtReview extends Screen {
     private static final List<Reference> REFERENCES = List.of(
         new Reference("anvil", Items.ANVIL), new Reference("open_barrel", Items.BARREL),
         new Reference("workbench", Items.OAK_LOG), new Reference("carpenter_table", Items.CRAFTING_TABLE),
+        new Reference("sailboat", Items.OAK_BOAT),
         new Reference("iron_furnace", Items.FURNACE), new Reference("plumaria", Items.AZURE_BLUET),
         new Reference("hot_ingot", Items.IRON_INGOT), new Reference("white_hot_ingot", Items.IRON_INGOT),
         new Reference("hot_gold", Items.GOLD_INGOT), new Reference("hot_ore", Items.RAW_IRON),

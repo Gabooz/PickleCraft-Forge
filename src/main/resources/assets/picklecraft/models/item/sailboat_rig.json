@@ -1,0 +1,37 @@
+{
+  "parent": "minecraft:block/block",
+  "gui_light": "front",
+  "textures": {
+    "wood": "minecraft:block/oak_planks",
+    "mast": "minecraft:block/stripped_oak_log",
+    "cloth": "minecraft:block/white_wool",
+    "hem": "minecraft:block/light_gray_wool",
+    "particle": "minecraft:block/oak_planks"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        22,
+        65,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.88,
+        0.88,
+        0.88
+      ]
+    }
+  },
+  "elements": [
+    {"from": [5, 3, 7], "to": [7, 16, 9], "faces": {"up": {"texture": "#mast"}, "down": {"texture": "#mast"}, "north": {"texture": "#mast"}, "south": {"texture": "#mast"}, "west": {"texture": "#mast"}, "east": {"texture": "#mast"}}},
+    {"from": [5, 14, 2], "to": [7, 15, 14], "faces": {"up": {"texture": "#mast"}, "down": {"texture": "#mast"}, "north": {"texture": "#mast"}, "south": {"texture": "#mast"}, "west": {"texture": "#mast"}, "east": {"texture": "#mast"}}},
+    {"from": [7, 9, 3], "to": [8, 14, 13], "faces": {"up": {"texture": "#cloth"}, "down": {"texture": "#cloth"}, "north": {"texture": "#cloth"}, "south": {"texture": "#cloth"}, "west": {"texture": "#cloth"}, "east": {"texture": "#cloth"}}},
+    {"from": [7, 8, 4], "to": [8, 9, 12], "faces": {"up": {"texture": "#cloth"}, "down": {"texture": "#cloth"}, "north": {"texture": "#cloth"}, "south": {"texture": "#cloth"}, "west": {"texture": "#cloth"}, "east": {"texture": "#cloth"}}},
+    {"from": [7, 7, 4], "to": [8, 8, 12], "faces": {"up": {"texture": "#hem"}, "down": {"texture": "#hem"}, "north": {"texture": "#hem"}, "south": {"texture": "#hem"}, "west": {"texture": "#hem"}, "east": {"texture": "#hem"}}}
+  ]
+}

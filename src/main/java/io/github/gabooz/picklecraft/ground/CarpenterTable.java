@@ -136,6 +136,7 @@ public final class CarpenterTable extends BaseEntityBlock {
             stack.add(held);
             held.consume(1, player);
             if (boatReady(stack.items())) stack.replaceWith(boatFor(stack.items()));
+            if (sailboatReady(stack.items())) stack.replaceWith(GroundContent.SAILBOAT.get().getDefaultInstance());
         }
         return InteractionResult.SUCCESS;
     }
@@ -143,7 +144,13 @@ public final class CarpenterTable extends BaseEntityBlock {
     private static boolean isWoodSlab(ItemStack item) { return item.is(ItemTags.WOODEN_SLABS); }
     private static boolean adhesive(ItemStack item) { return item.is(Items.SLIME_BALL) || item.is(GroundContent.GLUE.get()); }
     private static boolean ingredient(ItemStack item) {
-        return isWoodSlab(item) || adhesive(item) || item.is(Items.STICK) || item.is(GroundContent.OAR.get());
+        return isWoodSlab(item) || adhesive(item) || item.is(Items.STICK) || item.is(GroundContent.OAR.get())
+            || item.is(Items.OAK_BOAT) || item.is(Items.WOOL.white());
+    }
+    private static boolean sailboatReady(List<ItemStack> items) {
+        return items.size() == 3 && items.stream().anyMatch(item -> item.is(Items.OAK_BOAT))
+            && items.stream().anyMatch(item -> item.is(Items.WOOL.white()))
+            && items.stream().anyMatch(item -> item.is(Items.STICK));
     }
     private static boolean boatReady(List<ItemStack> items) {
         return items.size() == 5 && items.stream().filter(CarpenterTable::adhesive).count() == 1

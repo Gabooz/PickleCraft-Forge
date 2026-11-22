@@ -49,3 +49,9 @@ Status: Completed. Build and integrated playtest passed, including campfire asse
 > Make a new fire starter tool that's made by placing two sticks and right clicking on the stack on the ground. It does everything a flint and steel does just it only has 30 uses
 
 > Speaking of flint and steel that's made by using a hammer on flint and steel on the anvil
+
+## Sailboats
+
+Status: Completed. The integrated playtest verified carpenter's table assembly, entity spawning, recovery as a sailboat, fifteen percent more forward thrust on water, the creative tab and the Creative Zone Map. The item model was reviewed beside the oak boat.
+
+> Sailboats. Make a boat with an added sail to it, and make it go a little faster than an ordinary boat.

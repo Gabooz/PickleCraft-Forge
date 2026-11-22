@@ -42,7 +42,7 @@ public final class ZoneMapScreen extends Screen {
         addRenderableWidget(net.minecraft.client.gui.components.Button.builder(Component.literal("Workshop tips"), button -> {})
             .bounds(width - helpWidth - 12, height - 34, helpWidth, 14)
             .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(
-                "Sneak-stack four logs for a campfire. Stack two sticks and right-click for a fire starter. Hammer flint and an iron ingot on an anvil for flint and steel. Food cooks in five minutes. Torches last 40 game days and can be relit when dry."))).build());
+                "Sneak-stack four logs for a campfire. Stack two sticks and right-click for a fire starter. Hammer flint and an iron ingot on an anvil for flint and steel. Food cooks in five minutes. Torches last 40 game days and can be relit when dry. Combine an oak boat, white wool, and a stick on a carpenter's table for a sailboat."))).build());
         String[] times = {"Dawn", "Noon", "Dusk", "Midnight"};
         int[] phases = {0, 6000, 12000, 18000};
         var seasons = io.github.gabooz.picklecraft.seasons.Seasons.Season.values();

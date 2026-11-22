@@ -68,6 +68,8 @@ public final class GroundContent {
     public static final RegistryObject<Item> SAW_BLADE = workshopItem("saw_blade");
     public static final RegistryObject<Item> OAR = workshopItem("oar");
     public static final RegistryObject<Item> GLUE = workshopItem("glue");
+    public static final RegistryObject<BoatItem> SAILBOAT = ITEMS.register("sailboat", () ->
+        new BoatItem(Sailboat.TYPE.get(), new Item.Properties().setId(ITEMS.key("sailboat")).stacksTo(1)));
 
     private static RegistryObject<Item> workshopItem(String name) {
         return ITEMS.register(name, () -> new Item(new Item.Properties().setId(ITEMS.key(name))));
@@ -160,6 +162,7 @@ public final class GroundContent {
                 output.accept(Items.SLIME_BALL);
                 output.accept(Items.OAK_SLAB);
                 output.accept(Items.OAK_BOAT);
+                output.accept(SAILBOAT.get());
                 output.accept(Items.WHEAT_SEEDS);
                 output.accept(Items.WHEAT);
                 output.accept(Items.FARMLAND);

@@ -29,6 +29,7 @@ public final class PickleCraft {
         var modBus = context.getModBusGroup();
         OverworldFeatures.SERIALIZERS.register(modBus);
         GroundContent.register(modBus);
+        io.github.gabooz.picklecraft.ground.Sailboat.register(modBus);
         io.github.gabooz.picklecraft.farming.FarmingContent.register(modBus);
         io.github.gabooz.picklecraft.seasons.Seasons.register();
         io.github.gabooz.picklecraft.cattle.CattleContent.register(modBus);
@@ -48,6 +49,7 @@ public final class PickleCraft {
             FMLClientSetupEvent.getBus(modBus).addListener(event -> {
                 InventoryScreens.register();
                 event.enqueueWork(io.github.gabooz.picklecraft.client.CattleRenderers::register);
+                event.enqueueWork(io.github.gabooz.picklecraft.client.SailboatRenderer::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.ZombieZoneClient::register);
                 event.enqueueWork(GroundStackRenderer::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.StockpileRenderer::register);

@@ -68,7 +68,9 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 67, "PickleCraft creative tab contains all sixty-seven entries");
+            require(tab.getDisplayItems().size() == 68, "PickleCraft creative tab contains all sixty-eight entries");
+            require(tab.contains(io.github.gabooz.picklecraft.ground.GroundContent.SAILBOAT.get().getDefaultInstance()),
+                "Oak sailboat appears in the PickleCraft creative tab");
             try (var fogRenderer = new net.minecraft.client.renderer.fog.FogRenderer()) {
                 io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(true);
                 var fog = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
@@ -949,10 +951,59 @@ public final class Playtest {
         click.accept(pos, net.minecraft.world.item.Items.SLIME_BALL.getDefaultInstance());
         require(stack.items().size() == 1 && stack.items().getFirst().is(net.minecraft.world.item.Items.OAK_BOAT),
             "Two oars, two slabs and adhesive assemble a boat");
+        click.accept(other, net.minecraft.world.item.Items.WOOL.white().getDefaultInstance());
+        click.accept(pos, net.minecraft.world.item.Items.STICK.getDefaultInstance());
+        var sailboatItem = io.github.gabooz.picklecraft.ground.GroundContent.SAILBOAT.get();
+        require(stack.items().size() == 1 && stack.items().getFirst().is(sailboatItem),
+            "An oak boat, white wool, and a stick assemble a sailboat");
+        verifySailboatThrust(level, player);
         click.accept(other, net.minecraft.world.item.ItemStack.EMPTY);
         require(stack.items().isEmpty(), "Either half retrieves the product");
         level.destroyBlock(other, true);
         require(level.isEmptyBlock(pos), "Breaking the far half removes the entire table");
+    }
+
+    private static void verifySailboatThrust(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        var spawn = net.minecraft.world.entity.EntitySpawnReason.COMMAND;
+        var conventional = net.minecraft.world.entity.EntityTypes.OAK_BOAT.create(level, spawn);
+        var sailing = io.github.gabooz.picklecraft.ground.Sailboat.TYPE.get().create(level, spawn);
+        var boat = net.minecraft.world.entity.vehicle.boat.AbstractBoat.class;
+        var afloat = net.minecraft.world.entity.vehicle.boat.AbstractBoat.Status.IN_WATER;
+        var ashore = net.minecraft.world.entity.vehicle.boat.AbstractBoat.Status.ON_LAND;
+        double ordinary = forwardThrust(player, conventional, boat, afloat);
+        require(Math.abs(forwardThrust(player, sailing, boat, afloat) / ordinary - 1.15) < 0.0001,
+            "Sailboat receives fifteen percent extra forward thrust on water");
+        require(Math.abs(forwardThrust(player, sailing, boat, ashore) - ordinary) < 0.0001,
+            "Sailboat has ordinary thrust ashore");
+        require(sailing.getPickResult().is(io.github.gabooz.picklecraft.ground.GroundContent.SAILBOAT.get()),
+            "The vanilla boat item recovery path preserves the sailboat item");
+        conventional.discard();
+        var display = player.position().add(net.minecraft.world.phys.Vec3.directionFromRotation(0, player.getYRot()).scale(3));
+        sailing.setInitialPos(display.x, display.y + 0.5, display.z);
+        sailing.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+        require(level.addFreshEntity(sailing), "Sailboat enters the world and syncs to the client");
+    }
+
+    private static double forwardThrust(net.minecraft.server.level.ServerPlayer player,
+            net.minecraft.world.entity.vehicle.boat.AbstractBoat vehicle, Class<?> boatClass,
+            net.minecraft.world.entity.vehicle.boat.AbstractBoat.Status status) {
+        require(player.startRiding(vehicle, true, false), "Mount boat for motion verification");
+        try {
+            var field = boatClass.getDeclaredField("status");
+            var controls = boatClass.getDeclaredMethod("controlBoat");
+            field.setAccessible(true);
+            controls.setAccessible(true);
+            field.set(vehicle, status);
+            vehicle.setInput(false, false, true, false);
+            vehicle.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+            controls.invoke(vehicle);
+            return vehicle.getDeltaMovement().horizontalDistance();
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("Cannot measure vanilla boat motion", failure);
+        } finally {
+            player.stopRiding();
+        }
     }
 
     private static void verifyWorkbench(net.minecraft.server.level.ServerLevel level,

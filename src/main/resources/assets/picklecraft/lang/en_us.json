@@ -41,6 +41,8 @@
   "item.picklecraft.iron_saw": "Iron Saw",
   "item.picklecraft.saw_handle": "Saw Handle",
   "item.picklecraft.saw_blade": "Saw Blade",
+  "item.picklecraft.sailboat": "Oak Sailboat",
+  "entity.picklecraft.sailboat": "Oak Sailboat",
   "item.picklecraft.oar": "Oar",
   "item.picklecraft.glue": "Glue",
   "item.picklecraft.workshop_torch": "Long-burning Torch",

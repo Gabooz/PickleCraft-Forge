@@ -13,7 +13,8 @@
     "MaterialSystemMixin",
     "MaterialRuleContextAccessor",
     "CampfireCookingMixin",
-    "TorchItemMixin"
+    "TorchItemMixin",
+    "SailboatThrustMixin"
   ],
   "client": [
     "NightLightMixin",

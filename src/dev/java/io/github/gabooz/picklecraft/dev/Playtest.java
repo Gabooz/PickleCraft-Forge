@@ -68,9 +68,13 @@ public final class Playtest {
             var tab = io.github.gabooz.picklecraft.ground.GroundContent.TAB.get();
             tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
                 game.level.enabledFeatures(), true, game.level.registryAccess()));
-            require(tab.getDisplayItems().size() == 68, "PickleCraft creative tab contains all sixty-eight entries");
+            require(tab.getDisplayItems().size() == 71, "PickleCraft creative tab contains all seventy-one entries");
             require(tab.contains(io.github.gabooz.picklecraft.ground.GroundContent.SAILBOAT.get().getDefaultInstance()),
                 "Oak sailboat appears in the PickleCraft creative tab");
+            require(tab.contains(io.github.gabooz.picklecraft.ground.GroundContent.TRAIN_ITEM.get().getDefaultInstance())
+                    && tab.contains(io.github.gabooz.picklecraft.ground.GroundContent.RAIL_ITEM.get().getDefaultInstance())
+                    && tab.contains(io.github.gabooz.picklecraft.ground.GroundContent.SLEEPER_ITEM.get().getDefaultInstance()),
+                "Railway pieces and train are available in the PickleCraft creative tab");
             try (var fogRenderer = new net.minecraft.client.renderer.fog.FogRenderer()) {
                 io.github.gabooz.picklecraft.client.ZombieZoneClient.receive(true);
                 var fog = fogRenderer.setupFog(game.gameRenderer.mainCamera(), 8, game.getDeltaTracker(), 0, game.level);
@@ -182,7 +186,7 @@ public final class Playtest {
                     "Map closes after teleporting");
                 com.mojang.logging.LogUtils.getLogger().info("PICKLECRAFT PLAYTEST PASSED");
                 awaitingTeleport = false;
-                if ("item-art".equals(System.getenv("PICKLECRAFT_TEST_FOCUS"))) {
+                if (System.getenv("PICKLECRAFT_TEST_FOCUS") != null) {
                     game.getTutorial().setStep(net.minecraft.client.tutorial.TutorialSteps.NONE);
                     game.gui.toastManager().clear();
                     game.gui.setScreen(new ItemArtReview());
@@ -223,7 +227,7 @@ public final class Playtest {
 
     private static void verifyServer(net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player) {
         verifyHexWorld(level);
-        if (System.getenv("PICKLECRAFT_TEST_FOCUS") == null) verifyZoneMines(level);
+        if (!"item-art".equals(System.getenv("PICKLECRAFT_TEST_FOCUS"))) verifyZoneMines(level);
         verifyZombieRosters(level, player);
         verifyCattle(level, player);
         require(!io.github.gabooz.picklecraft.map.ZoneMapNetwork.teleport(player, 0, 0),
@@ -250,6 +254,7 @@ public final class Playtest {
         verifyGroundCraft(level, player);
         verifyWorkbench(level, player);
         verifyCarpentry(level, player);
+        verifyRailway(level, player);
         verifyWorkshopFire(level, player);
         verifyIgnitionCraft(level, player);
         verifyIronFurnace(level, player);
@@ -345,7 +350,7 @@ public final class Playtest {
         var sampler = level.getChunkSource().randomState().createClimateSampler(
             net.minecraft.world.level.levelgen.densityfunction.SamplerContext.EMPTY_UNCACHED);
         long seed = io.github.gabooz.picklecraft.world.HexRegions.seed(sampler);
-        int[] counts = new int[3];
+        int[] counts = new int[io.github.gabooz.picklecraft.world.ZoneMines.Ore.values().length];
         var examples = new java.util.EnumMap<io.github.gabooz.picklecraft.world.ZoneMines.Ore, BlockPos>(
             io.github.gabooz.picklecraft.world.ZoneMines.Ore.class);
         for (int q = -80; q <= 80; q++) {
@@ -362,8 +367,9 @@ public final class Playtest {
         double frequency = (counts[1] + counts[2]) / (double) (161 * 161);
         double ratio = counts[1] / (double) counts[2];
         require(frequency > 0.32 && frequency < 0.35 && ratio > 4.7 && ratio < 5.3,
-            "One third of zones are mines, with five iron mines for each gold mine");
-        require(examples.size() == 3, "Test world contains both mine types and ore-free zones");
+            "The existing one-third iron or gold share remains, with five iron mines for each gold mine");
+        require(counts[3] > 4000 && counts[3] < 4600, "About one sixth of zones are coal mines");
+        require(examples.size() == 4, "Test world contains all three mine types and ore-free zones");
         var deposit = level.registryAccess().lookupOrThrow(Registries.FEATURE).getOrThrow(
             ResourceKey.create(Registries.FEATURE, Identifier.fromNamespaceAndPath("picklecraft", "mine_ore_iron"))).value();
         for (var entry : examples.entrySet()) {
@@ -382,7 +388,9 @@ public final class Playtest {
                         require(mine != io.github.gabooz.picklecraft.world.ZoneMines.Ore.NONE
                             && (mine == io.github.gabooz.picklecraft.world.ZoneMines.Ore.IRON
                                 ? state.is(Blocks.IRON_ORE) || state.is(Blocks.DEEPSLATE_IRON_ORE)
-                                : state.is(Blocks.GOLD_ORE) || state.is(Blocks.DEEPSLATE_GOLD_ORE)),
+                                : mine == io.github.gabooz.picklecraft.world.ZoneMines.Ore.GOLD
+                                    ? state.is(Blocks.GOLD_ORE) || state.is(Blocks.DEEPSLATE_GOLD_ORE)
+                                    : state.is(Blocks.COAL_ORE) || state.is(Blocks.DEEPSLATE_COAL_ORE)),
                             "A generated zone contains only its selected ore");
                     }
                 }
@@ -402,8 +410,8 @@ public final class Playtest {
                 "Vanilla deposit wrapper respects zone eligibility");
             com.mojang.logging.LogUtils.getLogger().info("MINE SAMPLE type={}, generated_ore_blocks={}", mine, ores);
         }
-        com.mojang.logging.LogUtils.getLogger().info("MINE ZONE COUNTS none={}, iron={}, gold={}",
-            counts[0], counts[1], counts[2]);
+        com.mojang.logging.LogUtils.getLogger().info("MINE ZONE COUNTS none={}, iron={}, gold={}, coal={}",
+            counts[0], counts[1], counts[2], counts[3]);
     }
 
     private static void verifyZombieRosters(net.minecraft.server.level.ServerLevel level,
@@ -959,8 +967,101 @@ public final class Playtest {
         verifySailboatThrust(level, player);
         click.accept(other, net.minecraft.world.item.ItemStack.EMPTY);
         require(stack.items().isEmpty(), "Either half retrieves the product");
+        for (int i = 0; i < 3; i++) click.accept(pos, net.minecraft.world.item.Items.IRON_INGOT.getDefaultInstance());
+        for (int i = 0; i < 2; i++) click.accept(other, net.minecraft.world.item.Items.OAK_PLANKS.getDefaultInstance());
+        click.accept(other, hammer);
+        require(stack.items().size() == 1
+                && stack.items().getFirst().is(io.github.gabooz.picklecraft.ground.GroundContent.TRAIN_ITEM.get()),
+            "Hammering three ingots and two planks assembles the locomotive and tender");
         level.destroyBlock(other, true);
         require(level.isEmptyBlock(pos), "Breaking the far half removes the entire table");
+    }
+
+    private static void verifyRailway(net.minecraft.server.level.ServerLevel level,
+            net.minecraft.server.level.ServerPlayer player) {
+        var rail = io.github.gabooz.picklecraft.ground.GroundContent.RAIL.get();
+        var sleeper = io.github.gabooz.picklecraft.ground.GroundContent.SLEEPER_ITEM.get();
+        var kit = io.github.gabooz.picklecraft.ground.GroundContent.TRAIN_ITEM.get();
+        var hand = net.minecraft.world.InteractionHand.MAIN_HAND;
+        var off = net.minecraft.world.InteractionHand.OFF_HAND;
+        var previousOff = player.getItemInHand(off);
+        var start = player.blockPosition().above(12);
+        var hammer = io.github.gabooz.picklecraft.ground.GroundContent.IRON_HAMMER.get().getDefaultInstance();
+        player.setShiftKeyDown(false);
+        player.setItemInHand(hand, hammer);
+        player.setItemInHand(off, new net.minecraft.world.item.ItemStack(sleeper, 25));
+        var axis = net.minecraft.core.Direction.Axis.Z;
+        for (int z = -9; z <= 15; z++) {
+            var section = start.offset(0, 0, z);
+            level.setBlockAndUpdate(section, Blocks.AIR.defaultBlockState());
+            for (int x = -1; x <= 1; x++) {
+                for (int y = 1; y <= 3; y++) {
+                    level.setBlockAndUpdate(section.offset(x, y, 0), Blocks.AIR.defaultBlockState());
+                }
+                level.setBlockAndUpdate(section.offset(x, -1, 0), Blocks.STONE.defaultBlockState());
+                if (x != 0) level.setBlockAndUpdate(section.offset(x, 0, 0), rail.defaultBlockState());
+            }
+            var hitPos = section.west();
+            var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(hitPos),
+                net.minecraft.core.Direction.UP, hitPos, false);
+            var event = new net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock(player, hand, hitPos, hit);
+            var handled = io.github.gabooz.picklecraft.ground.GroundInteractions.use(event);
+            require(handled && io.github.gabooz.picklecraft.ground.RailwayBlock.finished(level, section, axis),
+                "Hammer finishes section " + section + ", got " + level.getBlockState(section)
+                    + " with rails " + level.getBlockState(section.west()) + " and " + level.getBlockState(section.east())
+                    + ", handled=" + handled + ", sleepers=" + player.getItemInHand(off));
+        }
+        require(player.getItemInHand(off).isEmpty(), "Fastening uses one sleeper per section");
+        player.setItemInHand(off, previousOff);
+
+        var facing = player.getYRot();
+        player.setYRot(0);
+        var target = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(start),
+            net.minecraft.core.Direction.UP, start, false);
+        player.setItemInHand(hand, kit.getDefaultInstance());
+        require(kit.useOn(new net.minecraft.world.item.context.UseOnContext(player, hand, target)).consumesAction(),
+            "Train item assembles the engine and tender on fourteen clear railway sections");
+        player.setYRot(facing);
+        var train = level.getEntitiesOfClass(io.github.gabooz.picklecraft.ground.SteamTrain.class,
+            new net.minecraft.world.phys.AABB(start).inflate(15)).getFirst();
+        require(train.getBoundingBox().getZsize() > 13.9 && train.getBoundingBox().getXsize() < 3,
+            "Train footprint includes the coupled tender and fits a three-block corridor");
+
+        var coal = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.COAL, 4);
+        player.setItemInHand(hand, coal);
+        player.setShiftKeyDown(true);
+        train.interact(player, hand, new net.minecraft.world.phys.Vec3(0, 1, -6));
+        require(coal.isEmpty(), "Tender accepts coal from the player's hand");
+        player.setItemInHand(hand, net.minecraft.world.item.ItemStack.EMPTY);
+        train.interact(player, hand, new net.minecraft.world.phys.Vec3(-1, 1, -3));
+        train.interact(player, hand, new net.minecraft.world.phys.Vec3(1, 1, -3));
+        player.setShiftKeyDown(false);
+        double before = train.getZ();
+        for (int i = 0; i < 10; i++) train.tick();
+        require(train.getZ() > before + 1.5, "A fueled train travels forward on assembled rail");
+        require(train.coal() == 1, "Firing the boiler costs exactly three pieces of coal");
+        try {
+            var elapsed = train.getClass().getDeclaredField("fuelTicks");
+            elapsed.setAccessible(true);
+            elapsed.setInt(train, 1);
+            train.tick();
+            require(train.coal() == 1, "The first fuel interval finishes before more coal is spent");
+            train.tick();
+            require(train.coal() == 0
+                    && elapsed.getInt(train) == io.github.gabooz.picklecraft.ground.SteamTrain.FUEL_INTERVAL - 1,
+                "One piece of coal buys another five minutes of moving time");
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("Cannot inspect the railway fuel interval", failure);
+        }
+        var weak = start.offset(-1, -1, 10);
+        level.setBlockAndUpdate(weak, Blocks.SAND.defaultBlockState());
+        for (int i = 0; i < 30; i++) train.tick();
+        require(level.isEmptyBlock(weak) && !io.github.gabooz.picklecraft.ground.RailwayBlock.finished(level, weak.east().above(), axis),
+            "Loose support breaks and the rail falls under train load");
+        var after = train.getZ();
+        train.tick();
+        require(train.getZ() == after, "Train brakes when the route gives way");
+        train.discard();
     }
 
     private static void verifySailboatThrust(net.minecraft.server.level.ServerLevel level,

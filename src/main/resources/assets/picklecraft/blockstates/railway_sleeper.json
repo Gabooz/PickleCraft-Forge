@@ -1,0 +1,18 @@
+{
+  "variants": {
+    "axis=x,tied=false": {
+      "model": "picklecraft:block/railway_sleeper",
+      "y": 90
+    },
+    "axis=x,tied=true": {
+      "model": "picklecraft:block/railway_sleeper_tied",
+      "y": 90
+    },
+    "axis=z,tied=false": {
+      "model": "picklecraft:block/railway_sleeper"
+    },
+    "axis=z,tied=true": {
+      "model": "picklecraft:block/railway_sleeper_tied"
+    }
+  }
+}

@@ -55,3 +55,34 @@ Status: Completed. Build and integrated playtest passed, including campfire asse
 Status: Completed. The integrated playtest verified carpenter's table assembly, entity spawning, recovery as a sailboat, fifteen percent more forward thrust on water, the creative tab and the Creative Zone Map. The item model was reviewed beside the oak boat.
 
 > Sailboats. Make a boat with an added sail to it, and make it go a little faster than an ordinary boat.
+
+
+## Three-wide railway and steam locomotive
+
+Status: In progress. The milestone passed the Forge build and integrated playtest. It covers the three-block railway, locomotive and tender, controls, three-coal startup, five-minute moving fuel intervals, support collapse, coal generation, the creative tab and the Creative Zone Map. Routes are straight and level, and the build uses the existing workbench and carpenter’s table. The remaining fuel alternatives need the design of a villager hiring and mining system and a magic heat source. Neither system exists in the mod yet. The documentary line is a personal research note.
+
+> The Train
+
+> 3 blocks tall and wide, and 10 blocks long. The Coal cart is 4 blocks long. The train has 4 sets of big wheels and 1 set of small wheels at the front. It has a bell and a smock stack. It has a large locomotive lamp on the top of the front. The carriage has 2 levers, a throttle lever, and a brake lever. Inside the carriage is also the furnace and a chute from the coal cart. To get the locomotive to full steam, it takes 3 coal, then 1 coal per 5 minutes of the train going. Now the thing is that it's not super fun to have to use coal every time you use a train tbh, but there are easy ways to get coal. If you have access to a coal mine, it's everywhere, you can hire villagers to mine for you, and there are other ways to make it work out, for instance you can use magic to heat up the water instead actually.
+
+> The Tracks
+
+> The tracks are three blocks wide. The player must assemble them by placing down rails and sleepers and hammering in the ties (not actually laborious you just gotta have the hammer in one hand and the sleepers in the other). The rails are placed as blocks, and you can change their orientation with the hammer. Placed rails will copy the orientation of the rail they're placed next to. The same with the sleepers. A rail or sleeper placed on sand or other unsteady ground will break the block and drop like an anvil if a train passes over it.
+
+> The Assembly
+
+> Gee I'm gonna have to watch a train documentary for this.
+
+> So... actually I slept on the idea and I realized I needed to scale it down a bit. And this is important for the next lesson, which is, that since we are not perfect, and we are relying on a concept of perfection that exists outside of ourselves, we should never rely on our own work as the standard, instead we should allow change in the pursuit of this perfection.
+
+> Now what I realized was that I hadn't implemented the idea of trains with the rest of the game in mind.
+
+> In fact it goes far deeper than that, I totally forgot to think what trains are supposed to even do!! That's how mixed up you can get.
+
+> So what is the train supposed to do in the world?
+
+> It's a fast and easy way to get from one set place to another.
+
+> So if it's a fast and easy way, then I can't make the construction of the tracks and train too cumbersome.
+
+> I think I should make the train and tracks 3 blocks wide instead of 5. The coal use still makes sense, in my head, long distance travel should be a big consideration in this mod. But I have to ensure that using the train has advantages over other forms of transport, because the train is still expensive, takes preparation and thought, costs something to use, and is set to wherever the tracks go. So that must be a large consideration.

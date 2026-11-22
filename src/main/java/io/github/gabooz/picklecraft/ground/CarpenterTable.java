@@ -131,6 +131,15 @@ public final class CarpenterTable extends BaseEntityBlock {
             }
             return InteractionResult.SUCCESS;
         }
+        if (GroundContent.isHammer(held) && ingredients.size() == 5
+                && ingredients.stream().filter(item -> item.is(Items.IRON_INGOT)).count() == 3
+                && ingredients.stream().filter(item -> item.is(ItemTags.PLANKS)).count() == 2) {
+            if (!level.isClientSide()) {
+                stack.replaceWith(GroundContent.TRAIN_ITEM.get().getDefaultInstance());
+                held.hurtAndBreak(1, player, event.getHand());
+            }
+            return InteractionResult.SUCCESS;
+        }
         if (held.is(saw) || ingredients.size() >= CAPACITY || !ingredient(held)) return InteractionResult.FAIL;
         if (!level.isClientSide()) {
             stack.add(held);
@@ -145,7 +154,8 @@ public final class CarpenterTable extends BaseEntityBlock {
     private static boolean adhesive(ItemStack item) { return item.is(Items.SLIME_BALL) || item.is(GroundContent.GLUE.get()); }
     private static boolean ingredient(ItemStack item) {
         return isWoodSlab(item) || adhesive(item) || item.is(Items.STICK) || item.is(GroundContent.OAR.get())
-            || item.is(Items.OAK_BOAT) || item.is(Items.WOOL.white());
+            || item.is(Items.OAK_BOAT) || item.is(Items.WOOL.white())
+            || item.is(Items.IRON_INGOT) || item.is(ItemTags.PLANKS);
     }
     private static boolean sailboatReady(List<ItemStack> items) {
         return items.size() == 3 && items.stream().anyMatch(item -> item.is(Items.OAK_BOAT))

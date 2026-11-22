@@ -136,6 +136,12 @@ public final class WorkbenchBlock extends BaseEntityBlock {
     }
 
     private static ItemStack transform(ItemStack input, ItemStack tool) {
+        if (GroundContent.isHammer(tool) && input.is(Items.IRON_INGOT)) {
+            return new ItemStack(GroundContent.RAIL_ITEM.get(), 16);
+        }
+        if (GroundContent.isHammer(tool) && input.is(ItemTags.PLANKS)) {
+            return new ItemStack(GroundContent.SLEEPER_ITEM.get(), 8);
+        }
         if (tool.is(GroundContent.SAW.get()) && input.is(ItemTags.PLANKS)) {
             var plank = BuiltInRegistries.ITEM.getKey(input.getItem());
             return BuiltInRegistries.ITEM.getOptional(plank.withPath(plank.getPath().replace("_planks", "_slab")))

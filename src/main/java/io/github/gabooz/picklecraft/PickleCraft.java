@@ -30,6 +30,7 @@ public final class PickleCraft {
         OverworldFeatures.SERIALIZERS.register(modBus);
         GroundContent.register(modBus);
         io.github.gabooz.picklecraft.ground.Sailboat.register(modBus);
+        io.github.gabooz.picklecraft.ground.SteamTrain.register(modBus);
         io.github.gabooz.picklecraft.farming.FarmingContent.register(modBus);
         io.github.gabooz.picklecraft.seasons.Seasons.register();
         io.github.gabooz.picklecraft.cattle.CattleContent.register(modBus);
@@ -50,6 +51,7 @@ public final class PickleCraft {
                 InventoryScreens.register();
                 event.enqueueWork(io.github.gabooz.picklecraft.client.CattleRenderers::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.SailboatRenderer::register);
+                event.enqueueWork(io.github.gabooz.picklecraft.client.SteamTrainRenderer::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.ZombieZoneClient::register);
                 event.enqueueWork(GroundStackRenderer::register);
                 event.enqueueWork(io.github.gabooz.picklecraft.client.StockpileRenderer::register);

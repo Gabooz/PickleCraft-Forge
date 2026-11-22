@@ -15,6 +15,11 @@ public final class GroundInteractions {
         var level = event.getLevel();
         var pos = event.getPos();
         var held = event.getItemStack();
+        var railway = RailwayBlock.interact(event);
+        if (railway != InteractionResult.PASS) {
+            event.setCancellationResult(railway);
+            return true;
+        }
         InteractionResult result = StockpileBlock.interact(event);
         if (result != InteractionResult.PASS) {
             event.setCancellationResult(result);

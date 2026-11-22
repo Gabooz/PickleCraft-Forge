@@ -70,6 +70,18 @@ public final class GroundContent {
     public static final RegistryObject<Item> GLUE = workshopItem("glue");
     public static final RegistryObject<BoatItem> SAILBOAT = ITEMS.register("sailboat", () ->
         new BoatItem(Sailboat.TYPE.get(), new Item.Properties().setId(ITEMS.key("sailboat")).stacksTo(1)));
+    public static final RegistryObject<RailwayBlock> RAIL = BLOCKS.register("railway_rail", () ->
+        new RailwayBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("railway_rail"))
+            .strength(0.6F).noCollision().noOcclusion().sound(SoundType.METAL), false));
+    public static final RegistryObject<RailwayBlock> SLEEPER = BLOCKS.register("railway_sleeper", () ->
+        new RailwayBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("railway_sleeper"))
+            .strength(0.4F).noCollision().noOcclusion().sound(SoundType.WOOD), true));
+    public static final RegistryObject<BlockItem> RAIL_ITEM = ITEMS.register("railway_rail", () ->
+        new BlockItem(RAIL.get(), new Item.Properties().setId(ITEMS.key("railway_rail")).useBlockDescriptionPrefix()));
+    public static final RegistryObject<BlockItem> SLEEPER_ITEM = ITEMS.register("railway_sleeper", () ->
+        new BlockItem(SLEEPER.get(), new Item.Properties().setId(ITEMS.key("railway_sleeper")).useBlockDescriptionPrefix()));
+    public static final RegistryObject<Item> TRAIN_ITEM = ITEMS.register("steam_train", () ->
+        new SteamTrainItem(new Item.Properties().setId(ITEMS.key("steam_train")).stacksTo(1)));
 
     private static RegistryObject<Item> workshopItem(String name) {
         return ITEMS.register(name, () -> new Item(new Item.Properties().setId(ITEMS.key(name))));
@@ -163,6 +175,9 @@ public final class GroundContent {
                 output.accept(Items.OAK_SLAB);
                 output.accept(Items.OAK_BOAT);
                 output.accept(SAILBOAT.get());
+                output.accept(RAIL_ITEM.get());
+                output.accept(SLEEPER_ITEM.get());
+                output.accept(TRAIN_ITEM.get());
                 output.accept(Items.WHEAT_SEEDS);
                 output.accept(Items.WHEAT);
                 output.accept(Items.FARMLAND);

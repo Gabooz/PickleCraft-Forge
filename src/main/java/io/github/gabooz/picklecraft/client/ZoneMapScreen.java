@@ -43,6 +43,10 @@ public final class ZoneMapScreen extends Screen {
             .bounds(width - helpWidth - 12, height - 34, helpWidth, 14)
             .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(
                 "Sneak-stack four logs for a campfire. Stack two sticks and right-click for a fire starter. Hammer flint and an iron ingot on an anvil for flint and steel. Food cooks in five minutes. Torches last 40 game days and can be relit when dry. Combine an oak boat, white wool, and a stick on a carpenter's table for a sailboat."))).build());
+        addRenderableWidget(net.minecraft.client.gui.components.Button.builder(Component.literal("Railway tips"), button -> {})
+            .bounds(width - 2 * helpWidth - 16, height - 34, helpWidth, 14)
+            .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(
+                "Hammer iron or planks on a workbench for rails or sleepers. Set two parallel rails with one block between them. Hold sleepers in your other hand and hammer a rail to tie the section. Sneak-hammer to rotate. Hammer three iron ingots and two planks on the carpenter's table for a locomotive and tender. Place it on fourteen clear tied sections. Feed coal into the tender, then board. Forward and back set the throttle, and jump toggles the brake. Co marks coal mines. Z marks zombies, and C marks cow herds."))).build());
         String[] times = {"Dawn", "Noon", "Dusk", "Midnight"};
         int[] phases = {0, 6000, 12000, 18000};
         var seasons = io.github.gabooz.picklecraft.seasons.Seasons.Season.values();
@@ -113,7 +117,7 @@ public final class ZoneMapScreen extends Screen {
         graphics.text(font, "Grasslands", 12, footer, GRASS);
         graphics.text(font, "Oak forest", 81, footer, 0xff88ba88);
         graphics.text(font, "Mountains", 151, footer, MOUNTAIN);
-        graphics.text(font, "Fe iron   Au gold   Z zombies   C cows", 224, footer, 0xffe4d7ae);
+        graphics.text(font, "Fe iron  Au gold  Co coal  Z/C", 224, footer, 0xffe4d7ae);
         graphics.text(font, "I islands   A archipelago   Sand beaches", 12, height - 29, 0xff92c8ee);
         graphics.text(font, "Drag pan   Wheel zoom   Right-click teleport   R center   F follow", 12, height - 19, 0xffb7c0b3);
         graphics.text(font, String.format(java.util.Locale.ROOT, "X %.0f  Z %.0f", centerX, centerZ), 180, 12, 0xffb7c0b3);
@@ -188,11 +192,12 @@ public final class ZoneMapScreen extends Screen {
                     case NONE -> "";
                     case IRON -> "Fe";
                     case GOLD -> "Au";
+                    case COAL -> "Co";
                 };
                 if (ZombieZones.assigned(region)) marker += marker.isEmpty() ? "Z" : "  Z";
                 if (io.github.gabooz.picklecraft.cattle.CattleHerds.assigned(region)) marker += marker.isEmpty() ? "C" : "  C";
-                if (region.kind() == HexRegions.Kind.ISLANDS) marker = "I";
-                if (region.kind() == HexRegions.Kind.ARCHIPELAGO) marker = "A";
+                if (region.kind() == HexRegions.Kind.ISLANDS) marker = marker.isEmpty() ? "I" : "I  " + marker;
+                if (region.kind() == HexRegions.Kind.ARCHIPELAGO) marker = marker.isEmpty() ? "A" : "A  " + marker;
                 if (!marker.isEmpty()) {
                     int textWidth = font.width(marker);
                     graphics.fill((int) cx - textWidth / 2 - 3, (int) cy - 6,
@@ -247,6 +252,7 @@ public final class ZoneMapScreen extends Screen {
             case NONE -> "No mine";
             case IRON -> "Iron mine";
             case GOLD -> "Gold mine";
+            case COAL -> "Coal mine";
         };
     }
 

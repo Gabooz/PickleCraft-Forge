@@ -36,8 +36,8 @@
   "block.picklecraft.wheat": "Wheat",
   "biome.picklecraft.highlands": "Highlands",
   "item.picklecraft.wooden_hammer": "Wooden Hammer",
-  "item.picklecraft.carpenter_table": "Carpenter\u2019s Table",
-  "block.picklecraft.carpenter_table": "Carpenter\u2019s Table",
+  "item.picklecraft.carpenter_table": "Carpenter’s Table",
+  "block.picklecraft.carpenter_table": "Carpenter’s Table",
   "item.picklecraft.iron_saw": "Iron Saw",
   "item.picklecraft.saw_handle": "Saw Handle",
   "item.picklecraft.saw_blade": "Saw Blade",
@@ -48,5 +48,16 @@
   "item.picklecraft.workshop_torch": "Long-burning Torch",
   "item.picklecraft.unlit_torch": "Unlit Torch",
   "block.picklecraft.workshop_torch": "Torch",
-  "item.picklecraft.fire_starter": "Fire Starter"
+  "item.picklecraft.fire_starter": "Fire Starter",
+  "block.picklecraft.railway_rail": "Railway Rail",
+  "block.picklecraft.railway_sleeper": "Railway Sleeper",
+  "item.picklecraft.steam_train": "Steam Locomotive and Tender",
+  "entity.picklecraft.steam_train": "Steam Locomotive",
+  "message.picklecraft.train_coal": "Tender fuel: %s / %s",
+  "message.picklecraft.train_forward": "Throttle forward",
+  "message.picklecraft.train_reverse": "Throttle reverse",
+  "message.picklecraft.train_neutral": "Throttle neutral",
+  "message.picklecraft.train_brake": "Train brake applied",
+  "message.picklecraft.train_ready": "Train brake released",
+  "message.picklecraft.train_track": "The locomotive and tender need fourteen clear, fastened railway sections."
 }
